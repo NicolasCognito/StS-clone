@@ -59,6 +59,16 @@ function DealDamage.execute(world, event)
         damage = math.floor(damage * vulnerableMultiplier)
     end
 
+    -- Apply The Boot: If unblocked damage is 4 or less, increase it to 5
+    if damage <= 4 and attacker.relics then
+        for _, relic in ipairs(attacker.relics) do
+            if relic.id == "The_Boot" then
+                damage = 5
+                break
+            end
+        end
+    end
+
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block
