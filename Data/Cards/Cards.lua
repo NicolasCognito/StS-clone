@@ -11,6 +11,7 @@ local Cards = {
         cost = 1,
         type = "ATTACK",
         damage = 6,
+        Targeted = 1,
         description = "Deal 6 damage.",
 
         onPlay = function(self, world, player, target)
@@ -34,6 +35,7 @@ local Cards = {
         cost = 1,
         type = "SKILL",
         block = 5,
+        Targeted = 0,
         description = "Gain 5 block.",
 
         onPlay = function(self, world, player, target)
@@ -56,6 +58,7 @@ local Cards = {
         cost = 1,
         type = "ATTACK",
         damage = 8,
+        Targeted = 1,
         description = "Deal 8 damage.",
 
         onPlay = function(self, world, player, target)
@@ -80,6 +83,7 @@ local Cards = {
         type = "ATTACK",
         damage = 14,
         strengthMultiplier = 3,
+        Targeted = 1,
         description = "Deal 14 damage. Strength affects this card 3 times.",
 
         onPlay = function(self, world, player, target)
