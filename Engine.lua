@@ -6,6 +6,7 @@ local PlayCard = require("Pipelines.PlayCard")
 local EndTurn = require("Pipelines.EndTurn")
 local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
 local DrawCard = require("Pipelines.DrawCard")
+local GetCost = require("Pipelines.GetCost")
 
 local Engine = {}
 
@@ -112,8 +113,9 @@ function Engine.displayGameState(world)
         print("  (empty)")
     else
         for i, card in ipairs(world.player.hand) do
+            local cardCost = GetCost.execute(world, world.player, card)
             local targetInfo = card.Targeted == 1 and " [TARGETED]" or ""
-            print("  [" .. i .. "] " .. card.name .. " (Cost: " .. card.cost .. ")" .. targetInfo .. " - " .. card.description)
+            print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ")" .. targetInfo .. " - " .. card.description)
         end
     end
     print(string.rep("=", 60))

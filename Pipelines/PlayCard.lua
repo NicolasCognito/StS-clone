@@ -15,10 +15,14 @@
 local PlayCard = {}
 
 local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
+local GetCost = require("Pipelines.GetCost")
 
 function PlayCard.execute(world, player, card, target)
+    -- Get the current cost of the card (allows for dynamic cost calculation)
+    local cardCost = GetCost.execute(world, player, card)
+
     -- Check if player has enough energy
-    if player.energy < card.cost then
+    if player.energy < cardCost then
         table.insert(world.log, "Not enough energy to play " .. card.name)
         return false
     end
@@ -30,8 +34,8 @@ function PlayCard.execute(world, player, card, target)
     end
 
     -- Pay energy cost
-    player.energy = player.energy - card.cost
-    table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. card.cost .. ")")
+    player.energy = player.energy - cardCost
+    table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
 
     -- Call card's onPlay function to push events to queue
     if card.onPlay then
