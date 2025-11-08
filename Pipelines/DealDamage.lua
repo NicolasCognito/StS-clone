@@ -29,9 +29,21 @@ function DealDamage.execute(world, event)
         damage = damage + (attacker.strength * card.strengthMultiplier)
     end
 
-    -- Apply Vulnerable: 50% more damage (rounded down)
+    -- Apply Vulnerable: 50% more damage (75% with Paper Phrog, rounded down)
     if defender.status and defender.status.vulnerable and defender.status.vulnerable > 0 then
-        damage = math.floor(damage * 1.5)
+        local vulnerableMultiplier = 1.5  -- default 50%
+
+        -- Check if attacker has Paper Phrog relic
+        if attacker.relics then
+            for _, relic in ipairs(attacker.relics) do
+                if relic.id == "Paper_Phrog" then
+                    vulnerableMultiplier = 1.75  -- Paper Phrog: 75%
+                    break
+                end
+            end
+        end
+
+        damage = math.floor(damage * vulnerableMultiplier)
     end
 
     -- Apply block absorption

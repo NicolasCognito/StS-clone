@@ -94,6 +94,15 @@ function Engine.displayGameState(world)
     end
     print("PLAYER: " .. world.player.id .. " | HP: " .. world.player.hp .. "/" .. world.player.maxHp .. " | Energy: " .. world.player.energy .. "/" .. world.player.maxEnergy .. playerStatus)
 
+    -- Display relics
+    if world.player.relics and #world.player.relics > 0 then
+        local relicNames = {}
+        for _, relic in ipairs(world.player.relics) do
+            table.insert(relicNames, relic.name)
+        end
+        print("RELICS: " .. table.concat(relicNames, ", "))
+    end
+
     print(string.rep("-", 60))
     print("HAND:")
     if #world.player.hand == 0 then

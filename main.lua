@@ -4,6 +4,7 @@
 local Engine = require("Engine")
 local Cards = require("Data.Cards.Cards")
 local Enemies = require("Data.Enemies.Enemies")
+local Relics = require("Data.Relics.Relics")
 
 -- Helper function to copy a card (for deck building)
 local function copyCard(cardTemplate)
@@ -38,7 +39,7 @@ end
 local playerData = {
     id = "IronClad",
     hp = 80,
-    relics = {}
+    relics = {Relics.PaperPhrog}
 }
 
 -- Initialize enemy (copy the Goblin template)
