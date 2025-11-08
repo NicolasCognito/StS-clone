@@ -4,6 +4,8 @@
 -- - onPlay: pushes event to queue when card is played
 -- - onUpgrade: modifies card parameters for upgraded versions
 
+local Powers = require("Data.Powers.Powers")
+
 local Cards = {
     Strike = {
         id = "Strike",
@@ -218,6 +220,29 @@ local Cards = {
         onUpgrade = function(self)
             self.cost = 0
             self.description = "Add a random Attack to your hand. It costs 0 this turn."
+        end
+    },
+
+    Corruption = {
+        id = "Corruption",
+        name = "Corruption",
+        cost = 3,
+        type = "POWER",
+        Targeted = 0,
+        description = "Skills cost 0. Whenever you play a Skill, Exhaust it.",
+
+        onPlay = function(self, world, player, target)
+            -- Apply Corruption power
+            world.queue:push({
+                type = "ON_APPLY_POWER",
+                target = player,
+                powerTemplate = Powers.Corruption
+            })
+        end,
+
+        onUpgrade = function(self)
+            self.cost = 2
+            self.description = "Skills cost 0. Whenever you play a Skill, Exhaust it."
         end
     }
 }
