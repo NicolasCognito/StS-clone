@@ -45,14 +45,8 @@ function PlayCard.execute(world, player, card, target)
     -- Process all events from the queue
     ProcessEffectQueue.execute(world)
 
-    -- Remove card from hand and add to discard
-    for i, handCard in ipairs(player.hand) do
-        if handCard == card then
-            table.remove(player.hand, i)
-            break
-        end
-    end
-    table.insert(player.discard, card)
+    -- Move card from hand to discard (change state)
+    card.state = "DISCARD_PILE"
 
     return true
 end

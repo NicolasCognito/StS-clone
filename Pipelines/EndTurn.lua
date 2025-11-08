@@ -36,18 +36,19 @@ function EndTurn.execute(world, player)
         end
     end
 
-    -- Clear costsZeroThisTurn from all cards in hand (end of turn cleanup)
-    for _, card in ipairs(player.hand) do
+    -- Clear costsZeroThisTurn from ALL cards (not just hand)
+    for _, card in ipairs(player.cards) do
         if card.costsZeroThisTurn then
             card.costsZeroThisTurn = nil
         end
     end
 
-    -- Discard remaining hand
-    for _, card in ipairs(player.hand) do
-        table.insert(player.discard, card)
+    -- Discard remaining hand (change state from HAND to DISCARD_PILE)
+    for _, card in ipairs(player.cards) do
+        if card.state == "HAND" then
+            card.state = "DISCARD_PILE"
+        end
     end
-    player.hand = {}
 
     -- Reset energy for next turn
     player.energy = player.maxEnergy

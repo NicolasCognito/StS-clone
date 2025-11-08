@@ -12,39 +12,42 @@ local function copyCard(cardTemplate)
     for k, v in pairs(cardTemplate) do
         copy[k] = v
     end
+    -- Initialize state to DECK
+    copy.state = "DECK"
     return copy
 end
 
 -- Build a starting deck (5 Strikes, 4 Defends, 1 Bash)
+-- Returns an array of cards with state = "DECK"
 local function buildStartingDeck()
-    local deck = {}
+    local cards = {}
 
     -- Add 5 Strikes
     for i = 1, 5 do
-        table.insert(deck, copyCard(Cards.Strike))
+        table.insert(cards, copyCard(Cards.Strike))
     end
 
     -- Add 4 Defends
     for i = 1, 4 do
-        table.insert(deck, copyCard(Cards.Defend))
+        table.insert(cards, copyCard(Cards.Defend))
     end
 
     -- Add 1 Bash
-    table.insert(deck, copyCard(Cards.Bash))
+    table.insert(cards, copyCard(Cards.Bash))
 
     -- Add 1 Flame Barrier (for testing Thorns)
-    table.insert(deck, copyCard(Cards.FlameBarrier))
+    table.insert(cards, copyCard(Cards.FlameBarrier))
 
     -- Add 1 Bloodletting (for testing HP loss with ignoreBlock)
-    table.insert(deck, copyCard(Cards.Bloodletting))
+    table.insert(cards, copyCard(Cards.Bloodletting))
 
     -- Add 1 Blood for Blood (for testing dynamic cost reduction)
-    table.insert(deck, copyCard(Cards.BloodForBlood))
+    table.insert(cards, copyCard(Cards.BloodForBlood))
 
     -- Add 1 Infernal Blade (for testing costsZeroThisTurn)
-    table.insert(deck, copyCard(Cards.InfernalBlade))
+    table.insert(cards, copyCard(Cards.InfernalBlade))
 
-    return deck
+    return cards
 end
 
 -- Initialize player data
@@ -60,8 +63,8 @@ local enemyData = copyCard(Enemies.Goblin)
 -- Create game state
 local world = Engine.createGameState(playerData, enemyData)
 
--- Set up player's deck
-world.player.deck = buildStartingDeck()
+-- Set up player's cards (all start in DECK state)
+world.player.cards = buildStartingDeck()
 
 -- Apply relic combat-start effects
 -- Check if player has Snecko Eye and apply Confused

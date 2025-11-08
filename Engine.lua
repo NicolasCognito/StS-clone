@@ -14,12 +14,17 @@ local Engine = {}
 -- GAME STATE INITIALIZATION
 -- ============================================================================
 -- The 'world' object passed to all pipelines contains:
--- - player: player character with hp, maxHp, block, energy, deck, hand, discard
+-- - player: player character with hp, maxHp, block, energy, cards (single table)
 -- - enemy: current enemy with hp, maxHp, intents
 -- - combat: combat-wide state (timesHpLost, etc.)
 -- - queue: event queue for all actions
 -- - log: combat log for debugging/display
 -- - relics: player's relics list
+--
+-- Cards architecture:
+-- - All cards are stored in player.cards[] (single source of truth)
+-- - Each card has a 'state' property: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
+-- - Use helper functions to get cards by state
 
 function Engine.createGameState(playerData, enemyData)
     return {
@@ -33,9 +38,7 @@ function Engine.createGameState(playerData, enemyData)
             energy = 3,
             maxEnergy = 3,
 
-            deck = {},  -- all cards in deck
-            hand = {},  -- cards in current hand
-            discard = {},  -- discarded cards
+            cards = {},  -- All cards with state property (DECK, HAND, DISCARD_PILE, EXHAUSTED_PILE)
 
             relics = playerData.relics or {},
         },
@@ -68,6 +71,32 @@ end
 
 function Engine.addLogEntry(world, message)
     table.insert(world.log, message)
+end
+
+-- ============================================================================
+-- CARD STATE HELPER FUNCTIONS
+-- ============================================================================
+
+-- Get all cards in a specific state
+function Engine.getCardsByState(player, state)
+    local cards = {}
+    for _, card in ipairs(player.cards) do
+        if card.state == state then
+            table.insert(cards, card)
+        end
+    end
+    return cards
+end
+
+-- Get count of cards in a specific state
+function Engine.getCardCountByState(player, state)
+    local count = 0
+    for _, card in ipairs(player.cards) do
+        if card.state == state then
+            count = count + 1
+        end
+    end
+    return count
 end
 
 -- ============================================================================
@@ -119,10 +148,11 @@ function Engine.displayGameState(world)
 
     print(string.rep("-", 60))
     print("HAND:")
-    if #world.player.hand == 0 then
+    local hand = Engine.getCardsByState(world.player, "HAND")
+    if #hand == 0 then
         print("  (empty)")
     else
-        for i, card in ipairs(world.player.hand) do
+        for i, card in ipairs(hand) do
             local cardCost = GetCost.execute(world, world.player, card)
             local targetInfo = card.Targeted == 1 and " [TARGETED]" or ""
             print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ")" .. targetInfo .. " - " .. card.description)
@@ -195,8 +225,9 @@ function Engine.playGame(world)
 
             if command == "play" then
                 local cardIndex = tonumber(arg)
-                if cardIndex and cardIndex >= 1 and cardIndex <= #world.player.hand then
-                    local card = world.player.hand[cardIndex]
+                local hand = Engine.getCardsByState(world.player, "HAND")
+                if cardIndex and cardIndex >= 1 and cardIndex <= #hand then
+                    local card = hand[cardIndex]
 
                     -- Check if card requires targeting
                     if card.Targeted == 1 then

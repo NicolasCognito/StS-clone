@@ -206,15 +206,13 @@ local Cards = {
         description = "Add a random Attack to your hand. It costs 0 this turn.",
 
         onPlay = function(self, world, player, target)
-            -- For testing, just add a Strike (in real version would be random)
-            local newCard = {}
-            for k, v in pairs(Cards.Strike) do
-                newCard[k] = v
-            end
-            -- Mark it as costing 0 this turn
-            newCard.costsZeroThisTurn = 1
-            table.insert(player.hand, newCard)
-            table.insert(world.log, "Added Strike to hand (costs 0 this turn)")
+            -- Use AcquireCard pipeline with costsZeroThisTurn tag
+            world.queue:push({
+                type = "ON_ACQUIRE_CARD",
+                player = player,
+                cardTemplate = Cards.Strike,  -- For testing, just add Strike (would be random in real version)
+                tags = {"costsZeroThisTurn"}
+            })
         end,
 
         onUpgrade = function(self)
