@@ -5,21 +5,34 @@
 -- - attacker: character dealing damage
 -- - defender: character taking damage
 -- - card: the card/source with damage value and scaling flags
+-- - tags: optional array of tags (e.g., ["ignoreBlock"])
 --
 -- Handles:
 -- - Base damage from card.damage
 -- - Attacker's Strength multiplier (when added)
 -- - Defender's Vulnerable/Weak modifiers (when added)
--- - Block absorption
+-- - Block absorption (unless "ignoreBlock" tag is present)
 -- - HP reduction
 -- - Combat logging
 
 local DealDamage = {}
 
+-- Helper function to check if a tag exists in the tags array
+local function hasTag(tags, tagName)
+    if not tags then return false end
+    for _, tag in ipairs(tags) do
+        if tag == tagName then
+            return true
+        end
+    end
+    return false
+end
+
 function DealDamage.execute(world, event)
     local attacker = event.attacker
     local defender = event.defender
     local card = event.card
+    local tags = event.tags or {}
 
     -- Start with base damage
     local damage = card.damage or 0
@@ -46,10 +59,15 @@ function DealDamage.execute(world, event)
         damage = math.floor(damage * vulnerableMultiplier)
     end
 
-    -- Apply block absorption
-    local blockAbsorbed = math.min(defender.block, damage)
-    defender.block = defender.block - blockAbsorbed
-    damage = damage - blockAbsorbed
+    local blockAbsorbed = 0
+
+    -- Check if this damage ignores block
+    if not hasTag(tags, "ignoreBlock") then
+        -- Apply block absorption
+        blockAbsorbed = math.min(defender.block, damage)
+        defender.block = defender.block - blockAbsorbed
+        damage = damage - blockAbsorbed
+    end
 
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
@@ -63,12 +81,14 @@ function DealDamage.execute(world, event)
 
     -- Trigger Thorns counter-damage (if defender has Thorns status)
     -- Thorns triggers on any attack, even if fully blocked
+    -- Thorns damage ignores block
     if defender.status and defender.status.thorns and defender.status.thorns > 0 then
         world.queue:push({
             type = "ON_NON_ATTACK_DAMAGE",
             source = defender,
             target = attacker,
-            amount = defender.status.thorns
+            amount = defender.status.thorns,
+            tags = {"ignoreBlock"}
         })
     end
 end
