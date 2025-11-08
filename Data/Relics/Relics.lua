@@ -1,5 +1,8 @@
 -- RELICS DATA
 -- Relic definitions with their effects
+-- Each relic has:
+-- - Data parameters (healAmount, triggerFlags, etc)
+-- - onEndCombat: pushes event to queue at end of combat
 
 local Relics = {
     BurningBlood = {
@@ -7,11 +10,15 @@ local Relics = {
         name = "Burning Blood",
         rarity = "STARTER",
         description = "At the end of combat, heal 6 HP.",
+        healAmount = 6,
 
-        -- Effect trigger point: will be handled in EndTurn or PostCombat
-        -- When added, this relic pushes an ON_RELIC_EFFECT event or similar
-        onEndCombat = true,
-        healAmount = 6
+        onEndCombat = function(self, world, player)
+            world.queue:push({
+                type = "ON_HEAL",
+                target = player,
+                relic = self
+            })
+        end
     }
 }
 
