@@ -15,9 +15,11 @@ local GetCost = {}
 
 function GetCost.execute(world, player, card)
     -- Start with base cost
-    local cost = card.cost
+    -- If card has confused cost (from Confused status), use that instead
+    local cost = card.confused or card.cost
 
     -- Blood for Blood: reduce cost based on times HP was lost
+    -- This applies AFTER confused cost (if any)
     if card.costReductionPerHpLoss then
         local reduction = world.combat.timesHpLost * card.costReductionPerHpLoss
         cost = cost - reduction

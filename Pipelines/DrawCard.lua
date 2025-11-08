@@ -7,6 +7,7 @@
 -- - Draw from deck
 -- - Shuffle discard back into deck if deck is empty
 -- - Add cards to hand
+-- - Apply Confused status (randomize cost 0-3)
 -- - Combat logging
 
 local DrawCard = {}
@@ -30,6 +31,12 @@ function DrawCard.execute(world, player, count)
         -- Draw from deck
         if #player.deck > 0 then
             local card = table.remove(player.deck)
+
+            -- Apply Confused status: randomize cost when drawing
+            if player.status and player.status.confused and player.status.confused > 0 then
+                card.confused = math.random(0, 3)
+            end
+
             table.insert(player.hand, card)
         end
     end

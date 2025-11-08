@@ -48,7 +48,7 @@ end
 local playerData = {
     id = "IronClad",
     hp = 80,
-    relics = {Relics.PaperPhrog}
+    relics = {Relics.PaperPhrog}  -- Change to Relics.SneckoEye to test Confused
 }
 
 -- Initialize enemy (copy the Goblin template)
@@ -59,6 +59,20 @@ local world = Engine.createGameState(playerData, enemyData)
 
 -- Set up player's deck
 world.player.deck = buildStartingDeck()
+
+-- Apply relic combat-start effects
+-- Check if player has Snecko Eye and apply Confused
+for _, relic in ipairs(world.player.relics) do
+    if relic.id == "Snecko_Eye" then
+        -- Initialize status table if needed
+        if not world.player.status then
+            world.player.status = {}
+        end
+        -- Apply permanent Confused for the combat
+        world.player.status.confused = 999  -- Lasts entire combat
+        table.insert(world.log, "You are Confused!")
+    end
+end
 
 -- Start the game
 print("=== SLAY THE SPIRE CLONE ===")
