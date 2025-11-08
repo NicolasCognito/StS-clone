@@ -9,13 +9,24 @@
 -- - Call card.onPlay to generate events
 -- - Process effect queue
 -- - Remove card from hand
--- - Add to discard pile
+-- - Add to discard pile (or exhaust if Corruption + Skill)
 -- - Combat logging
 
 local PlayCard = {}
 
 local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
 local GetCost = require("Pipelines.GetCost")
+
+-- Helper to check if player has a power
+local function hasPower(player, powerId)
+    if not player.powers then return false end
+    for _, power in ipairs(player.powers) do
+        if power.id == powerId then
+            return true
+        end
+    end
+    return false
+end
 
 function PlayCard.execute(world, player, card, target)
     -- Get the current cost of the card (allows for dynamic cost calculation)
@@ -45,8 +56,35 @@ function PlayCard.execute(world, player, card, target)
     -- Process all events from the queue
     ProcessEffectQueue.execute(world)
 
-    -- Move card from hand to discard (change state)
-    card.state = "DISCARD_PILE"
+    -- Determine where card goes after being played
+    -- Check if card should be exhausted (Corruption for Skills, or card has exhaust property)
+    local shouldExhaust = false
+    local exhaustSource = nil
+
+    -- Corruption: Skills are exhausted
+    if hasPower(player, "Corruption") and card.type == "SKILL" then
+        shouldExhaust = true
+        exhaustSource = "Corruption"
+    end
+
+    -- TODO: Card-specific exhaust (e.g., Offering, True Grit+, etc.)
+    -- if card.exhausts then
+    --     shouldExhaust = true
+    --     exhaustSource = "SelfExhaust"
+    -- end
+
+    if shouldExhaust then
+        -- Push exhaust event to queue
+        world.queue:push({
+            type = "ON_EXHAUST",
+            card = card,
+            source = exhaustSource
+        })
+        ProcessEffectQueue.execute(world)
+    else
+        -- Normal discard
+        card.state = "DISCARD_PILE"
+    end
 
     return true
 end

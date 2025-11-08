@@ -47,6 +47,9 @@ local function buildStartingDeck()
     -- Add 1 Infernal Blade (for testing costsZeroThisTurn)
     table.insert(cards, copyCard(Cards.InfernalBlade))
 
+    -- Add 1 Corruption (for testing powers)
+    table.insert(cards, copyCard(Cards.Corruption))
+
     return cards
 end
 

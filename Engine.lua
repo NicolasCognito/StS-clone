@@ -6,6 +6,7 @@ local PlayCard = require("Pipelines.PlayCard")
 local EndTurn = require("Pipelines.EndTurn")
 local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
 local DrawCard = require("Pipelines.DrawCard")
+local StartTurn = require("Pipelines.StartTurn")
 local GetCost = require("Pipelines.GetCost")
 
 local Engine = {}
@@ -179,8 +180,8 @@ function Engine.playGame(world)
     local waitingForTarget = false
     local pendingCard = nil
 
-    -- Draw initial hand
-    DrawCard.execute(world, world.player, 5)
+    -- Start first turn (draw initial hand, apply Snecko Eye bonus, etc.)
+    StartTurn.execute(world, world.player)
 
     while not gameOver do
         Engine.displayGameState(world)
@@ -260,9 +261,8 @@ function Engine.playGame(world)
                         print("\n💀 Defeat! You were slain by " .. world.enemy.name .. "!")
                         gameOver = true
                     else
-                        -- Start new player turn: reset block and draw hand
-                        world.player.block = 0
-                        DrawCard.execute(world, world.player, 5)
+                        -- Start new player turn
+                        StartTurn.execute(world, world.player)
                     end
                 end
 
