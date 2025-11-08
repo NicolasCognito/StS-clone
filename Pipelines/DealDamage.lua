@@ -29,6 +29,11 @@ function DealDamage.execute(world, event)
         damage = damage + (attacker.strength * card.strengthMultiplier)
     end
 
+    -- Apply Vulnerable: 50% more damage (rounded down)
+    if defender.status and defender.status.vulnerable and defender.status.vulnerable > 0 then
+        damage = math.floor(damage * 1.5)
+    end
+
     -- Apply block absorption
     local blockAbsorbed = math.min(defender.block, damage)
     defender.block = defender.block - blockAbsorbed

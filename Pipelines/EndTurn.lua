@@ -26,6 +26,16 @@ function EndTurn.execute(world, player)
     -- Process all queued events from relics
     ProcessEffectQueue.execute(world)
 
+    -- Tick down player status effects
+    if player.status then
+        if player.status.vulnerable and player.status.vulnerable > 0 then
+            player.status.vulnerable = player.status.vulnerable - 1
+        end
+        if player.status.weak and player.status.weak > 0 then
+            player.status.weak = player.status.weak - 1
+        end
+    end
+
     -- Discard remaining hand
     for _, card in ipairs(player.hand) do
         table.insert(player.discard, card)
@@ -34,6 +44,9 @@ function EndTurn.execute(world, player)
 
     -- Reset energy for next turn
     player.energy = player.maxEnergy
+
+    -- Reset block
+    player.block = 0
 
     table.insert(world.log, player.id .. " ended turn")
 end

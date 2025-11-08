@@ -68,9 +68,32 @@ end
 
 function Engine.displayGameState(world)
     print("\n" .. string.rep("=", 60))
-    print("ENEMY: " .. world.enemy.name .. " | HP: " .. world.enemy.hp .. "/" .. world.enemy.maxHp)
+
+    -- Enemy status line
+    local enemyStatus = ""
+    if world.enemy.status and world.enemy.status.vulnerable and world.enemy.status.vulnerable > 0 then
+        enemyStatus = enemyStatus .. " [Vulnerable: " .. world.enemy.status.vulnerable .. "]"
+    end
+    if world.enemy.status and world.enemy.status.weak and world.enemy.status.weak > 0 then
+        enemyStatus = enemyStatus .. " [Weak: " .. world.enemy.status.weak .. "]"
+    end
+    print("ENEMY: " .. world.enemy.name .. " | HP: " .. world.enemy.hp .. "/" .. world.enemy.maxHp .. enemyStatus)
+
     print(string.rep("=", 60))
-    print("PLAYER: " .. world.player.id .. " | HP: " .. world.player.hp .. "/" .. world.player.maxHp .. " | Energy: " .. world.player.energy .. "/" .. world.player.maxEnergy)
+
+    -- Player status line
+    local playerStatus = ""
+    if world.player.block > 0 then
+        playerStatus = playerStatus .. " | Block: " .. world.player.block
+    end
+    if world.player.status and world.player.status.vulnerable and world.player.status.vulnerable > 0 then
+        playerStatus = playerStatus .. " [Vulnerable: " .. world.player.status.vulnerable .. "]"
+    end
+    if world.player.status and world.player.status.weak and world.player.status.weak > 0 then
+        playerStatus = playerStatus .. " [Weak: " .. world.player.status.weak .. "]"
+    end
+    print("PLAYER: " .. world.player.id .. " | HP: " .. world.player.hp .. "/" .. world.player.maxHp .. " | Energy: " .. world.player.energy .. "/" .. world.player.maxEnergy .. playerStatus)
+
     print(string.rep("-", 60))
     print("HAND:")
     if #world.player.hand == 0 then
