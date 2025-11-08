@@ -49,6 +49,11 @@ function DealNonAttackDamage.execute(world, event)
     -- Apply remaining damage to HP
     target.hp = target.hp - damage
 
+    -- Track HP loss for Blood for Blood (only if player lost HP)
+    if target == world.player and damage > 0 then
+        world.combat.timesHpLost = world.combat.timesHpLost + 1
+    end
+
     -- Log
     local sourceName = source and source.name or "Effect"
     local logMsg = sourceName .. " dealt " .. damage .. " non-attack damage to " .. target.name

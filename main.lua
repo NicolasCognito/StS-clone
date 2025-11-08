@@ -38,6 +38,9 @@ local function buildStartingDeck()
     -- Add 1 Bloodletting (for testing HP loss with ignoreBlock)
     table.insert(deck, copyCard(Cards.Bloodletting))
 
+    -- Add 1 Blood for Blood (for testing dynamic cost reduction)
+    table.insert(deck, copyCard(Cards.BloodForBlood))
+
     return deck
 end
 

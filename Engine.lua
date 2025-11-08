@@ -16,6 +16,7 @@ local Engine = {}
 -- The 'world' object passed to all pipelines contains:
 -- - player: player character with hp, maxHp, block, energy, deck, hand, discard
 -- - enemy: current enemy with hp, maxHp, intents
+-- - combat: combat-wide state (timesHpLost, etc.)
 -- - queue: event queue for all actions
 -- - log: combat log for debugging/display
 -- - relics: player's relics list
@@ -41,6 +42,12 @@ function Engine.createGameState(playerData, enemyData)
 
         -- ENEMY
         enemy = enemyData,
+
+        -- COMBAT STATE
+        -- Tracks combat-wide counters for card mechanics
+        combat = {
+            timesHpLost = 0,  -- For Blood for Blood cost reduction
+        },
 
         -- EVENT QUEUE
         queue = EventQueue.new(),

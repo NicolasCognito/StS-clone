@@ -72,6 +72,11 @@ function DealDamage.execute(world, event)
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
 
+    -- Track HP loss for Blood for Blood (only if player lost HP)
+    if defender == world.player and damage > 0 then
+        world.combat.timesHpLost = world.combat.timesHpLost + 1
+    end
+
     -- Log
     local logMsg = attacker.name .. " dealt " .. damage .. " damage to " .. defender.name
     if blockAbsorbed > 0 then
