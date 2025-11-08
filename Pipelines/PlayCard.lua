@@ -6,6 +6,7 @@
 --
 -- Handles:
 -- - Pay energy cost
+-- - Track combat statistics (Powers played, etc.)
 -- - Call card.onPlay to generate events
 -- - Process effect queue
 -- - Remove card from hand
@@ -47,6 +48,11 @@ function PlayCard.execute(world, player, card, target)
     -- Pay energy cost
     player.energy = player.energy - cardCost
     table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
+
+    -- Track combat statistics
+    if card.type == "POWER" then
+        world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
+    end
 
     -- Call card's onPlay function to push events to queue
     if card.onPlay then

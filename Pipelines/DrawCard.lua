@@ -4,6 +4,7 @@
 -- count: number of cards to draw
 --
 -- Handles:
+-- - Check cannotDraw flag (Bullet Time effect)
 -- - Draw from deck (change card.state from DECK to HAND)
 -- - Shuffle discard back into deck if deck is empty
 -- - Apply Confused status (randomize cost 0-3)
@@ -25,6 +26,12 @@ local function getCardsByState(player, state)
 end
 
 function DrawCard.execute(world, player, count)
+    -- Check if player cannot draw (Bullet Time effect)
+    if player.cannotDraw then
+        table.insert(world.log, "Cannot draw cards this turn")
+        return
+    end
+
     for i = 1, count do
         local deckCards = getCardsByState(player, "DECK")
 
