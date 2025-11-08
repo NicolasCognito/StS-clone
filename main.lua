@@ -35,6 +35,9 @@ local function buildStartingDeck()
     -- Add 1 Flame Barrier (for testing Thorns)
     table.insert(deck, copyCard(Cards.FlameBarrier))
 
+    -- Add 1 Bloodletting (for testing HP loss with ignoreBlock)
+    table.insert(deck, copyCard(Cards.Bloodletting))
+
     return deck
 end
 
