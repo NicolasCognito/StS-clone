@@ -59,9 +59,14 @@ function DealDamage.execute(world, event)
         damage = math.floor(damage * vulnerableMultiplier)
     end
 
-    -- Apply The Boot: If unblocked damage is 4 or less, increase it to 5
-    -- This is applied after Vulnerable/Strength but BEFORE any damage reduction effects like Intangible
-    -- The Boot bypasses Intangible and other damage reduction effects (matching Slay the Spire behavior)
+    -- Apply Intangible: Reduce damage to 1 if defender has Intangible status
+    if defender.status and defender.status.intangible and defender.status.intangible > 0 then
+        damage = 1
+    end
+
+    -- Apply The Boot: If damage is 4 or less, increase it to 5
+    -- This is applied AFTER Intangible so The Boot bypasses Intangible damage reduction
+    -- (matching Slay the Spire behavior)
     if damage <= 4 and attacker.relics then
         for _, relic in ipairs(attacker.relics) do
             if relic.id == "The_Boot" then
