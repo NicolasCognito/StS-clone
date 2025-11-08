@@ -28,6 +28,15 @@ local Relics = {
         description = "Enemies with Vulnerable take 75% more damage rather than 50%.",
         -- Passive relic - no delta functions needed
         -- Effect is hardcoded in DealDamage pipeline
+    },
+
+    TheBoot = {
+        id = "The_Boot",
+        name = "The Boot",
+        rarity = "COMMON",
+        description = "Whenever you would deal 4 or less unblocked Attack damage, increase it to 5. Bypasses Intangible.",
+        -- Passive relic - no delta functions needed
+        -- Effect is hardcoded in DealDamage pipeline
     }
 }
 
