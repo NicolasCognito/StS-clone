@@ -41,6 +41,9 @@ local function buildStartingDeck()
     -- Add 1 Blood for Blood (for testing dynamic cost reduction)
     table.insert(deck, copyCard(Cards.BloodForBlood))
 
+    -- Add 1 Infernal Blade (for testing costsZeroThisTurn)
+    table.insert(deck, copyCard(Cards.InfernalBlade))
+
     return deck
 end
 

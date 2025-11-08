@@ -36,6 +36,13 @@ function EndTurn.execute(world, player)
         end
     end
 
+    -- Clear costsZeroThisTurn from all cards in hand (end of turn cleanup)
+    for _, card in ipairs(player.hand) do
+        if card.costsZeroThisTurn then
+            card.costsZeroThisTurn = nil
+        end
+    end
+
     -- Discard remaining hand
     for _, card in ipairs(player.hand) do
         table.insert(player.discard, card)

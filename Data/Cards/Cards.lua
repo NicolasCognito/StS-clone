@@ -195,6 +195,32 @@ local Cards = {
             self.damage = 22
             self.description = "Deal 22 damage. Costs 1 less for each time you lose HP this combat."
         end
+    },
+
+    InfernalBlade = {
+        id = "Infernal_Blade",
+        name = "Infernal Blade",
+        cost = 1,
+        type = "SKILL",
+        Targeted = 0,
+        description = "Add a random Attack to your hand. It costs 0 this turn.",
+
+        onPlay = function(self, world, player, target)
+            -- For testing, just add a Strike (in real version would be random)
+            local newCard = {}
+            for k, v in pairs(Cards.Strike) do
+                newCard[k] = v
+            end
+            -- Mark it as costing 0 this turn
+            newCard.costsZeroThisTurn = 1
+            table.insert(player.hand, newCard)
+            table.insert(world.log, "Added Strike to hand (costs 0 this turn)")
+        end,
+
+        onUpgrade = function(self)
+            self.cost = 0
+            self.description = "Add a random Attack to your hand. It costs 0 this turn."
+        end
     }
 }
 

@@ -5,15 +5,23 @@
 --
 -- Handles:
 -- - Calculate the current cost of a card
--- - Base cost from card.cost
--- - Cost reduction based on combat state (Blood for Blood)
--- - Future: other cost modifications (Corruption, Confused, etc.)
+-- - Priority order:
+--   1. costsZeroThisTurn (highest priority - costs 0 this turn)
+--   2. confused (from Confused status - random 0-3)
+--   3. cost (base cost)
+--   4. Cost reductions (Blood for Blood, etc.)
 --
 -- This is the centralized place for all cost calculation logic
 
 local GetCost = {}
 
 function GetCost.execute(world, player, card)
+    -- HIGHEST PRIORITY: costsZeroThisTurn flag
+    -- Used by: Bullet Time, Infernal Blade, potions, etc.
+    if card.costsZeroThisTurn == 1 then
+        return 0
+    end
+
     -- Start with base cost
     -- If card has confused cost (from Confused status), use that instead
     local cost = card.confused or card.cost
