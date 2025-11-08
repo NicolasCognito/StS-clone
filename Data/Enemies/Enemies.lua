@@ -10,6 +10,7 @@ local Enemies = {
         name = "Goblin",
         hp = 12,
         maxHp = 12,
+        block = 0,
         damage = 5,
         description = "A basic goblin enemy.",
 

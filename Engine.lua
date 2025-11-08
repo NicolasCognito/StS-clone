@@ -24,6 +24,7 @@ function Engine.createGameState(playerData, enemyData)
         -- PLAYER
         player = {
             id = playerData.id or "IronClad",
+            name = playerData.name or playerData.id or "IronClad",
             hp = playerData.hp or 80,
             maxHp = playerData.hp or 80,
             block = 0,
@@ -38,13 +39,7 @@ function Engine.createGameState(playerData, enemyData)
         },
 
         -- ENEMY
-        enemy = {
-            id = enemyData.id,
-            name = enemyData.name,
-            hp = enemyData.hp,
-            maxHp = enemyData.maxHp,
-            description = enemyData.description,
-        },
+        enemy = enemyData,
 
         -- EVENT QUEUE
         queue = EventQueue.new(),
@@ -118,6 +113,11 @@ function Engine.playGame(world)
             print("  [1] " .. world.enemy.name)
             io.write("> ")
             local input = io.read()
+            if not input then
+                print("\nInput stream closed. Exiting game.")
+                gameOver = true
+                break
+            end
 
             if input == "1" then
                 -- Execute the pending card with target
@@ -134,6 +134,11 @@ function Engine.playGame(world)
             print("  end - End your turn")
             io.write("> ")
             local input = io.read()
+            if not input then
+                print("\nInput stream closed. Exiting game.")
+                gameOver = true
+                break
+            end
 
             -- Parse command
             local command, arg = input:match("^(%S+)%s*(%S*)$")
