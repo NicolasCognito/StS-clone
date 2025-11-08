@@ -2,8 +2,13 @@
 -- world: the complete game state
 -- player: the player character
 -- card: the card from hand to play
--- providedContext: optional pre-provided context (enemy, card, cards array, or nil)
+-- providedContext: optional pre-provided context (enemy entity, cards array, or nil)
 --                  If nil, will be auto-collected by ContextProvider
+--
+-- Context parameter passed to card.onPlay:
+-- - For "enemy" context: enemy entity
+-- - For "cards_in_*" contexts: array of cards (always array, even for single card)
+-- - For "none" context: nil
 --
 -- Handles:
 -- - Collect context (via ContextProvider if not provided)
@@ -69,7 +74,7 @@ function PlayCard.execute(world, player, card, providedContext)
 
     -- STEP 4: EXECUTE CARD EFFECT
     -- Call card's onPlay function with context
-    -- Context can be: enemy, card, cards array, or nil (depending on contextType)
+    -- Context can be: enemy entity, cards array, or nil (depending on contextType)
     if card.onPlay then
         card:onPlay(world, player, context)
     end

@@ -10,11 +10,18 @@
 --
 -- Context Types:
 -- - "none": no context needed (Defend, etc.)
--- - "enemy": single enemy target (Strike, Bash, etc.)
--- - "card_in_hand": single card from hand (Setup, Forethought)
--- - "cards_in_hand": multiple cards from hand (Forethought+)
--- - "card_in_discard": single card from discard pile
--- - "card_in_deck": single card from deck
+-- - "enemy": single enemy target (Strike, Bash, etc.) - returns enemy entity
+-- - "cards_in_hand": cards from hand - returns array of cards
+-- - "cards_in_discard": cards from discard pile - returns array of cards
+-- - "cards_in_deck": cards from deck - returns array of cards
+--
+-- Card Selection Count (for card context types):
+-- - card.minCards: minimum number of cards required (default: 1)
+-- - card.maxCards: maximum number of cards allowed (default: 1)
+-- - Examples:
+--   - Setup: minCards=1, maxCards=1 (exactly 1 card)
+--   - Forethought+: minCards=0, maxCards=999 (any number)
+--   - Eviscerate: minCards=1, maxCards=3 (1 to 3 cards)
 --
 -- For backwards compatibility:
 -- - If contextType not specified, falls back to card.Targeted
@@ -61,40 +68,40 @@ function ContextProvider.execute(world, player, card)
         -- In a real game, this would prompt player to select from multiple enemies
         return world.enemy
 
-    elseif contextType == "card_in_hand" then
-        -- Single card from hand
-        -- For now, just return the first card in hand (excluding the card being played)
-        -- In a real game, this would prompt player to select
-        local handCards = getCardsByState(player, "HAND")
-        for _, handCard in ipairs(handCards) do
-            if handCard ~= card then
-                return handCard  -- Return first card that isn't the one being played
-            end
-        end
-        return nil  -- No valid cards in hand
+    elseif contextType == "cards_in_hand" or contextType == "cards_in_discard" or contextType == "cards_in_deck" then
+        -- Card selection contexts - always return array
+        local state = contextType == "cards_in_hand" and "HAND"
+                   or contextType == "cards_in_discard" and "DISCARD_PILE"
+                   or "DECK"
 
-    elseif contextType == "cards_in_hand" then
-        -- Multiple cards from hand (for Forethought+)
-        -- For now, return all cards in hand (excluding the card being played)
-        -- In a real game, this would prompt player to select multiple cards
-        local handCards = getCardsByState(player, "HAND")
+        local allCards = getCardsByState(player, state)
         local validCards = {}
-        for _, handCard in ipairs(handCards) do
-            if handCard ~= card then
-                table.insert(validCards, handCard)
+
+        -- Exclude the card being played (if selecting from hand)
+        for _, availableCard in ipairs(allCards) do
+            if availableCard ~= card then
+                table.insert(validCards, availableCard)
             end
         end
-        return validCards
 
-    elseif contextType == "card_in_discard" then
-        -- Single card from discard pile
-        local discardCards = getCardsByState(player, "DISCARD_PILE")
-        return discardCards[1]  -- Return first card in discard
+        -- Get min/max constraints (defaults: 1 card)
+        local minCards = card.minCards or 1
+        local maxCards = card.maxCards or 1
 
-    elseif contextType == "card_in_deck" then
-        -- Single card from deck
-        local deckCards = getCardsByState(player, "DECK")
-        return deckCards[1]  -- Return first card in deck
+        -- For now, just return up to maxCards available cards
+        -- In a real game, this would prompt the player to select
+        local selectedCards = {}
+        for i = 1, math.min(maxCards, #validCards) do
+            table.insert(selectedCards, validCards[i])
+        end
+
+        -- Validate we have enough cards
+        if #selectedCards < minCards then
+            table.insert(world.log, "Not enough cards available for " .. card.name .. " (need " .. minCards .. ", found " .. #selectedCards .. ")")
+            return nil  -- Signal failure
+        end
+
+        return selectedCards  -- Always return array (even if empty or single card)
 
     else
         -- Unknown context type
