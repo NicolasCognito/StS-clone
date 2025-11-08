@@ -3,15 +3,39 @@
 -- player: the player whose turn is ending
 --
 -- Handles:
--- - Apply end-of-turn effects (Poison damage, debuff decay, etc.)
--- - Discard remaining hand
--- - Prepare for enemy turn
+-- - Trigger relics' onEndCombat effects
 -- - Process effect queue
+-- - Discard remaining hand
+-- - Reset energy
+-- - Combat logging
 
 local EndTurn = {}
 
+local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
+
 function EndTurn.execute(world, player)
-    -- TODO: implement
+    table.insert(world.log, "--- End of Player Turn ---")
+
+    -- Trigger all relics' onEndCombat effects
+    for _, relic in ipairs(player.relics) do
+        if relic.onEndCombat then
+            relic:onEndCombat(world, player)
+        end
+    end
+
+    -- Process all queued events from relics
+    ProcessEffectQueue.execute(world)
+
+    -- Discard remaining hand
+    for _, card in ipairs(player.hand) do
+        table.insert(player.discard, card)
+    end
+    player.hand = {}
+
+    -- Reset energy for next turn
+    player.energy = player.maxEnergy
+
+    table.insert(world.log, player.id .. " ended turn")
 end
 
 return EndTurn

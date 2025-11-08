@@ -1,16 +1,25 @@
 -- APPLY BLOCK PIPELINE
--- world: the complete game state
--- target: character gaining block
--- amount: block amount
+-- Processes ON_BLOCK events from the queue
+--
+-- Event should have:
+-- - target: character gaining block
+-- - card: the card/source with block value
 --
 -- Handles:
 -- - Adding block to character
--- - Pushes ON_BLOCK event to queue
+-- - Combat logging
 
 local ApplyBlock = {}
 
-function ApplyBlock.execute(world, target, amount)
-    -- TODO: implement
+function ApplyBlock.execute(world, event)
+    local target = event.target
+    local card = event.card
+
+    local amount = card.block or 0
+
+    target.block = target.block + amount
+
+    table.insert(world.log, target.name .. " gained " .. amount .. " block")
 end
 
 return ApplyBlock

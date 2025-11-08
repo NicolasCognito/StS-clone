@@ -1,17 +1,28 @@
 -- HEAL PIPELINE
--- world: the complete game state
--- target: character being healed
--- amount: healing amount
+-- Processes ON_HEAL events from the queue
+--
+-- Event should have:
+-- - target: character being healed
+-- - relic: the relic triggering the heal (contains healAmount)
 --
 -- Handles:
 -- - Adding HP to character
 -- - Capping at max HP
--- - Pushes ON_HEAL event to queue
+-- - Combat logging
 
 local Heal = {}
 
-function Heal.execute(world, target, amount)
-    -- TODO: implement
+function Heal.execute(world, event)
+    local target = event.target
+    local relic = event.relic
+
+    local amount = relic.healAmount or 0
+
+    local oldHp = target.hp
+    target.hp = math.min(target.hp + amount, target.maxHp)
+    local actualHealing = target.hp - oldHp
+
+    table.insert(world.log, target.name .. " healed " .. actualHealing .. " HP (from " .. relic.name .. ")")
 end
 
 return Heal
