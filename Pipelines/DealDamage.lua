@@ -81,14 +81,14 @@ function DealDamage.execute(world, event)
 
     -- Trigger Thorns counter-damage (if defender has Thorns status)
     -- Thorns triggers on any attack, even if fully blocked
-    -- Thorns damage ignores block
+    -- Thorns damage can be blocked (use ignoreBlock tag for HP loss effects like Bloodletting)
     if defender.status and defender.status.thorns and defender.status.thorns > 0 then
         world.queue:push({
             type = "ON_NON_ATTACK_DAMAGE",
             source = defender,
             target = attacker,
-            amount = defender.status.thorns,
-            tags = {"ignoreBlock"}
+            amount = defender.status.thorns
+            -- No tags - Thorns respects block
         })
     end
 end
