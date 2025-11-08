@@ -3,31 +3,34 @@
 -- Verbs push events here, ProcessEffectQueue drains it
 
 local EventQueue = {}
+EventQueue.__index = EventQueue
 
 function EventQueue.new()
-    return {
+    local queue = {
         events = {}
     }
+    setmetatable(queue, EventQueue)
+    return queue
 end
 
-function EventQueue.push(queue, event)
+function EventQueue:push(event)
     -- event should be a table with at least 'type' field
-    table.insert(queue.events, event)
+    table.insert(self.events, event)
 end
 
-function EventQueue.isEmpty(queue)
-    return #queue.events == 0
+function EventQueue:isEmpty()
+    return #self.events == 0
 end
 
-function EventQueue.next(queue)
-    if EventQueue.isEmpty(queue) then
+function EventQueue:next()
+    if self:isEmpty() then
         return nil
     end
-    return table.remove(queue.events, 1)
+    return table.remove(self.events, 1)
 end
 
-function EventQueue.clear(queue)
-    queue.events = {}
+function EventQueue:clear()
+    self.events = {}
 end
 
 return EventQueue

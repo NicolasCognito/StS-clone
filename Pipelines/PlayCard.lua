@@ -23,6 +23,12 @@ function PlayCard.execute(world, player, card, target)
         return false
     end
 
+    -- Check if card requires a target but none provided
+    if card.Targeted == 1 and not target then
+        table.insert(world.log, "Card " .. card.name .. " requires a target")
+        return false
+    end
+
     -- Pay energy cost
     player.energy = player.energy - card.cost
     table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. card.cost .. ")")
