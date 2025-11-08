@@ -92,6 +92,9 @@ function Engine.displayGameState(world)
     if world.player.status and world.player.status.weak and world.player.status.weak > 0 then
         playerStatus = playerStatus .. " [Weak: " .. world.player.status.weak .. "]"
     end
+    if world.player.status and world.player.status.thorns and world.player.status.thorns > 0 then
+        playerStatus = playerStatus .. " [Thorns: " .. world.player.status.thorns .. "]"
+    end
     print("PLAYER: " .. world.player.id .. " | HP: " .. world.player.hp .. "/" .. world.player.maxHp .. " | Energy: " .. world.player.energy .. "/" .. world.player.maxEnergy .. playerStatus)
 
     -- Display relics
@@ -214,7 +217,8 @@ function Engine.playGame(world)
                         print("\n💀 Defeat! You were slain by " .. world.enemy.name .. "!")
                         gameOver = true
                     else
-                        -- Draw new hand for next turn
+                        -- Start new player turn: reset block and draw hand
+                        world.player.block = 0
                         DrawCard.execute(world, world.player, 5)
                     end
                 end

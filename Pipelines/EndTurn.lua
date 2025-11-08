@@ -45,9 +45,6 @@ function EndTurn.execute(world, player)
     -- Reset energy for next turn
     player.energy = player.maxEnergy
 
-    -- Reset block
-    player.block = 0
-
     table.insert(world.log, player.id .. " ended turn")
 end
 

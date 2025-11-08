@@ -42,6 +42,10 @@ function ApplyStatusEffect.execute(world, event)
         target.status.strength = (target.status.strength or 0) + amount
         table.insert(world.log, target.name .. " gained " .. amount .. " strength")
 
+    elseif effectType == "Thorns" then
+        target.status.thorns = (target.status.thorns or 0) + amount
+        table.insert(world.log, target.name .. " gained " .. amount .. " thorns")
+
     else
         table.insert(world.log, "Unknown status effect: " .. effectType)
     end

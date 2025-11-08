@@ -32,6 +32,9 @@ local function buildStartingDeck()
     -- Add 1 Bash
     table.insert(deck, copyCard(Cards.Bash))
 
+    -- Add 1 Flame Barrier (for testing Thorns)
+    table.insert(deck, copyCard(Cards.FlameBarrier))
+
     return deck
 end
 
