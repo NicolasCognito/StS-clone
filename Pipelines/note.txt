@@ -1,0 +1,39 @@
+CENTRALIZED PIPELINE ARCHITECTURE - IMPLEMENTATION NOTE
+========================================================
+
+This directory contains all core combat verbs and their pipelines.
+
+PHILOSOPHY:
+-----------
+These functions are the CORE of the game. They WILL be modified directly and radically.
+
+We are NOT following Open/Closed Principle.
+We are NOT designing for abstract extensibility.
+We are NOT trying to write code that doesn't need modification.
+
+Instead:
+- These pipelines are where ALL logic lives
+- When we add a new mechanic, we OPEN this file and MODIFY the core function
+- Hardcoded if-statements checking flags and IDs go HERE
+- This is VISIBILITY and SIMPLICITY, not modularity
+
+EXPECT:
+-------
+- DealDamage to grow from 10 lines to 50+ as we add interactions
+- ApplyBlock to gain special cases as we add relics
+- PlayCard to be radically modified as card mechanics evolve
+- Status effects to be hardcoded directly into their handler functions
+
+That's the entire point. One place to understand the full combat flow.
+
+STRUCTURE:
+----------
+Each verb takes 'world' as first argument - the game state object that contains:
+- Current player
+- Current enemy
+- Current combat log
+- Effect queue
+- Deck, hand, discard pile
+- All relics, status effects, etc.
+
+This is intentional. Verbs need full access to game state to avoid parameter hell.
