@@ -14,6 +14,7 @@
 -- - ON_STATUS_GAIN: routes to ApplyStatusEffect
 -- - ON_ACQUIRE_CARD: routes to AcquireCard
 -- - ON_APPLY_POWER: routes to ApplyPower
+-- - ON_EXHAUST: routes to Exhaust
 --
 -- Simple linear processing (no recursion)
 
@@ -26,6 +27,7 @@ local Heal = require("Pipelines.Heal")
 local ApplyStatusEffect = require("Pipelines.ApplyStatusEffect")
 local AcquireCard = require("Pipelines.AcquireCard")
 local ApplyPower = require("Pipelines.ApplyPower")
+local Exhaust = require("Pipelines.Exhaust")
 
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
@@ -45,6 +47,8 @@ function ProcessEffectQueue.execute(world)
             AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
         elseif event.type == "ON_APPLY_POWER" then
             ApplyPower.execute(world, event)
+        elseif event.type == "ON_EXHAUST" then
+            Exhaust.execute(world, event)
         else
             table.insert(world.log, "Unknown event type: " .. event.type)
         end

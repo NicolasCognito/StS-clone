@@ -57,11 +57,32 @@ function PlayCard.execute(world, player, card, target)
     ProcessEffectQueue.execute(world)
 
     -- Determine where card goes after being played
+    -- Check if card should be exhausted (Corruption for Skills, or card has exhaust property)
+    local shouldExhaust = false
+    local exhaustSource = nil
+
     -- Corruption: Skills are exhausted
     if hasPower(player, "Corruption") and card.type == "SKILL" then
-        card.state = "EXHAUSTED_PILE"
-        table.insert(world.log, card.name .. " was exhausted (Corruption)")
+        shouldExhaust = true
+        exhaustSource = "Corruption"
+    end
+
+    -- TODO: Card-specific exhaust (e.g., Offering, True Grit+, etc.)
+    -- if card.exhausts then
+    --     shouldExhaust = true
+    --     exhaustSource = "SelfExhaust"
+    -- end
+
+    if shouldExhaust then
+        -- Push exhaust event to queue
+        world.queue:push({
+            type = "ON_EXHAUST",
+            card = card,
+            source = exhaustSource
+        })
+        ProcessEffectQueue.execute(world)
     else
+        -- Normal discard
         card.state = "DISCARD_PILE"
     end
 
