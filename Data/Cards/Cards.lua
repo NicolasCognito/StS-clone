@@ -1,6 +1,8 @@
 -- CARDS DATA
 -- Ironclad starting deck and basic cards
--- Each card is pure data with id, name, cost, type, and effect parameters
+-- Each card contains data parameters and delta functions:
+-- - onPlay: pushes event to queue when card is played
+-- - onUpgrade: modifies card parameters for upgraded versions
 
 local Cards = {
     Strike = {
@@ -9,7 +11,21 @@ local Cards = {
         cost = 1,
         type = "ATTACK",
         damage = 6,
-        description = "Deal 6 damage."
+        description = "Deal 6 damage.",
+
+        onPlay = function(self, world, player, target)
+            world.queue:push({
+                type = "ON_DAMAGE",
+                attacker = player,
+                defender = target,
+                card = self
+            })
+        end,
+
+        onUpgrade = function(self)
+            self.damage = 8
+            self.description = "Deal 8 damage."
+        end
     },
 
     Defend = {
@@ -18,7 +34,20 @@ local Cards = {
         cost = 1,
         type = "SKILL",
         block = 5,
-        description = "Gain 5 block."
+        description = "Gain 5 block.",
+
+        onPlay = function(self, world, player, target)
+            world.queue:push({
+                type = "ON_BLOCK",
+                target = player,
+                card = self
+            })
+        end,
+
+        onUpgrade = function(self)
+            self.block = 8
+            self.description = "Gain 8 block."
+        end
     },
 
     Bash = {
@@ -27,7 +56,21 @@ local Cards = {
         cost = 1,
         type = "ATTACK",
         damage = 8,
-        description = "Deal 8 damage."
+        description = "Deal 8 damage.",
+
+        onPlay = function(self, world, player, target)
+            world.queue:push({
+                type = "ON_DAMAGE",
+                attacker = player,
+                defender = target,
+                card = self
+            })
+        end,
+
+        onUpgrade = function(self)
+            self.damage = 10
+            self.description = "Deal 10 damage."
+        end
     },
 
     HeavyBlade = {
@@ -37,7 +80,21 @@ local Cards = {
         type = "ATTACK",
         damage = 14,
         strengthMultiplier = 3,
-        description = "Deal 14 damage. Strength affects this card 3 times."
+        description = "Deal 14 damage. Strength affects this card 3 times.",
+
+        onPlay = function(self, world, player, target)
+            world.queue:push({
+                type = "ON_DAMAGE",
+                attacker = player,
+                defender = target,
+                card = self
+            })
+        end,
+
+        onUpgrade = function(self)
+            self.strengthMultiplier = 5
+            self.description = "Deal 14 damage. Strength affects this card 5 times."
+        end
     }
 }
 
