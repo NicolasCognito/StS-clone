@@ -156,6 +156,15 @@ function PlayCard.execute(world, player, card, providedContext)
     -- Card can access this value in onPlay via self.energySpent
     card.energySpent = cardCost
 
+    -- Chemical X: Add bonus to X cost cards
+    if card.cost == "X" then
+        local chemicalX = Utils.getRelic(player, "Chemical_X")
+        if chemicalX then
+            card.energySpent = card.energySpent + chemicalX.xCostBonus
+            table.insert(world.log, "Chemical X activated! (X + " .. chemicalX.xCostBonus .. ")")
+        end
+    end
+
     -- STEPS 6-9: Execute the card effect (the "bracketed section")
     -- This can be replayed by effects like Double Tap
     PlayCard.executeCardEffect(world, player, card, context, false)
