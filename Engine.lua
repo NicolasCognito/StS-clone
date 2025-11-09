@@ -44,6 +44,9 @@ function Engine.createGameState(playerData, enemyData)
             relics = playerData.relics or {},
         },
 
+        -- GLOBAL DECK (master copy, persists across battles)
+        globalDeck = {},
+
         -- ENEMY
         enemy = enemyData,
 

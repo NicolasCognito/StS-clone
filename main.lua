@@ -17,6 +17,34 @@ local function copyCard(cardTemplate)
     return copy
 end
 
+-- Deep copy function for cards (preserves all properties)
+local function deepCopyCard(card)
+    local copy = {}
+    for k, v in pairs(card) do
+        if type(v) == "table" then
+            -- Deep copy tables (except functions)
+            copy[k] = {}
+            for innerK, innerV in pairs(v) do
+                copy[k][innerK] = innerV
+            end
+        else
+            copy[k] = v
+        end
+    end
+    -- Reset state to DECK for battle start
+    copy.state = "DECK"
+    return copy
+end
+
+-- Deep copy an entire deck
+local function deepCopyDeck(deck)
+    local copy = {}
+    for i, card in ipairs(deck) do
+        table.insert(copy, deepCopyCard(card))
+    end
+    return copy
+end
+
 -- Build a starting deck (5 Strikes, 4 Defends, 1 Bash)
 -- Returns an array of cards with state = "DECK"
 local function buildStartingDeck()
@@ -66,8 +94,11 @@ local enemyData = copyCard(Enemies.Goblin)
 -- Create game state
 local world = Engine.createGameState(playerData, enemyData)
 
--- Set up player's cards (all start in DECK state)
-world.player.cards = buildStartingDeck()
+-- Initialize globalDeck (master copy that persists across battles)
+world.globalDeck = buildStartingDeck()
+
+-- Deep copy globalDeck into player.cards for this battle
+world.player.cards = deepCopyDeck(world.globalDeck)
 
 -- Apply relic combat-start effects
 -- Check if player has Snecko Eye and apply Confused
