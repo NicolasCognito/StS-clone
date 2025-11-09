@@ -1,14 +1,14 @@
 -- APPLY CAPS PIPELINE
 -- world: the complete game state
--- character: the character to apply caps to (player or enemy)
 --
 -- Handles:
 -- - Enforce minimum and maximum values for all status effects
 -- - Enforce HP caps (0 to character.maxHp)
 -- - Enforce block cap (minimum 0, no maximum)
 -- - Uses StatusEffects data for cap definitions
+-- - Applies to ALL characters (player and all enemies)
 --
--- Called via event queue after effects are applied:
+-- Called directly by ProcessEffectQueue after each stat-modifying effect:
 -- - After DealDamage
 -- - After DealNonAttackDamage
 -- - After ApplyBlock
@@ -19,7 +19,8 @@ local ApplyCaps = {}
 
 local StatusEffects = require("Data.StatusEffects.StatusEffects")
 
-function ApplyCaps.execute(world, character)
+-- Apply caps to a single character
+local function applyToCharacter(character)
     -- Apply caps to HP (0 to maxHp)
     if character.hp then
         character.hp = math.max(0, math.min(character.hp, character.maxHp))
@@ -54,6 +55,26 @@ function ApplyCaps.execute(world, character)
             end
         end
     end
+end
+
+-- Main execute function - applies caps to all characters
+function ApplyCaps.execute(world)
+    -- Apply to player
+    if world.player then
+        applyToCharacter(world.player)
+    end
+
+    -- Apply to enemy (single enemy for now)
+    if world.enemy then
+        applyToCharacter(world.enemy)
+    end
+
+    -- TODO: When multiple enemies are supported, loop through all enemies
+    -- if world.enemies then
+    --     for _, enemy in ipairs(world.enemies) do
+    --         applyToCharacter(enemy)
+    --     end
+    -- end
 end
 
 return ApplyCaps
