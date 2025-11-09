@@ -38,9 +38,12 @@ return {
         postPlayEffect = function(self, world, player, discardedCards, originalTarget)
             local discardedCard = discardedCards[1]
 
-            -- Move card to discard pile
-            discardedCard.state = "DISCARD_PILE"
-            table.insert(world.log, player.id .. " discarded " .. discardedCard.name)
+            -- Discard the selected card
+            world.queue:push({
+                type = "ON_DISCARD",
+                card = discardedCard,
+                player = player
+            })
         end,
 
         onUpgrade = function(self)
