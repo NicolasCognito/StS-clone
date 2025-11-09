@@ -108,8 +108,13 @@ function PlayCard.executeCardEffect(world, player, card, context, skipDiscard)
         })
         ProcessEffectQueue.execute(world)
     elseif not skipDiscard then
-        -- Normal discard (skip for replays where card is already in a pile)
-        card.state = "DISCARD_PILE"
+        -- Normal discard via event queue (skip for replays where card is already in a pile)
+        world.queue:push({
+            type = "ON_DISCARD",
+            card = card,
+            player = player
+        })
+        ProcessEffectQueue.execute(world)
     end
 end
 
