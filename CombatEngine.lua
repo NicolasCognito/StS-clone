@@ -29,58 +29,6 @@ local CombatEngine = {}
 -- - Cards have a 'state' property ONLY during combat: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
 -- - Use helper functions to get cards by state
 --
-function CombatEngine.initCombat(world)
-    -- Add combat-specific temporary context to world
-    world.combat = {
-        timesHpLost = 0,              -- For Blood for Blood cost reduction (and Masterful Stab increase)
-        cardsDiscardedThisTurn = 0,   -- For Eviscerate cost reduction
-        powersPlayedThisCombat = 0,   -- For Force Field cost reduction
-    }
-
-    world.queue = EventQueue.new()
-    world.log = {}
-
-    -- Initialize card states to DECK
-    for _, card in ipairs(world.player.cards) do
-        card.state = "DECK"
-    end
-
-    -- Reset combat-specific player state
-    world.player.block = 0
-    world.player.energy = 3
-    world.player.hp = world.player.currentHp
-
-    return world  -- Return for convenience, but modifies in place
-end
-
--- ============================================================================
--- COMBAT CLEANUP
--- ============================================================================
-
--- Clean up temporary combat context after combat ends
-function CombatEngine.cleanupCombat(world)
-    -- Update persistent HP
-    world.player.currentHp = world.player.hp
-
-    -- Remove card states
-    for _, card in ipairs(world.player.cards) do
-        card.state = nil
-    end
-
-    -- Clear combat-specific player state
-    world.player.block = 0
-    world.player.status = nil
-    world.player.powers = nil
-
-    -- Clear enemies
-    world.enemies = nil
-
-    -- Remove combat context
-    world.combat = nil
-    world.queue = nil
-    world.log = nil
-end
-
 function CombatEngine.addLogEntry(world, message)
     table.insert(world.log, message)
 end
@@ -199,8 +147,8 @@ function CombatEngine.playGame(world)
     local pendingCard = nil
     local pendingContextType = nil
 
-    -- Start first turn (draw initial hand, apply Snecko Eye bonus, etc.)
-    StartTurn.execute(world, world.player)
+    -- NOTE: StartCombat pipeline should be called before playGame
+    -- It handles initialization, relic effects, and drawing initial hand
 
     while not gameOver do
         CombatEngine.displayGameState(world)

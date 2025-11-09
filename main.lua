@@ -3,6 +3,8 @@
 
 local World = require("World")
 local CombatEngine = require("CombatEngine")
+local StartCombat = require("Pipelines.StartCombat")
+local EndCombat = require("Pipelines.EndCombat")
 local Cards = require("Data.Cards.Cards")
 local Enemies = require("Data.Enemies.Enemies")
 local Relics = require("Data.Relics.Relics")
@@ -91,28 +93,15 @@ world.enemies = {
     copyEnemy(Enemies.Goblin)
 }
 
--- Initialize combat context
-CombatEngine.initCombat(world)
+-- Start combat (initializes context, applies relic effects, draws initial hand)
+StartCombat.execute(world)
 
--- Apply relic combat-start effects
--- Check if player has Snecko Eye and apply Confused
-for _, relic in ipairs(world.player.relics) do
-    if relic.id == "Snecko_Eye" then
-        -- Initialize status table if needed
-        if not world.player.status then
-            world.player.status = {}
-        end
-        -- Apply permanent Confused for the combat
-        world.player.status.confused = 999  -- Lasts entire combat
-        table.insert(world.log, "You are Confused!")
-    end
-end
-
--- Run the combat
+-- Run the combat loop
 CombatEngine.playGame(world)
 
--- Clean up combat context
-CombatEngine.cleanupCombat(world)
+-- End combat (cleanup, apply results, handle rewards)
+local victory = world.player.hp > 0
+EndCombat.execute(world, victory)
 
 -- Display final world state
 print("\n=== AFTER COMBAT ===")
