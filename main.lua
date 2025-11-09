@@ -37,6 +37,8 @@ local function buildStartingDeck()
     table.insert(cards, copyCard(Cards.Corruption))
     table.insert(cards, copyCard(Cards.Discovery))
     table.insert(cards, copyCard(Cards.GrandFinale))
+    table.insert(cards, copyCard(Cards.Whirlwind))
+    table.insert(cards, copyCard(Cards.Skewer))
 
     return cards
 end
@@ -46,7 +48,7 @@ local world = World.createWorld({
     id = "IronClad",
     maxHp = 80,
     cards = buildStartingDeck(),
-    relics = {Relics.PaperPhrog},
+    relics = {Relics.PaperPhrog, Relics.ChemicalX},
     gold = 99,
     map = testMap,
     startNode = testMap and testMap.startNode or nil

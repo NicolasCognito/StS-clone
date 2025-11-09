@@ -26,13 +26,20 @@ local GetCost = {}
 local Utils = require("utils")
 
 function GetCost.execute(world, player, card)
-    -- HIGHEST PRIORITY: permanentCostZero flag
+    -- HIGHEST PRIORITY: X COST
+    -- X cost cards always cost all remaining energy, overriding all other modifiers
+    -- If confused, use confused value instead (X cost is overridden by Confused status)
+    if card.cost == "X" and not card.confused then
+        return player.energy
+    end
+
+    -- SECOND PRIORITY: permanentCostZero flag
     -- Used by: Setup, Forethought, Madness, Chrysalis, Metamorphosis
     if card.permanentCostZero == 1 then
         return 0
     end
 
-    -- SECOND PRIORITY: costsZeroThisTurn flag
+    -- THIRD PRIORITY: costsZeroThisTurn flag
     -- Used by: Bullet Time, Infernal Blade, potions, etc.
     if card.costsZeroThisTurn == 1 then
         return 0
