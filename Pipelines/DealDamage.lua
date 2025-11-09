@@ -5,11 +5,11 @@
 -- - attacker: character dealing damage
 -- - defender: character taking damage OR "all" for all enemies
 -- - card: the card/source with damage value and scaling flags
--- - damageOverride: optional override for base damage (instead of card.damage)
+-- - damage: optional damage value (if not present, uses card.damage)
 -- - tags: optional array of tags (e.g., ["ignoreBlock"])
 --
 -- Handles:
--- - Base damage from event.damageOverride (if present) or card.damage
+-- - Base damage from event.damage (if present) or card.damage
 -- - Attacker's Strength multiplier (when added)
 -- - Defender's Vulnerable/Weak modifiers (when added)
 -- - Block absorption (unless "ignoreBlock" tag is present)
@@ -26,7 +26,6 @@ function DealDamage.execute(world, event)
     local defender = event.defender
     local card = event.card
     local tags = event.tags or {}
-    local damageOverride = event.damageOverride  -- Optional damage override
 
     -- Handle AOE: defender = "all" means hit all enemies
     if defender == "all" then
@@ -41,7 +40,7 @@ function DealDamage.execute(world, event)
             for _, enemy in ipairs(world.enemies) do
                 if enemy.hp > 0 then
                     -- Call with aoe tag added
-                    DealDamage.executeSingle(world, attacker, enemy, card, aoeTags, damageOverride)
+                    DealDamage.executeSingle(world, attacker, enemy, card, aoeTags, event.damage)
                 end
             end
         end
@@ -49,13 +48,13 @@ function DealDamage.execute(world, event)
     end
 
     -- Single target damage
-    DealDamage.executeSingle(world, attacker, defender, card, tags, damageOverride)
+    DealDamage.executeSingle(world, attacker, defender, card, tags, event.damage)
 end
 
 -- Execute damage against a single target
-function DealDamage.executeSingle(world, attacker, defender, card, tags, damageOverride)
-    -- Start with base damage (use override if provided, otherwise use card.damage)
-    local damage = damageOverride or card.damage or 0
+function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDamage)
+    -- Start with base damage (use event damage if provided, otherwise use card.damage)
+    local damage = eventDamage or card.damage or 0
 
     -- Apply strength multiplier if card has it and attacker has strength
     if card.strengthMultiplier and attacker.strength then

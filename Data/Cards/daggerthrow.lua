@@ -43,7 +43,7 @@ return {
                     attacker = player,
                     defender = originalTarget,
                     card = self,
-                    damageOverride = self.bonusDamage  -- Use bonus damage instead of main damage
+                    damage = self.bonusDamage  -- Use bonus damage from card
                 })
             else
                 table.insert(world.log, player.id .. " chose not to discard")
