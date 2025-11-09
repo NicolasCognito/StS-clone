@@ -17,6 +17,17 @@ local World = {}
 -- Combat state is just temporary context added during combat (queue, counters, log)
 
 function World.createWorld(playerData)
+    local relics = playerData.relics or {}
+
+    -- Check for Winged Boots and initialize charges
+    local wingedBootsCharges = 0
+    for _, relic in ipairs(relics) do
+        if relic.id == "Winged_Boots" and relic.charges then
+            wingedBootsCharges = relic.charges
+            break
+        end
+    end
+
     return {
         player = {
             -- Identity
@@ -37,7 +48,7 @@ function World.createWorld(playerData)
             cards = playerData.cards or {},
 
             -- Relics
-            relics = playerData.relics or {},
+            relics = relics,
 
             -- Gold
             gold = playerData.gold or 0,
@@ -56,7 +67,7 @@ function World.createWorld(playerData)
         floor = 1,
 
         -- Winged Boots state
-        wingedBootsCharges = 0,  -- Set to 3 if player has Winged Boots relic
+        wingedBootsCharges = wingedBootsCharges,  -- Initialized from relic.charges
     }
 end
 
