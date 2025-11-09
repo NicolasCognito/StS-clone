@@ -60,11 +60,14 @@ local playerData = {
     relics = {Relics.PaperPhrog}  -- Change to Relics.SneckoEye to test Confused
 }
 
--- Initialize enemy (copy the Goblin template)
-local enemyData = copyCard(Enemies.Goblin)
+-- Initialize enemies (create two goblins)
+local enemiesData = {
+    copyCard(Enemies.Goblin),
+    copyCard(Enemies.Goblin)
+}
 
 -- Create game state
-local world = Engine.createGameState(playerData, enemyData)
+local world = Engine.createGameState(playerData, enemiesData)
 
 -- Set up player's cards (all start in DECK state)
 world.player.cards = buildStartingDeck()

@@ -64,9 +64,15 @@ function ContextProvider.execute(world, player, card)
 
     elseif contextType == "enemy" then
         -- Single enemy target
-        -- For now, just return the enemy from world
-        -- In a real game, this would prompt player to select from multiple enemies
-        return world.enemy
+        -- Return the first alive enemy as default
+        -- (PlayCard.execute will handle explicit targeting via user input)
+        for _, enemy in ipairs(world.enemies) do
+            if enemy.hp > 0 then
+                return enemy
+            end
+        end
+        table.insert(world.log, "No alive enemies to target!")
+        return nil
 
     elseif contextType == "cards_in_hand" or contextType == "cards_in_discard" or contextType == "cards_in_deck" then
         -- Card selection contexts - always return array

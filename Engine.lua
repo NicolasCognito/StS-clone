@@ -16,7 +16,7 @@ local Engine = {}
 -- ============================================================================
 -- The 'world' object passed to all pipelines contains:
 -- - player: player character with hp, maxHp, block, energy, cards (single table)
--- - enemy: current enemy with hp, maxHp, intents
+-- - enemies: array of enemy entities with hp, maxHp, intents
 -- - combat: combat-wide state (timesHpLost, etc.)
 -- - queue: event queue for all actions
 -- - log: combat log for debugging/display
@@ -27,7 +27,7 @@ local Engine = {}
 -- - Each card has a 'state' property: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
 -- - Use helper functions to get cards by state
 
-function Engine.createGameState(playerData, enemyData)
+function Engine.createGameState(playerData, enemiesData)
     return {
         -- PLAYER
         player = {
@@ -44,8 +44,8 @@ function Engine.createGameState(playerData, enemyData)
             relics = playerData.relics or {},
         },
 
-        -- ENEMY
-        enemy = enemyData,
+        -- ENEMIES
+        enemies = enemiesData,  -- Array of enemy entities
 
         -- COMBAT STATE
         -- Tracks combat-wide counters for card mechanics
@@ -109,15 +109,22 @@ end
 function Engine.displayGameState(world)
     print("\n" .. string.rep("=", 60))
 
-    -- Enemy status line
-    local enemyStatus = ""
-    if world.enemy.status and world.enemy.status.vulnerable and world.enemy.status.vulnerable > 0 then
-        enemyStatus = enemyStatus .. " [Vulnerable: " .. world.enemy.status.vulnerable .. "]"
+    -- Display all enemies
+    print("ENEMIES:")
+    for i, enemy in ipairs(world.enemies) do
+        if enemy.hp > 0 then
+            local enemyStatus = ""
+            if enemy.status and enemy.status.vulnerable and enemy.status.vulnerable > 0 then
+                enemyStatus = enemyStatus .. " [Vulnerable: " .. enemy.status.vulnerable .. "]"
+            end
+            if enemy.status and enemy.status.weak and enemy.status.weak > 0 then
+                enemyStatus = enemyStatus .. " [Weak: " .. enemy.status.weak .. "]"
+            end
+            print("  [" .. i .. "] " .. enemy.name .. " | HP: " .. enemy.hp .. "/" .. enemy.maxHp .. enemyStatus)
+        else
+            print("  [" .. i .. "] " .. enemy.name .. " (DEAD)")
+        end
     end
-    if world.enemy.status and world.enemy.status.weak and world.enemy.status.weak > 0 then
-        enemyStatus = enemyStatus .. " [Weak: " .. world.enemy.status.weak .. "]"
-    end
-    print("ENEMY: " .. world.enemy.name .. " | HP: " .. world.enemy.hp .. "/" .. world.enemy.maxHp .. enemyStatus)
 
     print(string.rep("=", 60))
 
@@ -190,7 +197,11 @@ function Engine.playGame(world)
 
         if waitingForTarget then
             print("\nChoose a target:")
-            print("  [1] " .. world.enemy.name)
+            for i, enemy in ipairs(world.enemies) do
+                if enemy.hp > 0 then
+                    print("  [" .. i .. "] " .. enemy.name)
+                end
+            end
             io.write("> ")
             local input = io.read()
             if not input then
@@ -199,9 +210,10 @@ function Engine.playGame(world)
                 break
             end
 
-            if input == "1" then
+            local targetIndex = tonumber(input)
+            if targetIndex and targetIndex >= 1 and targetIndex <= #world.enemies and world.enemies[targetIndex].hp > 0 then
                 -- Execute the pending card with target
-                PlayCard.execute(world, world.player, pendingCard, world.enemy)
+                PlayCard.execute(world, world.player, pendingCard, world.enemies[targetIndex])
                 Engine.displayLog(world, 3)
                 waitingForTarget = false
                 pendingCard = nil
@@ -249,18 +261,30 @@ function Engine.playGame(world)
                 -- End player turn
                 EndTurn.execute(world, world.player)
 
-                -- Check if player won
-                if world.enemy.hp <= 0 then
-                    print("\n🎉 Victory! You defeated " .. world.enemy.name .. "!")
+                -- Check if player won (all enemies dead)
+                local allEnemiesDead = true
+                for _, enemy in ipairs(world.enemies) do
+                    if enemy.hp > 0 then
+                        allEnemiesDead = false
+                        break
+                    end
+                end
+
+                if allEnemiesDead then
+                    print("\n🎉 Victory! You defeated all enemies!")
                     gameOver = true
                 else
-                    -- Enemy turn
-                    EnemyTakeTurn.execute(world, world.enemy, world.player)
+                    -- Enemy turns (all alive enemies)
+                    for _, enemy in ipairs(world.enemies) do
+                        if enemy.hp > 0 then
+                            EnemyTakeTurn.execute(world, enemy, world.player)
+                        end
+                    end
                     Engine.displayLog(world, 5)
 
                     -- Check if player lost
                     if world.player.hp <= 0 then
-                        print("\n💀 Defeat! You were slain by " .. world.enemy.name .. "!")
+                        print("\n💀 Defeat! You were slain!")
                         gameOver = true
                     else
                         -- Start new player turn
@@ -274,11 +298,19 @@ function Engine.playGame(world)
         end
 
         -- Check win/loss conditions after each action
-        if world.enemy.hp <= 0 then
-            print("\n🎉 Victory! You defeated " .. world.enemy.name .. "!")
+        local allEnemiesDead = true
+        for _, enemy in ipairs(world.enemies) do
+            if enemy.hp > 0 then
+                allEnemiesDead = false
+                break
+            end
+        end
+
+        if allEnemiesDead then
+            print("\n🎉 Victory! You defeated all enemies!")
             gameOver = true
         elseif world.player.hp <= 0 then
-            print("\n💀 Defeat! You were slain by " .. world.enemy.name .. "!")
+            print("\n💀 Defeat! You were slain!")
             gameOver = true
         end
     end
