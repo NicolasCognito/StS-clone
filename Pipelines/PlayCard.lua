@@ -94,12 +94,23 @@ function PlayCard.execute(world, player, card, providedContext)
         world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
     end
 
+    -- Increment Pen Nib counter for Attack cards
+    if card.type == "ATTACK" then
+        world.penNibCounter = world.penNibCounter + 1
+    end
+
     -- STEP 7: EXECUTE CARD EFFECT
     -- Call card's onPlay function with context
     -- Context can be: enemy entity, cards array, or nil (depending on contextType)
     if card.onPlay then
         card:onPlay(world, player, context)
     end
+
+    -- Push AfterCardPlayed event to queue (processed after card effects)
+    world.queue:push({
+        type = "AFTER_CARD_PLAYED",
+        player = player
+    })
 
     -- STEP 8: PROCESS EFFECT QUEUE
     -- Process all events from the queue

@@ -6,6 +6,7 @@ local Relics = {}
 local relicFiles = {
     "burningblood",
     "paperphrog",
+    "pennib",
     "sneckoeye",
     "theboot",
     "wingedboots"

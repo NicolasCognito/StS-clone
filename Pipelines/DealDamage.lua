@@ -77,6 +77,19 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags)
         damage = math.floor(damage * vulnerableMultiplier)
     end
 
+    -- Apply Pen Nib: Double damage on 10th attack
+    if attacker.relics then
+        for _, relic in ipairs(attacker.relics) do
+            if relic.id == "Pen_Nib" then
+                if world.penNibCounter >= relic.triggerCount then
+                    damage = damage * relic.damageMultiplier
+                    table.insert(world.log, "Pen Nib activated! (x" .. relic.damageMultiplier .. " damage)")
+                end
+                break
+            end
+        end
+    end
+
     -- Apply Intangible: Reduce damage to 1 if defender has Intangible status
     if defender.status and defender.status.intangible and defender.status.intangible > 0 then
         damage = 1

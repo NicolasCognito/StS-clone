@@ -16,6 +16,7 @@
 -- - ON_APPLY_POWER: routes to ApplyPower
 -- - ON_EXHAUST: routes to Exhaust
 -- - ON_CUSTOM_EFFECT: routes to CustomEffect
+-- - AFTER_CARD_PLAYED: routes to AfterCardPlayed
 --
 -- ApplyCaps is called directly after stat-modifying effects (no event needed)
 -- Simple linear processing (no recursion)
@@ -32,6 +33,7 @@ local ApplyPower = require("Pipelines.ApplyPower")
 local Exhaust = require("Pipelines.Exhaust")
 local CustomEffect = require("Pipelines.CustomEffect")
 local ApplyCaps = require("Pipelines.ApplyCaps")
+local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
 
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
@@ -73,6 +75,9 @@ function ProcessEffectQueue.execute(world)
 
         elseif event.type == "ON_CUSTOM_EFFECT" then
             CustomEffect.execute(world, event)
+
+        elseif event.type == "AFTER_CARD_PLAYED" then
+            AfterCardPlayed.execute(world, event.player)
 
         else
             table.insert(world.log, "Unknown event type: " .. event.type)
