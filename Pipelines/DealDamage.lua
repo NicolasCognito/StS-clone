@@ -3,7 +3,7 @@
 --
 -- Event should have:
 -- - attacker: character dealing damage
--- - defender: character taking damage
+-- - defender: character taking damage OR "all" for all enemies
 -- - card: the card/source with damage value and scaling flags
 -- - tags: optional array of tags (e.g., ["ignoreBlock"])
 --
@@ -14,6 +14,7 @@
 -- - Block absorption (unless "ignoreBlock" tag is present)
 -- - HP reduction
 -- - Combat logging
+-- - AOE damage (defender = "all")
 
 local DealDamage = {}
 
@@ -25,6 +26,25 @@ function DealDamage.execute(world, event)
     local card = event.card
     local tags = event.tags or {}
 
+    -- Handle AOE: defender = "all" means hit all enemies
+    if defender == "all" then
+        if world.enemies then
+            for _, enemy in ipairs(world.enemies) do
+                if enemy.hp > 0 then
+                    -- Recursively call with each enemy as defender
+                    DealDamage.executeSingle(world, attacker, enemy, card, tags)
+                end
+            end
+        end
+        return
+    end
+
+    -- Single target damage
+    DealDamage.executeSingle(world, attacker, defender, card, tags)
+end
+
+-- Execute damage against a single target
+function DealDamage.executeSingle(world, attacker, defender, card, tags)
     -- Start with base damage
     local damage = card.damage or 0
 

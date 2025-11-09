@@ -24,18 +24,13 @@ return {
 
         onPlay = function(self, world, player, context)
             -- Deal damage to ALL enemies
-            if world.enemies then
-                for _, enemy in ipairs(world.enemies) do
-                    if enemy.hp > 0 then
-                        world.queue:push({
-                            type = "ON_DAMAGE",
-                            attacker = player,
-                            defender = enemy,
-                            card = self
-                        })
-                    end
-                end
-            end
+            -- DealDamage pipeline handles the "all" keyword
+            world.queue:push({
+                type = "ON_DAMAGE",
+                attacker = player,
+                defender = "all",  -- Hits all enemies
+                card = self
+            })
         end,
 
         onUpgrade = function(self)
