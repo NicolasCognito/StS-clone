@@ -1,38 +1,55 @@
 -- WORLD STATE
--- Persistent game state that carries between combats
--- Operations on world state should be done through pipelines or directly
+-- All game data lives here - player, enemies, deck, map, etc.
+-- Combat state only adds temporary context (queue, counters, log)
 
 local World = {}
 
 -- ============================================================================
 -- WORLD CREATION
 -- ============================================================================
--- The 'world' object contains persistent state across the entire run:
--- - player: persistent player data (maxHp, currentHp, deck, relics, gold)
+-- The 'world' object contains ALL game state:
+-- - player: player data (maxHp, currentHp, hp, block, energy, cards, relics, gold, status, powers)
+-- - enemies: current encounter enemies (or nil if not in combat)
 -- - currentNode: current position on the map (future)
--- - floor: current floor number (future)
+-- - floor: current floor number
 --
--- This is separate from combat state which is ephemeral per encounter
+-- Combat state is just temporary context added during combat (queue, counters, log)
 
 function World.createWorld(playerData)
     return {
         player = {
+            -- Identity
             id = playerData.id or "IronClad",
             name = playerData.name or playerData.id or "IronClad",
+
+            -- HP
             maxHp = playerData.maxHp or 80,
             currentHp = playerData.currentHp or playerData.maxHp or 80,
+            hp = playerData.currentHp or playerData.maxHp or 80,  -- Current HP in combat
+            block = 0,
 
-            -- Persistent deck (card templates without state)
-            deck = playerData.deck or {},
+            -- Energy
+            energy = 3,
+            maxEnergy = 3,
+
+            -- Cards (with state property during combat)
+            cards = playerData.cards or {},
 
             -- Relics
             relics = playerData.relics or {},
 
             -- Gold
             gold = playerData.gold or 0,
+
+            -- Combat state (status effects, powers)
+            status = nil,  -- Initialized when needed
+            powers = nil,  -- Initialized when needed
         },
 
-        -- Map state (future)
+        -- Enemies (current encounter, or nil if not in combat)
+        enemies = nil,
+
+        -- Map state
         currentNode = nil,
         floor = 1,
     }

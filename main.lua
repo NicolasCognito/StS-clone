@@ -68,7 +68,7 @@ end
 local world = World.createWorld({
     id = "IronClad",
     maxHp = 80,
-    deck = buildStartingDeck(),
+    cards = buildStartingDeck(),  -- Cards go directly in world.player.cards
     relics = {Relics.PaperPhrog},  -- Change to Relics.SneckoEye to test Confused
     gold = 99
 })
@@ -85,35 +85,34 @@ print("  end - End your turn")
 print("\nPress Enter to start...")
 io.read()
 
--- Create enemies for this encounter (two goblins)
-local enemiesData = {
+-- Set up enemies for this encounter (two goblins)
+world.enemies = {
     copyEnemy(Enemies.Goblin),
     copyEnemy(Enemies.Goblin)
 }
 
--- Create combat state from world
-local combat = CombatEngine.createCombatState(world, enemiesData)
+-- Initialize combat context
+CombatEngine.initCombat(world)
 
 -- Apply relic combat-start effects
 -- Check if player has Snecko Eye and apply Confused
-for _, relic in ipairs(combat.player.relics) do
+for _, relic in ipairs(world.player.relics) do
     if relic.id == "Snecko_Eye" then
         -- Initialize status table if needed
-        if not combat.player.status then
-            combat.player.status = {}
+        if not world.player.status then
+            world.player.status = {}
         end
         -- Apply permanent Confused for the combat
-        combat.player.status.confused = 999  -- Lasts entire combat
-        table.insert(combat.log, "You are Confused!")
+        world.player.status.confused = 999  -- Lasts entire combat
+        table.insert(world.log, "You are Confused!")
     end
 end
 
 -- Run the combat
-CombatEngine.playGame(combat)
+CombatEngine.playGame(world)
 
--- Apply combat results back to world
-local victory = combat.player.hp > 0
-CombatEngine.applyCombatResults(world, combat, victory)
+-- Clean up combat context
+CombatEngine.cleanupCombat(world)
 
 -- Display final world state
 print("\n=== AFTER COMBAT ===")

@@ -15,89 +15,74 @@ local ContextProvider = require("Pipelines.ContextProvider")
 local CombatEngine = {}
 
 -- ============================================================================
--- COMBAT STATE INITIALIZATION
+-- COMBAT CONTEXT INITIALIZATION
 -- ============================================================================
--- The 'combat' object passed to all pipelines contains:
--- - player: combat player state (hp, block, energy, cards with state, status, powers)
--- - enemies: array of enemy entities with hp, maxHp, intents
--- - combat: combat-wide counters (timesHpLost, etc.)
--- - queue: event queue for all actions
--- - log: combat log for debugging/display
+-- The 'world' object passed to all pipelines contains ALL game data:
+-- - player: player state (hp, maxHp, currentHp, block, energy, cards, relics, gold, status, powers)
+-- - enemies: array of enemy entities (or nil if not in combat)
+-- - combat: combat-wide counters (timesHpLost, etc.) - TEMPORARY, added during combat
+-- - queue: event queue for all actions - TEMPORARY, added during combat
+-- - log: combat log for debugging/display - TEMPORARY, added during combat
 --
 -- Cards architecture:
--- - All cards are stored in player.cards[] (single source of truth)
--- - Each card has a 'state' property: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
+-- - All cards are stored in world.player.cards[] (single source of truth)
+-- - Cards have a 'state' property ONLY during combat: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
 -- - Use helper functions to get cards by state
 --
--- Helper to copy a card template and set initial state
-local function copyCard(cardTemplate)
-    local copy = {}
-    for k, v in pairs(cardTemplate) do
-        copy[k] = v
-    end
-    copy.state = "DECK"  -- All cards start in deck
-    return copy
-end
-
-function CombatCombatEngine.createCombatState(world, enemiesData)
-    -- Create combat-instance copies of deck cards with state
-    local combatCards = {}
-    for _, cardTemplate in ipairs(world.player.deck) do
-        table.insert(combatCards, copyCard(cardTemplate))
-    end
-
-    return {
-        -- PLAYER (combat state)
-        player = {
-            id = world.player.id,
-            name = world.player.name,
-            hp = world.player.currentHp,  -- Current HP from world
-            maxHp = world.player.maxHp,   -- Max HP from world (can be modified in combat)
-            block = 0,
-            energy = 3,
-            maxEnergy = 3,
-
-            cards = combatCards,  -- Combat instances with state property
-
-            relics = world.player.relics,  -- Reference to world relics
-        },
-
-        -- ENEMIES
-        enemies = enemiesData,  -- Array of enemy entities
-
-        -- COMBAT STATE
-        -- Tracks combat-wide counters for card mechanics
-        combat = {
-            timesHpLost = 0,              -- For Blood for Blood cost reduction (and Masterful Stab increase)
-            cardsDiscardedThisTurn = 0,   -- For Eviscerate cost reduction
-            powersPlayedThisCombat = 0,   -- For Force Field cost reduction
-        },
-
-        -- EVENT QUEUE
-        queue = EventQueue.new(),
-
-        -- COMBAT LOG
-        log = {}
+function CombatEngine.initCombat(world)
+    -- Add combat-specific temporary context to world
+    world.combat = {
+        timesHpLost = 0,              -- For Blood for Blood cost reduction (and Masterful Stab increase)
+        cardsDiscardedThisTurn = 0,   -- For Eviscerate cost reduction
+        powersPlayedThisCombat = 0,   -- For Force Field cost reduction
     }
-end
 
--- ============================================================================
--- COMBAT AFTERMATH
--- ============================================================================
+    world.queue = EventQueue.new()
+    world.log = {}
 
--- Apply combat results back to the world state
-function CombatCombatEngine.applyCombatResults(world, combat, victory)
-    if victory then
-        -- Update world HP after combat
-        world.player.currentHp = combat.player.hp
-    else
-        -- Player died
-        world.player.currentHp = 0
+    -- Initialize card states to DECK
+    for _, card in ipairs(world.player.cards) do
+        card.state = "DECK"
     end
+
+    -- Reset combat-specific player state
+    world.player.block = 0
+    world.player.energy = 3
+    world.player.hp = world.player.currentHp
+
+    return world  -- Return for convenience, but modifies in place
 end
 
-function CombatCombatEngine.addLogEntry(combat, message)
-    table.insert(combat.log, message)
+-- ============================================================================
+-- COMBAT CLEANUP
+-- ============================================================================
+
+-- Clean up temporary combat context after combat ends
+function CombatEngine.cleanupCombat(world)
+    -- Update persistent HP
+    world.player.currentHp = world.player.hp
+
+    -- Remove card states
+    for _, card in ipairs(world.player.cards) do
+        card.state = nil
+    end
+
+    -- Clear combat-specific player state
+    world.player.block = 0
+    world.player.status = nil
+    world.player.powers = nil
+
+    -- Clear enemies
+    world.enemies = nil
+
+    -- Remove combat context
+    world.combat = nil
+    world.queue = nil
+    world.log = nil
+end
+
+function CombatEngine.addLogEntry(world, message)
+    table.insert(world.log, message)
 end
 
 -- ============================================================================
@@ -105,7 +90,7 @@ end
 -- ============================================================================
 
 -- Get all cards in a specific state
-function CombatCombatEngine.getCardsByState(player, state)
+function CombatEngine.getCardsByState(player, state)
     local cards = {}
     for _, card in ipairs(player.cards) do
         if card.state == state then
@@ -116,7 +101,7 @@ function CombatCombatEngine.getCardsByState(player, state)
 end
 
 -- Get count of cards in a specific state
-function CombatCombatEngine.getCardCountByState(player, state)
+function CombatEngine.getCardCountByState(player, state)
     local count = 0
     for _, card in ipairs(player.cards) do
         if card.state == state then
