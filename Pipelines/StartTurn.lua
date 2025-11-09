@@ -3,6 +3,7 @@
 -- player: the player character
 --
 -- Handles:
+-- - Clear turn-based player flags (cannotDraw from Bullet Time)
 -- - Reset block to 0
 -- - Draw cards (5 base + Snecko Eye bonus)
 -- - Trigger any start-of-turn power effects
@@ -16,6 +17,9 @@ local DrawCard = require("Pipelines.DrawCard")
 
 function StartTurn.execute(world, player)
     table.insert(world.log, "--- Start of Player Turn ---")
+
+    -- Clear turn-based player flags
+    player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
 
     -- Reset block
     player.block = 0

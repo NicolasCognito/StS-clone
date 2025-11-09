@@ -50,7 +50,9 @@ function Engine.createGameState(playerData, enemyData)
         -- COMBAT STATE
         -- Tracks combat-wide counters for card mechanics
         combat = {
-            timesHpLost = 0,  -- For Blood for Blood cost reduction
+            timesHpLost = 0,              -- For Blood for Blood cost reduction (and Masterful Stab increase)
+            cardsDiscardedThisTurn = 0,   -- For Eviscerate cost reduction
+            powersPlayedThisCombat = 0,   -- For Force Field cost reduction
         },
 
         -- EVENT QUEUE

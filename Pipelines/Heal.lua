@@ -22,6 +22,12 @@ function Heal.execute(world, event)
     target.hp = math.min(target.hp + amount, target.maxHp)
     local actualHealing = target.hp - oldHp
 
+    -- Apply caps to target (HP, block, status effects)
+    world.queue:push({
+        type = "ON_APPLY_CAPS",
+        character = target
+    })
+
     table.insert(world.log, target.name .. " healed " .. actualHealing .. " HP (from " .. relic.name .. ")")
 end
 

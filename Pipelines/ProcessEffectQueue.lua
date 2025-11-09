@@ -15,6 +15,8 @@
 -- - ON_ACQUIRE_CARD: routes to AcquireCard
 -- - ON_APPLY_POWER: routes to ApplyPower
 -- - ON_EXHAUST: routes to Exhaust
+-- - ON_CUSTOM_EFFECT: routes to CustomEffect
+-- - ON_APPLY_CAPS: routes to ApplyCaps
 --
 -- Simple linear processing (no recursion)
 
@@ -28,6 +30,8 @@ local ApplyStatusEffect = require("Pipelines.ApplyStatusEffect")
 local AcquireCard = require("Pipelines.AcquireCard")
 local ApplyPower = require("Pipelines.ApplyPower")
 local Exhaust = require("Pipelines.Exhaust")
+local CustomEffect = require("Pipelines.CustomEffect")
+local ApplyCaps = require("Pipelines.ApplyCaps")
 
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
@@ -49,6 +53,10 @@ function ProcessEffectQueue.execute(world)
             ApplyPower.execute(world, event)
         elseif event.type == "ON_EXHAUST" then
             Exhaust.execute(world, event)
+        elseif event.type == "ON_CUSTOM_EFFECT" then
+            CustomEffect.execute(world, event)
+        elseif event.type == "ON_APPLY_CAPS" then
+            ApplyCaps.execute(world, event.character)
         else
             table.insert(world.log, "Unknown event type: " .. event.type)
         end

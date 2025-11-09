@@ -5,13 +5,26 @@
 -- Handles:
 -- - Trigger relics' onEndCombat effects
 -- - Process effect queue
+-- - Handle Retain mechanics (don't discard retained cards)
 -- - Discard remaining hand
--- - Reset energy
+-- - Clear temporary turn flags
+-- - Reset energy and turn counters
 -- - Combat logging
 
 local EndTurn = {}
 
 local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
+
+-- Helper to check if player has a power
+local function hasPower(player, powerId)
+    if not player.powers then return false end
+    for _, power in ipairs(player.powers) do
+        if power.id == powerId then
+            return true
+        end
+    end
+    return false
+end
 
 function EndTurn.execute(world, player)
     table.insert(world.log, "--- End of Player Turn ---")
@@ -36,19 +49,43 @@ function EndTurn.execute(world, player)
         end
     end
 
-    -- Clear costsZeroThisTurn from ALL cards (not just hand)
+    -- Handle Retain mechanics and discard hand
+    local hasEstablishment = hasPower(player, "Establishment")
+
     for _, card in ipairs(player.cards) do
-        if card.costsZeroThisTurn then
-            card.costsZeroThisTurn = nil
+        if card.state == "HAND" then
+            -- Check if card has Retain keyword
+            if card.retain then
+                -- Don't discard, but trigger retain effects
+                card.timesRetained = (card.timesRetained or 0) + 1
+
+                -- Establishment power: reduce cost by 1 for each turn retained
+                if hasEstablishment then
+                    card.retainCostReduction = (card.retainCostReduction or 0) + 1
+                end
+
+                -- Card stays in hand (don't change state)
+                table.insert(world.log, card.name .. " was retained")
+            else
+                -- Normal discard
+                card.state = "DISCARD_PILE"
+            end
         end
     end
 
-    -- Discard remaining hand (change state from HAND to DISCARD_PILE)
+    -- Clear temporary turn-based flags from ALL cards
     for _, card in ipairs(player.cards) do
-        if card.state == "HAND" then
-            card.state = "DISCARD_PILE"
+        -- Clear "this turn" effects
+        if card.costsZeroThisTurn then
+            card.costsZeroThisTurn = nil
+        end
+        if card.enlightenedThisTurn then
+            card.enlightenedThisTurn = nil
         end
     end
+
+    -- Reset turn-based combat trackers
+    world.combat.cardsDiscardedThisTurn = 0
 
     -- Reset energy for next turn
     player.energy = player.maxEnergy

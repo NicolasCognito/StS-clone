@@ -49,6 +49,12 @@ function DealNonAttackDamage.execute(world, event)
     -- Apply remaining damage to HP
     target.hp = target.hp - damage
 
+    -- Apply caps to target (HP, block, status effects)
+    world.queue:push({
+        type = "ON_APPLY_CAPS",
+        character = target
+    })
+
     -- Track HP loss for Blood for Blood (only if player lost HP)
     if target == world.player and damage > 0 then
         world.combat.timesHpLost = world.combat.timesHpLost + 1
