@@ -19,7 +19,7 @@ local cardFiles = {
     "whirlwind",
     "skewer",
     "intimidate",
-    "terrify"
+    "thunderclap"
 }
 
 for _, fileName in ipairs(cardFiles) do
