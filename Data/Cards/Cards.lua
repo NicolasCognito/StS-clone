@@ -255,21 +255,52 @@ local Cards = {
         Targeted = 1,
         description = "Double the target's Poison.",
 
-        onPlay = function(self, world, player, target)
-            -- Check if target has poison status
-            if target.status and target.status.poison and target.status.poison > 0 then
-                local oldPoison = target.status.poison
+        onPlay = function(self, world, player, context)
+            -- context is the enemy
+            if context.status and context.status.poison and context.status.poison > 0 then
+                local oldPoison = context.status.poison
                 local newPoison = oldPoison * self.poisonMultiplier
-                target.status.poison = newPoison
-                table.insert(world.log, target.name .. "'s Poison increased from " .. oldPoison .. " to " .. newPoison)
+                context.status.poison = newPoison
+                table.insert(world.log, context.name .. "'s Poison increased from " .. oldPoison .. " to " .. newPoison)
             else
-                table.insert(world.log, target.name .. " has no Poison to multiply")
+                table.insert(world.log, context.name .. " has no Poison to multiply")
             end
         end,
 
         onUpgrade = function(self)
             self.poisonMultiplier = 3
             self.description = "Triple the target's Poison."
+        end
+    },
+
+    Whirlwind = {
+        id = "Whirlwind",
+        name = "Whirlwind",
+        cost = "X",  -- X cost card
+        type = "ATTACK",
+        damage = 5,
+        Targeted = 0,  -- No targeting - hits all enemies
+        description = "Deal 5 damage to ALL enemies X times.",
+
+        onPlay = function(self, world, player, context)
+            -- paidXEnergy is set by PlayCard pipeline
+            local times = self.paidXEnergy or 0
+
+            for i = 1, times do
+                world.queue:push({
+                    type = "ON_DAMAGE",
+                    attacker = player,
+                    defender = "ALL_ENEMIES",  -- Special marker for queue replication
+                    card = self
+                })
+            end
+
+            table.insert(world.log, "Whirlwind hit " .. times .. " times!")
+        end,
+
+        onUpgrade = function(self)
+            self.damage = 8
+            self.description = "Deal 8 damage to ALL enemies X times."
         end
     }
 }

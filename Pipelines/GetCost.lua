@@ -6,18 +6,19 @@
 -- Handles:
 -- - Calculate the current cost of a card
 -- - Priority order:
---   1. permanentCostZero (permanent 0 cost for rest of combat)
---   2. costsZeroThisTurn (costs 0 this turn only)
---   3. Corruption power (Skills cost 0)
---   4. confused (from Confused status - random 0-3) or base cost
---   5. Cost reductions/increases:
+--   1. X cost cards (consume all energy)
+--   2. permanentCostZero (permanent 0 cost for rest of combat)
+--   3. costsZeroThisTurn (costs 0 this turn only)
+--   4. Corruption power (Skills cost 0)
+--   5. confused (from Confused status - random 0-3) or base cost
+--   6. Cost reductions/increases:
 --      - costReductionPerHpLoss (Blood for Blood, Masterful Stab with -1)
 --      - costReductionPerDiscard (Eviscerate)
 --      - costReductionPerPowerPlayed (Force Field)
 --      - costReductionPerRetain (Sands of Time)
 --      - retainCostReduction (Establishment power)
---   6. Enlightenment (cap cost at 1 if cost >= 2)
---   7. Minimum 0
+--   7. Enlightenment (cap cost at 1 if cost >= 2)
+--   8. Minimum 0
 --
 -- This is the centralized place for all cost calculation logic
 
@@ -35,13 +36,20 @@ local function hasPower(player, powerId)
 end
 
 function GetCost.execute(world, player, card)
-    -- HIGHEST PRIORITY: permanentCostZero flag
+    -- HIGHEST PRIORITY: X cost cards
+    -- X cost cards consume all available energy
+    -- Used by: Whirlwind, Meteor Strike, Tempest, etc.
+    if card.cost == "X" then
+        return player.energy
+    end
+
+    -- SECOND PRIORITY: permanentCostZero flag
     -- Used by: Setup, Forethought, Madness, Chrysalis, Metamorphosis
     if card.permanentCostZero == 1 then
         return 0
     end
 
-    -- SECOND PRIORITY: costsZeroThisTurn flag
+    -- THIRD PRIORITY: costsZeroThisTurn flag
     -- Used by: Bullet Time, Infernal Blade, potions, etc.
     if card.costsZeroThisTurn == 1 then
         return 0

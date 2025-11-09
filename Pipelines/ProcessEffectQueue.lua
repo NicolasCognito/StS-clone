@@ -38,7 +38,31 @@ function ProcessEffectQueue.execute(world)
         local event = world.queue:next()
 
         if event.type == "ON_DAMAGE" then
-            DealDamage.execute(world, event)
+            -- Handle ALL_ENEMIES replication
+            if event.defender == "ALL_ENEMIES" then
+                -- Replicate event for each enemy
+                -- For now, just single enemy; when world.enemies array exists, loop through it
+                if world.enemy then
+                    local singleEvent = {
+                        type = event.type,
+                        attacker = event.attacker,
+                        defender = world.enemy,
+                        card = event.card,
+                        tags = event.tags
+                    }
+                    DealDamage.execute(world, singleEvent)
+                end
+                -- TODO: When multiple enemies supported:
+                -- if world.enemies then
+                --     for _, enemy in ipairs(world.enemies) do
+                --         local singleEvent = { ... defender = enemy ... }
+                --         DealDamage.execute(world, singleEvent)
+                --     end
+                -- end
+            else
+                -- Normal single target
+                DealDamage.execute(world, event)
+            end
             -- Apply caps to all characters after damage
             ApplyCaps.execute(world)
 

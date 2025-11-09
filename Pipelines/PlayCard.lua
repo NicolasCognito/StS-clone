@@ -64,6 +64,12 @@ function PlayCard.execute(world, player, card, providedContext)
 
     -- Pay energy cost
     player.energy = player.energy - cardCost
+
+    -- Store paid energy for X cost cards (so card.onPlay can use it)
+    if card.cost == "X" then
+        card.paidXEnergy = cardCost
+    end
+
     table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
 
     -- STEP 3: TRACK STATISTICS
