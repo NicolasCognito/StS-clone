@@ -35,7 +35,7 @@ function Utils.deepCopyCard(card)
 end
 
 -- Deep copy an entire deck
--- Used when copying globalDeck to player.cards for battle
+-- Used when copying masterDeck to combatDeck at battle start
 function Utils.deepCopyDeck(deck)
     local copy = {}
     for i, card in ipairs(deck) do
@@ -87,9 +87,10 @@ end
 
 -- Get all cards in a specific state
 -- States: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
-function Utils.getCardsByState(player, state)
+-- deck: the deck to search (typically player.combatDeck during combat, player.masterDeck outside)
+function Utils.getCardsByState(deck, state)
     local cards = {}
-    for _, card in ipairs(player.cards) do
+    for _, card in ipairs(deck) do
         if card.state == state then
             table.insert(cards, card)
         end
@@ -99,9 +100,10 @@ end
 
 -- Get count of cards in a specific state
 -- States: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
-function Utils.getCardCountByState(player, state)
+-- deck: the deck to search (typically player.combatDeck during combat, player.masterDeck outside)
+function Utils.getCardCountByState(deck, state)
     local count = 0
-    for _, card in ipairs(player.cards) do
+    for _, card in ipairs(deck) do
         if card.state == state then
             count = count + 1
         end

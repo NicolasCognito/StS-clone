@@ -15,11 +15,11 @@ function CombatEngine.addLogEntry(world, message)
 end
 
 function CombatEngine.getCardsByState(player, state)
-    return Utils.getCardsByState(player, state)
+    return Utils.getCardsByState(player.combatDeck, state)
 end
 
 function CombatEngine.getCardCountByState(player, state)
-    return Utils.getCardCountByState(player, state)
+    return Utils.getCardCountByState(player.combatDeck, state)
 end
 
 local function aliveEnemies(world)
@@ -153,28 +153,36 @@ function CombatEngine.playGame(world)
                 else
                     print("Invalid target. Try again.")
                 end
-            elseif pendingContextType == "cards_in_hand" or pendingContextType == "cards_in_discard" or pendingContextType == "cards_in_deck" then
-                local state = pendingContextType == "cards_in_hand" and "HAND"
-                             or pendingContextType == "cards_in_discard" and "DISCARD_PILE"
-                             or "DECK"
-
-                local availableCards = CombatEngine.getCardsByState(world.player, state)
-                local selectableCards = {}
-                for _, card in ipairs(availableCards) do
-                    if card ~= pendingCard then
-                        table.insert(selectableCards, card)
-                    end
-                end
+            elseif pendingContextType == "cards_in_hand" or pendingContextType == "cards_in_discard" or pendingContextType == "cards_in_deck" or pendingContextType == "cards" then
+                -- Use ContextProvider to get valid cards (handles both legacy and new flexible system)
+                local selectableCards = ContextProvider.getValidCards(world, world.player, pendingCard)
 
                 if #selectableCards == 0 then
                     print("No cards available to select.")
                     validInput = true
                     context = {}
                 else
-                    local pileName = pendingContextType == "cards_in_hand" and "hand"
-                                    or pendingContextType == "cards_in_discard" and "discard pile"
-                                    or "deck"
-                    print("\nChoose a card from " .. pileName .. ":")
+                    -- Determine display name for the card source
+                    local sourceName
+                    if pendingContextType == "cards_in_hand" then
+                        sourceName = "hand"
+                    elseif pendingContextType == "cards_in_discard" then
+                        sourceName = "discard pile"
+                    elseif pendingContextType == "cards_in_deck" then
+                        sourceName = "deck"
+                    else
+                        -- New flexible system
+                        local info = ContextProvider.getSelectionInfo(pendingCard)
+                        if info.state then
+                            sourceName = info.state == "HAND" and "hand"
+                                      or info.state == "DISCARD_PILE" and "discard pile"
+                                      or "deck"
+                        else
+                            sourceName = info.source == "master" and "master deck" or "available cards"
+                        end
+                    end
+
+                    print("\nChoose a card from " .. sourceName .. ":")
                     for i, card in ipairs(selectableCards) do
                         print("  [" .. i .. "] " .. card.name)
                     end
