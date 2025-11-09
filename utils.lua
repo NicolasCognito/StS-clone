@@ -73,6 +73,31 @@ function Utils.hasPower(player, powerId)
     return false
 end
 
+-- Check if player has a specific relic
+-- Used throughout pipelines to check for relic effects
+function Utils.hasRelic(player, relicId)
+    if not player.relics then return false end
+    for _, relic in ipairs(player.relics) do
+        if relic.id == relicId then
+            return true
+        end
+    end
+    return false
+end
+
+-- Get a specific relic from player's relics
+-- Returns the relic object if found, nil otherwise
+-- Useful for accessing relic properties like triggerCount, damageMultiplier, etc.
+function Utils.getRelic(player, relicId)
+    if not player.relics then return nil end
+    for _, relic in ipairs(player.relics) do
+        if relic.id == relicId then
+            return relic
+        end
+    end
+    return nil
+end
+
 -- Check if a tag exists in a tags array
 -- Used for checking effect tags like "ignoreBlock", "costsZeroThisTurn", etc.
 function Utils.hasTag(tags, tagName)

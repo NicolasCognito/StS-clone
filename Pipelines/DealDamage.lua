@@ -65,16 +65,19 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags)
         local vulnerableMultiplier = 1.5  -- default 50%
 
         -- Check if attacker has Paper Phrog relic
-        if attacker.relics then
-            for _, relic in ipairs(attacker.relics) do
-                if relic.id == "Paper_Phrog" then
-                    vulnerableMultiplier = 1.75  -- Paper Phrog: 75%
-                    break
-                end
-            end
+        local paperPhrog = Utils.getRelic(attacker, "Paper_Phrog")
+        if paperPhrog then
+            vulnerableMultiplier = paperPhrog.vulnerableMultiplier
         end
 
         damage = math.floor(damage * vulnerableMultiplier)
+    end
+
+    -- Apply Pen Nib: Double damage on 10th attack
+    local penNib = Utils.getRelic(attacker, "Pen_Nib")
+    if penNib and world.penNibCounter >= penNib.triggerCount then
+        damage = damage * penNib.damageMultiplier
+        table.insert(world.log, "Pen Nib activated! (x" .. penNib.damageMultiplier .. " damage)")
     end
 
     -- Apply Intangible: Reduce damage to 1 if defender has Intangible status
@@ -85,13 +88,8 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags)
     -- Apply The Boot: If damage is 4 or less, increase it to 5
     -- This is applied AFTER Intangible so The Boot bypasses Intangible damage reduction
     -- (matching Slay the Spire behavior)
-    if damage <= 4 and attacker.relics then
-        for _, relic in ipairs(attacker.relics) do
-            if relic.id == "The_Boot" then
-                damage = 5
-                break
-            end
-        end
+    if damage <= 4 and Utils.hasRelic(attacker, "The_Boot") then
+        damage = 5
     end
 
     local blockAbsorbed = 0
