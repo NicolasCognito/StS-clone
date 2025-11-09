@@ -1,5 +1,7 @@
--- GAME ENGINE
--- Initializes and manages game state, runs the main game loop
+-- COMBAT ENGINE
+-- Manages combat encounters and the combat loop
+-- Combat state is ephemeral - created per encounter, discarded after
+-- Persistent game state (deck, relics, HP) is managed by World.lua
 
 local EventQueue = require("Pipelines.EventQueue")
 local PlayCard = require("Pipelines.PlayCard")
@@ -10,39 +12,54 @@ local StartTurn = require("Pipelines.StartTurn")
 local GetCost = require("Pipelines.GetCost")
 local ContextProvider = require("Pipelines.ContextProvider")
 
-local Engine = {}
+local CombatEngine = {}
 
 -- ============================================================================
--- GAME STATE INITIALIZATION
+-- COMBAT STATE INITIALIZATION
 -- ============================================================================
--- The 'world' object passed to all pipelines contains:
--- - player: player character with hp, maxHp, block, energy, cards (single table)
+-- The 'combat' object passed to all pipelines contains:
+-- - player: combat player state (hp, block, energy, cards with state, status, powers)
 -- - enemies: array of enemy entities with hp, maxHp, intents
--- - combat: combat-wide state (timesHpLost, etc.)
+-- - combat: combat-wide counters (timesHpLost, etc.)
 -- - queue: event queue for all actions
 -- - log: combat log for debugging/display
--- - relics: player's relics list
 --
 -- Cards architecture:
 -- - All cards are stored in player.cards[] (single source of truth)
 -- - Each card has a 'state' property: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
 -- - Use helper functions to get cards by state
+--
+-- Helper to copy a card template and set initial state
+local function copyCard(cardTemplate)
+    local copy = {}
+    for k, v in pairs(cardTemplate) do
+        copy[k] = v
+    end
+    copy.state = "DECK"  -- All cards start in deck
+    return copy
+end
 
-function Engine.createGameState(playerData, enemiesData)
+function CombatCombatEngine.createCombatState(world, enemiesData)
+    -- Create combat-instance copies of deck cards with state
+    local combatCards = {}
+    for _, cardTemplate in ipairs(world.player.deck) do
+        table.insert(combatCards, copyCard(cardTemplate))
+    end
+
     return {
-        -- PLAYER
+        -- PLAYER (combat state)
         player = {
-            id = playerData.id or "IronClad",
-            name = playerData.name or playerData.id or "IronClad",
-            hp = playerData.hp or 80,
-            maxHp = playerData.hp or 80,
+            id = world.player.id,
+            name = world.player.name,
+            hp = world.player.currentHp,  -- Current HP from world
+            maxHp = world.player.maxHp,   -- Max HP from world (can be modified in combat)
             block = 0,
             energy = 3,
             maxEnergy = 3,
 
-            cards = {},  -- All cards with state property (DECK, HAND, DISCARD_PILE, EXHAUSTED_PILE)
+            cards = combatCards,  -- Combat instances with state property
 
-            relics = playerData.relics or {},
+            relics = world.player.relics,  -- Reference to world relics
         },
 
         -- ENEMIES
@@ -65,16 +82,22 @@ function Engine.createGameState(playerData, enemiesData)
 end
 
 -- ============================================================================
--- GAME LOOP
+-- COMBAT AFTERMATH
 -- ============================================================================
 
-function Engine.init(playerData, enemyData)
-    local world = Engine.createGameState(playerData, enemyData)
-    return world
+-- Apply combat results back to the world state
+function CombatCombatEngine.applyCombatResults(world, combat, victory)
+    if victory then
+        -- Update world HP after combat
+        world.player.currentHp = combat.player.hp
+    else
+        -- Player died
+        world.player.currentHp = 0
+    end
 end
 
-function Engine.addLogEntry(world, message)
-    table.insert(world.log, message)
+function CombatCombatEngine.addLogEntry(combat, message)
+    table.insert(combat.log, message)
 end
 
 -- ============================================================================
@@ -82,7 +105,7 @@ end
 -- ============================================================================
 
 -- Get all cards in a specific state
-function Engine.getCardsByState(player, state)
+function CombatCombatEngine.getCardsByState(player, state)
     local cards = {}
     for _, card in ipairs(player.cards) do
         if card.state == state then
@@ -93,7 +116,7 @@ function Engine.getCardsByState(player, state)
 end
 
 -- Get count of cards in a specific state
-function Engine.getCardCountByState(player, state)
+function CombatCombatEngine.getCardCountByState(player, state)
     local count = 0
     for _, card in ipairs(player.cards) do
         if card.state == state then
@@ -107,7 +130,7 @@ end
 -- GAME DISPLAY
 -- ============================================================================
 
-function Engine.displayGameState(world)
+function CombatEngine.displayGameState(world)
     print("\n" .. string.rep("=", 60))
 
     -- Display all enemies
@@ -159,7 +182,7 @@ function Engine.displayGameState(world)
 
     print(string.rep("-", 60))
     print("HAND:")
-    local hand = Engine.getCardsByState(world.player, "HAND")
+    local hand = CombatEngine.getCardsByState(world.player, "HAND")
     if #hand == 0 then
         print("  (empty)")
     else
@@ -172,7 +195,7 @@ function Engine.displayGameState(world)
     print(string.rep("=", 60))
 end
 
-function Engine.displayLog(world, count)
+function CombatEngine.displayLog(world, count)
     count = count or 5
     print("\nRECENT LOG:")
     local start = math.max(1, #world.log - count + 1)
@@ -185,7 +208,7 @@ end
 -- GAME LOOP
 -- ============================================================================
 
-function Engine.playGame(world)
+function CombatEngine.playGame(world)
     local gameOver = false
     local waitingForContext = false
     local pendingCard = nil
@@ -195,7 +218,7 @@ function Engine.playGame(world)
     StartTurn.execute(world, world.player)
 
     while not gameOver do
-        Engine.displayGameState(world)
+        CombatEngine.displayGameState(world)
 
         if waitingForContext then
             local context = nil
@@ -231,7 +254,7 @@ function Engine.playGame(world)
                            or pendingContextType == "cards_in_discard" and "DISCARD_PILE"
                            or "DECK"
 
-                local availableCards = Engine.getCardsByState(world.player, state)
+                local availableCards = CombatEngine.getCardsByState(world.player, state)
 
                 -- Remove the card being played from selection (if selecting from hand)
                 local selectableCards = {}
@@ -283,7 +306,7 @@ function Engine.playGame(world)
             if validInput then
                 -- Execute the pending card with context
                 PlayCard.execute(world, world.player, pendingCard, context)
-                Engine.displayLog(world, 3)
+                CombatEngine.displayLog(world, 3)
                 waitingForContext = false
                 pendingCard = nil
                 pendingContextType = nil
@@ -308,7 +331,7 @@ function Engine.playGame(world)
 
             if command == "play" then
                 local cardIndex = tonumber(arg)
-                local hand = Engine.getCardsByState(world.player, "HAND")
+                local hand = CombatEngine.getCardsByState(world.player, "HAND")
                 if cardIndex and cardIndex >= 1 and cardIndex <= #hand then
                     local card = hand[cardIndex]
 
@@ -318,7 +341,7 @@ function Engine.playGame(world)
                     if contextType == "none" then
                         -- No context needed, execute immediately
                         PlayCard.execute(world, world.player, card, nil)
-                        Engine.displayLog(world, 3)
+                        CombatEngine.displayLog(world, 3)
                     else
                         -- Card requires context, wait for user input
                         pendingCard = card
@@ -352,7 +375,7 @@ function Engine.playGame(world)
                             EnemyTakeTurn.execute(world, enemy, world.player)
                         end
                     end
-                    Engine.displayLog(world, 5)
+                    CombatEngine.displayLog(world, 5)
 
                     -- Check if player lost
                     if world.player.hp <= 0 then
@@ -388,7 +411,7 @@ function Engine.playGame(world)
     end
 
     print("\nGame Over!")
-    Engine.displayLog(world, 10)
+    CombatEngine.displayLog(world, 10)
 end
 
-return Engine
+return CombatEngine

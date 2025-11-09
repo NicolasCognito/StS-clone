@@ -1,24 +1,32 @@
 -- MAIN ENTRY POINT
--- Sets up and runs a simple combat encounter
+-- Sets up world state and runs a simple combat encounter
 
-local Engine = require("Engine")
+local World = require("World")
+local CombatEngine = require("CombatEngine")
 local Cards = require("Data.Cards.Cards")
 local Enemies = require("Data.Enemies.Enemies")
 local Relics = require("Data.Relics.Relics")
 
--- Helper function to copy a card (for deck building)
+-- Helper function to copy a card template (for deck building)
 local function copyCard(cardTemplate)
     local copy = {}
     for k, v in pairs(cardTemplate) do
         copy[k] = v
     end
-    -- Initialize state to DECK
-    copy.state = "DECK"
     return copy
 end
 
--- Build a starting deck (5 Strikes, 4 Defends, 1 Bash)
--- Returns an array of cards with state = "DECK"
+-- Helper function to copy an enemy template
+local function copyEnemy(enemyTemplate)
+    local copy = {}
+    for k, v in pairs(enemyTemplate) do
+        copy[k] = v
+    end
+    return copy
+end
+
+-- Build a starting deck (5 Strikes, 4 Defends, 1 Bash + test cards)
+-- Returns an array of card templates (no state property)
 local function buildStartingDeck()
     local cards = {}
 
@@ -53,40 +61,22 @@ local function buildStartingDeck()
     return cards
 end
 
--- Initialize player data
-local playerData = {
+-- ============================================================================
+-- CREATE WORLD STATE
+-- ============================================================================
+
+local world = World.createWorld({
     id = "IronClad",
-    hp = 80,
-    relics = {Relics.PaperPhrog}  -- Change to Relics.SneckoEye to test Confused
-}
+    maxHp = 80,
+    deck = buildStartingDeck(),
+    relics = {Relics.PaperPhrog},  -- Change to Relics.SneckoEye to test Confused
+    gold = 99
+})
 
--- Initialize enemies (create two goblins)
-local enemiesData = {
-    copyCard(Enemies.Goblin),
-    copyCard(Enemies.Goblin)
-}
+-- ============================================================================
+-- START COMBAT ENCOUNTER
+-- ============================================================================
 
--- Create game state
-local world = Engine.createGameState(playerData, enemiesData)
-
--- Set up player's cards (all start in DECK state)
-world.player.cards = buildStartingDeck()
-
--- Apply relic combat-start effects
--- Check if player has Snecko Eye and apply Confused
-for _, relic in ipairs(world.player.relics) do
-    if relic.id == "Snecko_Eye" then
-        -- Initialize status table if needed
-        if not world.player.status then
-            world.player.status = {}
-        end
-        -- Apply permanent Confused for the combat
-        world.player.status.confused = 999  -- Lasts entire combat
-        table.insert(world.log, "You are Confused!")
-    end
-end
-
--- Start the game
 print("=== SLAY THE SPIRE CLONE ===")
 print("Welcome to combat!")
 print("\nCommands:")
@@ -95,4 +85,37 @@ print("  end - End your turn")
 print("\nPress Enter to start...")
 io.read()
 
-Engine.playGame(world)
+-- Create enemies for this encounter (two goblins)
+local enemiesData = {
+    copyEnemy(Enemies.Goblin),
+    copyEnemy(Enemies.Goblin)
+}
+
+-- Create combat state from world
+local combat = CombatEngine.createCombatState(world, enemiesData)
+
+-- Apply relic combat-start effects
+-- Check if player has Snecko Eye and apply Confused
+for _, relic in ipairs(combat.player.relics) do
+    if relic.id == "Snecko_Eye" then
+        -- Initialize status table if needed
+        if not combat.player.status then
+            combat.player.status = {}
+        end
+        -- Apply permanent Confused for the combat
+        combat.player.status.confused = 999  -- Lasts entire combat
+        table.insert(combat.log, "You are Confused!")
+    end
+end
+
+-- Run the combat
+CombatEngine.playGame(combat)
+
+-- Apply combat results back to world
+local victory = combat.player.hp > 0
+CombatEngine.applyCombatResults(world, combat, victory)
+
+-- Display final world state
+print("\n=== AFTER COMBAT ===")
+print("Player HP: " .. world.player.currentHp .. "/" .. world.player.maxHp)
+print("Gold: " .. world.player.gold)
