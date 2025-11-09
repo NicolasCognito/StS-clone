@@ -17,7 +17,7 @@
 
 local ApplyCaps = {}
 
-local StatusEffects = require("Data.StatusEffects.StatusEffects")
+local StatusEffects = require("Data.statuseffects")
 
 -- Apply caps to a single character
 local function applyToCharacter(character)

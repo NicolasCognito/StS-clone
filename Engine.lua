@@ -8,6 +8,7 @@ local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
 local DrawCard = require("Pipelines.DrawCard")
 local StartTurn = require("Pipelines.StartTurn")
 local GetCost = require("Pipelines.GetCost")
+local Utils = require("utils")
 
 local Engine = {}
 
@@ -44,6 +45,9 @@ function Engine.createGameState(playerData, enemyData)
             relics = playerData.relics or {},
         },
 
+        -- GLOBAL DECK (master copy, persists across battles)
+        globalDeck = {},
+
         -- ENEMY
         enemy = enemyData,
 
@@ -74,32 +78,6 @@ end
 
 function Engine.addLogEntry(world, message)
     table.insert(world.log, message)
-end
-
--- ============================================================================
--- CARD STATE HELPER FUNCTIONS
--- ============================================================================
-
--- Get all cards in a specific state
-function Engine.getCardsByState(player, state)
-    local cards = {}
-    for _, card in ipairs(player.cards) do
-        if card.state == state then
-            table.insert(cards, card)
-        end
-    end
-    return cards
-end
-
--- Get count of cards in a specific state
-function Engine.getCardCountByState(player, state)
-    local count = 0
-    for _, card in ipairs(player.cards) do
-        if card.state == state then
-            count = count + 1
-        end
-    end
-    return count
 end
 
 -- ============================================================================
@@ -151,7 +129,7 @@ function Engine.displayGameState(world)
 
     print(string.rep("-", 60))
     print("HAND:")
-    local hand = Engine.getCardsByState(world.player, "HAND")
+    local hand = Utils.getCardsByState(world.player, "HAND")
     if #hand == 0 then
         print("  (empty)")
     else
@@ -228,7 +206,7 @@ function Engine.playGame(world)
 
             if command == "play" then
                 local cardIndex = tonumber(arg)
-                local hand = Engine.getCardsByState(world.player, "HAND")
+                local hand = Utils.getCardsByState(world.player, "HAND")
                 if cardIndex and cardIndex >= 1 and cardIndex <= #hand then
                     local card = hand[cardIndex]
 

@@ -23,16 +23,7 @@
 
 local GetCost = {}
 
--- Helper to check if player has a power
-local function hasPower(player, powerId)
-    if not player.powers then return false end
-    for _, power in ipairs(player.powers) do
-        if power.id == powerId then
-            return true
-        end
-    end
-    return false
-end
+local Utils = require("utils")
 
 function GetCost.execute(world, player, card)
     -- HIGHEST PRIORITY: permanentCostZero flag
@@ -48,7 +39,7 @@ function GetCost.execute(world, player, card)
     end
 
     -- CORRUPTION POWER: Skills cost 0
-    if hasPower(player, "Corruption") and card.type == "SKILL" then
+    if Utils.hasPower(player, "Corruption") and card.type == "SKILL" then
         return 0
     end
 

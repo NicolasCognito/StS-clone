@@ -14,17 +14,7 @@
 local EndTurn = {}
 
 local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
-
--- Helper to check if player has a power
-local function hasPower(player, powerId)
-    if not player.powers then return false end
-    for _, power in ipairs(player.powers) do
-        if power.id == powerId then
-            return true
-        end
-    end
-    return false
-end
+local Utils = require("utils")
 
 function EndTurn.execute(world, player)
     table.insert(world.log, "--- End of Player Turn ---")
@@ -50,7 +40,7 @@ function EndTurn.execute(world, player)
     end
 
     -- Handle Retain mechanics and discard hand
-    local hasEstablishment = hasPower(player, "Establishment")
+    local hasEstablishment = Utils.hasPower(player, "Establishment")
 
     for _, card in ipairs(player.cards) do
         if card.state == "HAND" then

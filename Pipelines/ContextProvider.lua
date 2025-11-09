@@ -30,16 +30,7 @@
 
 local ContextProvider = {}
 
--- Helper to get cards by state
-local function getCardsByState(player, state)
-    local cards = {}
-    for _, card in ipairs(player.cards) do
-        if card.state == state then
-            table.insert(cards, card)
-        end
-    end
-    return cards
-end
+local Utils = require("utils")
 
 function ContextProvider.getContextType(card)
     -- If card has explicit contextType, use it
@@ -74,7 +65,7 @@ function ContextProvider.execute(world, player, card)
                    or contextType == "cards_in_discard" and "DISCARD_PILE"
                    or "DECK"
 
-        local allCards = getCardsByState(player, state)
+        local allCards = Utils.getCardsByState(player, state)
         local validCards = {}
 
         -- Exclude the card being played (if selecting from hand)

@@ -25,17 +25,7 @@ local PlayCard = {}
 local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
 local GetCost = require("Pipelines.GetCost")
 local ContextProvider = require("Pipelines.ContextProvider")
-
--- Helper to check if player has a power
-local function hasPower(player, powerId)
-    if not player.powers then return false end
-    for _, power in ipairs(player.powers) do
-        if power.id == powerId then
-            return true
-        end
-    end
-    return false
-end
+local Utils = require("utils")
 
 function PlayCard.execute(world, player, card, providedContext)
     -- STEP 1: COLLECT CONTEXT
@@ -90,7 +80,7 @@ function PlayCard.execute(world, player, card, providedContext)
     local exhaustSource = nil
 
     -- Corruption: Skills are exhausted
-    if hasPower(player, "Corruption") and card.type == "SKILL" then
+    if Utils.hasPower(player, "Corruption") and card.type == "SKILL" then
         shouldExhaust = true
         exhaustSource = "Corruption"
     end
