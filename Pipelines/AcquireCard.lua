@@ -16,16 +16,7 @@
 
 local AcquireCard = {}
 
--- Helper function to check if a tag exists in the tags array
-local function hasTag(tags, tagName)
-    if not tags then return false end
-    for _, tag in ipairs(tags) do
-        if tag == tagName then
-            return true
-        end
-    end
-    return false
-end
+local Utils = require("utils")
 
 function AcquireCard.execute(world, player, cardTemplate, tags)
     tags = tags or {}
@@ -40,7 +31,7 @@ function AcquireCard.execute(world, player, cardTemplate, tags)
     newCard.state = "HAND"
 
     -- Apply tags
-    if hasTag(tags, "costsZeroThisTurn") then
+    if Utils.hasTag(tags, "costsZeroThisTurn") then
         newCard.costsZeroThisTurn = 1
     end
 

@@ -17,16 +17,7 @@
 
 local DealDamage = {}
 
--- Helper function to check if a tag exists in the tags array
-local function hasTag(tags, tagName)
-    if not tags then return false end
-    for _, tag in ipairs(tags) do
-        if tag == tagName then
-            return true
-        end
-    end
-    return false
-end
+local Utils = require("utils")
 
 function DealDamage.execute(world, event)
     local attacker = event.attacker
@@ -79,7 +70,7 @@ function DealDamage.execute(world, event)
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block
-    if not hasTag(tags, "ignoreBlock") then
+    if not Utils.hasTag(tags, "ignoreBlock") then
         -- Apply block absorption
         blockAbsorbed = math.min(defender.block, damage)
         defender.block = defender.block - blockAbsorbed
