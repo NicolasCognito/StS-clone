@@ -39,28 +39,28 @@ function ProcessEffectQueue.execute(world)
 
         if event.type == "ON_DAMAGE" then
             DealDamage.execute(world, event)
-            -- Apply caps to defender after damage
-            ApplyCaps.execute(world, event.defender)
+            -- Apply caps to all characters after damage
+            ApplyCaps.execute(world)
 
         elseif event.type == "ON_NON_ATTACK_DAMAGE" then
             DealNonAttackDamage.execute(world, event)
-            -- Apply caps to target after damage
-            ApplyCaps.execute(world, event.target)
+            -- Apply caps to all characters after damage
+            ApplyCaps.execute(world)
 
         elseif event.type == "ON_BLOCK" then
             ApplyBlock.execute(world, event)
-            -- Apply caps to target after block gain
-            ApplyCaps.execute(world, event.target)
+            -- Apply caps to all characters after block gain
+            ApplyCaps.execute(world)
 
         elseif event.type == "ON_HEAL" then
             Heal.execute(world, event)
-            -- Apply caps to target after healing
-            ApplyCaps.execute(world, event.target)
+            -- Apply caps to all characters after healing
+            ApplyCaps.execute(world)
 
         elseif event.type == "ON_STATUS_GAIN" then
             ApplyStatusEffect.execute(world, event)
-            -- Apply caps to target after status gain
-            ApplyCaps.execute(world, event.target)
+            -- Apply caps to all characters after status gain
+            ApplyCaps.execute(world)
 
         elseif event.type == "ON_ACQUIRE_CARD" then
             AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
