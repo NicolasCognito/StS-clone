@@ -10,7 +10,8 @@ local World = {}
 -- The 'world' object contains ALL game state:
 -- - player: player data (maxHp, currentHp, hp, block, energy, cards, relics, gold, status, powers)
 -- - enemies: current encounter enemies (or nil if not in combat)
--- - currentNode: current position on the map (future)
+-- - map: the map graph structure
+-- - currentNode: current position on the map
 -- - floor: current floor number
 --
 -- Combat state is just temporary context added during combat (queue, counters, log)
@@ -49,8 +50,9 @@ function World.createWorld(playerData)
         -- Enemies (current encounter, or nil if not in combat)
         enemies = nil,
 
-        -- Map state
-        currentNode = nil,
+        -- Map
+        map = playerData.map or nil,           -- Map graph structure
+        currentNode = playerData.startNode or nil,  -- Current node ID
         floor = 1,
     }
 end

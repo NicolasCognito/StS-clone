@@ -46,6 +46,17 @@ local Relics = {
         description = "Whenever you would deal 4 or less unblocked Attack damage, increase it to 5. Bypasses Intangible.",
         -- Passive relic - no delta functions needed
         -- Effect is hardcoded in DealDamage pipeline
+    },
+
+    WingedBoots = {
+        id = "Winged_Boots",
+        name = "Winged Boots",
+        rarity = "RARE",
+        description = "You may ignore paths and choose any room on the next floor 3 times.",
+        charges = 3,
+        -- Passive relic - logic is in ChooseNextNode pipeline
+        -- Cannot choose same floor, skip floors, or go back
+        -- Only works when moving to next floor
     }
 }
 
