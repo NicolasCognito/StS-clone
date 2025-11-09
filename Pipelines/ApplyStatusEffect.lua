@@ -2,13 +2,15 @@
 -- Processes ON_STATUS_GAIN events from the queue
 --
 -- Event should have:
--- - target: character gaining the status
+-- - target: character gaining the status (or "all" for AOE)
 -- - effectType: type of status (Poison, Vulnerable, Weak, Strength, etc.)
 -- - amount: amount of the status effect
 -- - source: what caused this effect (card, enemy, relic)
+-- - tags: (optional) array of tags like "aoe"
 --
 -- Handles:
--- - Applying status effects to character
+-- - Applying status effects to character(s)
+-- - AOE status application when target = "all"
 -- - Status-specific rules (caps, interactions, etc.)
 -- - Combat logging
 
@@ -19,7 +21,33 @@ function ApplyStatusEffect.execute(world, event)
     local effectType = event.effectType
     local amount = event.amount or 0
     local source = event.source
+    local tags = event.tags or {}
 
+    -- Handle AOE: target = "all" means hit all enemies
+    if target == "all" then
+        -- Add "aoe" tag so relics/powers can detect AOE effects
+        local aoeTags = {}
+        for _, tag in ipairs(tags) do
+            table.insert(aoeTags, tag)
+        end
+        table.insert(aoeTags, "aoe")
+
+        if world.enemies then
+            for _, enemy in ipairs(world.enemies) do
+                if enemy.hp > 0 then
+                    -- Call with aoe tag added
+                    ApplyStatusEffect.executeSingle(world, enemy, effectType, amount, source, aoeTags)
+                end
+            end
+        end
+        return
+    end
+
+    -- Single target application
+    ApplyStatusEffect.executeSingle(world, target, effectType, amount, source, tags)
+end
+
+function ApplyStatusEffect.executeSingle(world, target, effectType, amount, source, tags)
     -- Initialize status object if needed
     if not target.status then
         target.status = {}
