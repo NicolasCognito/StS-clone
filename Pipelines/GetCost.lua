@@ -43,6 +43,12 @@ function GetCost.execute(world, player, card)
         return 0
     end
 
+    -- X COST: Costs all remaining energy
+    -- If confused, use confused value instead (X cost is overridden)
+    if card.cost == "X" and not card.confused then
+        return player.energy
+    end
+
     -- Start with base cost
     -- If card has confused cost (from Confused status), use that instead
     local cost = card.confused or card.cost

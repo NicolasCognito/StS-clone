@@ -152,6 +152,10 @@ function PlayCard.execute(world, player, card, providedContext)
     player.energy = player.energy - cardCost
     table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
 
+    -- Store energy spent for X cost cards (e.g., Whirlwind, Skewer)
+    -- Card can access this value in onPlay via self.energySpent
+    card.energySpent = cardCost
+
     -- STEPS 6-9: Execute the card effect (the "bracketed section")
     -- This can be replayed by effects like Double Tap
     PlayCard.executeCardEffect(world, player, card, context, false)
