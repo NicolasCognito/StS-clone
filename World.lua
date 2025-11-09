@@ -54,6 +54,9 @@ function World.createWorld(playerData)
         map = playerData.map or nil,           -- Map graph structure
         currentNode = playerData.startNode or nil,  -- Current node ID
         floor = 1,
+
+        -- Winged Boots state
+        wingedBootsCharges = 0,  -- Set to 3 if player has Winged Boots relic
     }
 end
 

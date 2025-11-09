@@ -1,10 +1,14 @@
 -- MAPS DATA
 -- Map structures for different acts
 -- Each map is a graph of nodes with connections
+--
+-- Node types: combat, rest, merchant, treasure, event
+-- Combat nodes have difficulty: normal, elite, boss
 
 local Maps = {}
 
 -- Simple test map - 3 floors with branching paths
+-- Connections only go to next floor (no same-floor connections)
 Maps.TestMap = {
     startNode = "floor1-1",
     nodes = {
@@ -12,48 +16,47 @@ Maps.TestMap = {
         ["floor1-1"] = {
             id = "floor1-1",
             type = "combat",
+            difficulty = "normal",
             floor = 1,
-            connections = {"floor1-2", "floor1-3"}
-        },
-        ["floor1-2"] = {
-            id = "floor1-2",
-            type = "combat",
-            floor = 1,
-            connections = {"floor2-1"}
-        },
-        ["floor1-3"] = {
-            id = "floor1-3",
-            type = "rest",
-            floor = 1,
-            connections = {"floor2-1", "floor2-2"}
+            connections = {"floor2-1", "floor2-2"}  -- Only connects to floor 2
         },
 
         -- Floor 2
         ["floor2-1"] = {
             id = "floor2-1",
-            type = "elite",
+            type = "combat",
+            difficulty = "elite",
             floor = 2,
-            connections = {"floor2-3"}
+            connections = {"floor3-1", "floor3-2"}  -- Only connects to floor 3
         },
         ["floor2-2"] = {
             id = "floor2-2",
-            type = "merchant",
+            type = "rest",
             floor = 2,
-            connections = {"floor2-3"}
-        },
-        ["floor2-3"] = {
-            id = "floor2-3",
-            type = "treasure",
-            floor = 2,
-            connections = {"floor3-1"}
+            connections = {"floor3-1", "floor3-2"}  -- Only connects to floor 3
         },
 
         -- Floor 3
         ["floor3-1"] = {
             id = "floor3-1",
-            type = "boss",
+            type = "merchant",
             floor = 3,
-            connections = {}
+            connections = {"floor4-1"}  -- Only connects to floor 4
+        },
+        ["floor3-2"] = {
+            id = "floor3-2",
+            type = "treasure",
+            floor = 3,
+            connections = {"floor4-1"}  -- Only connects to floor 4
+        },
+
+        -- Floor 4 (Boss)
+        ["floor4-1"] = {
+            id = "floor4-1",
+            type = "combat",
+            difficulty = "boss",
+            floor = 4,
+            connections = {}  -- End of map
         }
     }
 }

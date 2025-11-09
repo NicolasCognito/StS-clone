@@ -17,15 +17,6 @@ local function copyCard(cardTemplate)
     return copy
 end
 
--- Helper function to copy a relic
-local function copyRelic(relicTemplate)
-    local copy = {}
-    for k, v in pairs(relicTemplate) do
-        copy[k] = v
-    end
-    return copy
-end
-
 -- Build a simple starting deck
 local function buildStartingDeck()
     local cards = {}
@@ -54,7 +45,7 @@ local world1 = World.createWorld({
 })
 
 print("Starting at: " .. world1.currentNode)
-ChooseNextNode.execute(world1, "floor1-2")  -- Valid connection
+ChooseNextNode.execute(world1, "floor2-1")  -- Valid connection to floor 2
 print()
 
 -- Test 2: Invalid navigation (not connected)
@@ -69,61 +60,61 @@ local world2 = World.createWorld({
     startNode = Maps.TestMap.startNode
 })
 
-ChooseNextNode.execute(world2, "floor2-1")  -- Not connected - should fail
+ChooseNextNode.execute(world2, "floor3-1")  -- Not connected - should fail
 print()
 
 -- Test 3: Winged Boots - valid use (next floor)
 print("--- Test 3: Winged Boots - Valid Use (Next Floor) ---")
-local wingedBoots = copyRelic(Relics.WingedBoots)
 local world3 = World.createWorld({
     id = "IronClad",
     maxHp = 80,
     cards = buildStartingDeck(),
-    relics = {wingedBoots},
+    relics = {Relics.WingedBoots},
     gold = 50,
     map = Maps.TestMap,
     startNode = Maps.TestMap.startNode
 })
+world3.wingedBootsCharges = 3  -- Set charges when player has Winged Boots
 
 print("Starting at: " .. world3.currentNode)
-print("Winged Boots charges: " .. wingedBoots.charges)
-ChooseNextNode.execute(world3, "floor2-1")  -- Skip to floor 2 with Winged Boots
+print("Winged Boots charges: " .. world3.wingedBootsCharges)
+ChooseNextNode.execute(world3, "floor2-2")  -- Skip to floor 2 rest site with Winged Boots
 print()
 
--- Test 4: Winged Boots - invalid use (same floor)
-print("--- Test 4: Winged Boots - Invalid Use (Same Floor) ---")
-local wingedBoots2 = copyRelic(Relics.WingedBoots)
+-- Test 4: Winged Boots - invalid use (skip floor)
+print("--- Test 4: Winged Boots - Invalid Use (Skip Floor) ---")
 local world4 = World.createWorld({
     id = "IronClad",
     maxHp = 80,
     cards = buildStartingDeck(),
-    relics = {wingedBoots2},
+    relics = {Relics.WingedBoots},
     gold = 50,
     map = Maps.TestMap,
     startNode = Maps.TestMap.startNode
 })
+world4.wingedBootsCharges = 3
 
 print("Starting at: " .. world4.currentNode)
-ChooseNextNode.execute(world4, "floor1-3")  -- Try to use Winged Boots on same floor - should fail
+ChooseNextNode.execute(world4, "floor3-1")  -- Try to skip floor - should fail
 print()
 
 -- Test 5: Winged Boots - charges depleted
 print("--- Test 5: Winged Boots - Charge Depletion ---")
-local wingedBoots3 = copyRelic(Relics.WingedBoots)
 local world5 = World.createWorld({
     id = "IronClad",
     maxHp = 80,
     cards = buildStartingDeck(),
-    relics = {wingedBoots3},
+    relics = {Relics.WingedBoots},
     gold = 50,
     map = Maps.TestMap,
     startNode = Maps.TestMap.startNode
 })
+world5.wingedBootsCharges = 3
 
 print("Starting at: " .. world5.currentNode)
 ChooseNextNode.execute(world5, "floor2-2")  -- Use Winged Boots (charge 3 -> 2)
 print("Current node: " .. world5.currentNode)
-ChooseNextNode.execute(world5, "floor3-1")  -- Use Winged Boots (charge 2 -> 1)
+ChooseNextNode.execute(world5, "floor3-2")  -- Use Winged Boots (charge 2 -> 1)
 print()
 
 print("=== ALL TESTS COMPLETE ===")

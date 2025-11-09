@@ -53,8 +53,8 @@ local Relics = {
         name = "Winged Boots",
         rarity = "RARE",
         description = "You may ignore paths and choose any room on the next floor 3 times.",
-        charges = 3,
         -- Passive relic - logic is in ChooseNextNode pipeline
+        -- Charges tracked in world.wingedBootsCharges (set to 3 when player has this relic)
         -- Cannot choose same floor, skip floors, or go back
         -- Only works when moving to next floor
     }
