@@ -10,7 +10,7 @@
 -- - Apply Confused status (randomize cost 0-3)
 -- - Combat logging
 --
--- Uses card state system: all cards are in player.cards[] with state property
+-- Uses card state system: all cards are in player.combatDeck[] with state property
 
 local DrawCard = {}
 
@@ -24,11 +24,11 @@ function DrawCard.execute(world, player, count)
     end
 
     for i = 1, count do
-        local deckCards = Utils.getCardsByState(player, "DECK")
+        local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
 
         -- If deck is empty, shuffle discard back into deck
         if #deckCards == 0 then
-            local discardCards = Utils.getCardsByState(player, "DISCARD_PILE")
+            local discardCards = Utils.getCardsByState(player.combatDeck, "DISCARD_PILE")
             if #discardCards == 0 then
                 -- No cards to draw
                 break
@@ -38,7 +38,7 @@ function DrawCard.execute(world, player, count)
                 card.state = "DECK"
             end
             table.insert(world.log, "Deck reshuffled")
-            deckCards = Utils.getCardsByState(player, "DECK")
+            deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
         end
 
         -- Draw from deck (change first card's state from DECK to HAND)

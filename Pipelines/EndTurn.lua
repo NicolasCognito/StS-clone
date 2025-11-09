@@ -42,7 +42,7 @@ function EndTurn.execute(world, player)
     -- Handle Retain mechanics and discard hand
     local hasEstablishment = Utils.hasPower(player, "Establishment")
 
-    for _, card in ipairs(player.cards) do
+    for _, card in ipairs(player.combatDeck) do
         if card.state == "HAND" then
             -- Check if card has Retain keyword
             if card.retain then
@@ -64,7 +64,7 @@ function EndTurn.execute(world, player)
     end
 
     -- Clear temporary turn-based flags from ALL cards
-    for _, card in ipairs(player.cards) do
+    for _, card in ipairs(player.combatDeck) do
         -- Clear "this turn" effects
         if card.costsZeroThisTurn then
             card.costsZeroThisTurn = nil

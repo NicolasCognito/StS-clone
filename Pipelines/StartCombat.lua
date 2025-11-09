@@ -5,6 +5,7 @@ local StartCombat = {}
 
 local EventQueue = require("Pipelines.EventQueue")
 local StartTurn = require("Pipelines.StartTurn")
+local Utils = require("utils")
 
 function StartCombat.execute(world)
     world.combat = {
@@ -16,7 +17,13 @@ function StartCombat.execute(world)
     world.queue = EventQueue.new()
     world.log = {}
 
-    for _, card in ipairs(world.player.cards or {}) do
+    -- Create combatDeck as a deep copy of masterDeck
+    -- This ensures combat-only modifications (generated cards, temporary upgrades)
+    -- don't affect the player's permanent deck
+    world.player.combatDeck = Utils.deepCopyDeck(world.player.masterDeck)
+
+    -- Initialize all combat cards to DECK state and clear combat-only properties
+    for _, card in ipairs(world.player.combatDeck) do
         card.state = "DECK"
         card.confused = nil
         card.costsZeroThisTurn = nil

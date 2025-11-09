@@ -6,13 +6,9 @@ local EndCombat = {}
 function EndCombat.execute(world, victory)
     world.player.currentHp = math.max(0, math.min(world.player.hp, world.player.maxHp))
 
-    for _, card in ipairs(world.player.cards or {}) do
-        card.state = nil
-        card.confused = nil
-        card.costsZeroThisTurn = nil
-        card.timesRetained = nil
-        card.retainCostReduction = nil
-    end
+    -- Discard combatDeck (it was a temporary copy for combat only)
+    -- The masterDeck remains unchanged and persists outside combat
+    world.player.combatDeck = nil
 
     world.player.block = 0
     world.player.status = nil

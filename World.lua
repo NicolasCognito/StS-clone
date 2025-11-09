@@ -22,8 +22,25 @@ function World.createWorld(playerData)
             energy = 3,
             maxEnergy = 3,
 
-            -- Cards (templates, card.state assigned at combat start)
-            cards = playerData.cards or {},
+            -- MASTER DECK (Persistent across combats)
+            -- The player's permanent card collection. Modified by:
+            -- - Card rewards after combat (AcquireCard pipeline outside combat)
+            -- - Shop card purchases/removals
+            -- - Rest site upgrades
+            -- - Permanent transforms/removals (events, relics, etc.)
+            -- This deck persists across all combats and represents the player's "true" deck.
+            masterDeck = playerData.masterDeck or playerData.cards or {},
+
+            -- COMBAT DECK (Temporary, created at combat start)
+            -- Deep copy of masterDeck created when combat begins (StartCombat pipeline).
+            -- Modified by temporary effects during combat only:
+            -- - Generated/created cards (potions, Infernal Blade, etc.)
+            -- - Temporary upgrades (Apotheosis card)
+            -- - Combat-only card modifications
+            -- - All cards have card.state property: "DECK", "HAND", "DISCARD_PILE", "EXHAUSTED_PILE"
+            -- This deck is discarded when combat ends (EndCombat pipeline).
+            -- Outside combat, this is nil.
+            combatDeck = nil,
 
             -- Relics & gold
             relics = playerData.relics or {},
