@@ -39,6 +39,8 @@ local function buildStartingDeck()
     table.insert(cards, copyCard(Cards.GrandFinale))
     table.insert(cards, copyCard(Cards.Whirlwind))
     table.insert(cards, copyCard(Cards.Skewer))
+    table.insert(cards, copyCard(Cards.Intimidate))
+    table.insert(cards, copyCard(Cards.Thunderclap))
 
     return cards
 end
