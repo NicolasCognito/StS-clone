@@ -8,6 +8,7 @@ local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
 local DrawCard = require("Pipelines.DrawCard")
 local StartTurn = require("Pipelines.StartTurn")
 local GetCost = require("Pipelines.GetCost")
+local ContextProvider = require("Pipelines.ContextProvider")
 
 local Engine = {}
 
@@ -186,8 +187,9 @@ end
 
 function Engine.playGame(world)
     local gameOver = false
-    local waitingForTarget = false
+    local waitingForContext = false
     local pendingCard = nil
+    local pendingContextType = nil
 
     -- Start first turn (draw initial hand, apply Snecko Eye bonus, etc.)
     StartTurn.execute(world, world.player)
@@ -195,30 +197,96 @@ function Engine.playGame(world)
     while not gameOver do
         Engine.displayGameState(world)
 
-        if waitingForTarget then
-            print("\nChoose a target:")
-            for i, enemy in ipairs(world.enemies) do
-                if enemy.hp > 0 then
-                    print("  [" .. i .. "] " .. enemy.name)
+        if waitingForContext then
+            local context = nil
+            local validInput = false
+
+            if pendingContextType == "enemy" then
+                -- Enemy targeting
+                print("\nChoose a target:")
+                for i, enemy in ipairs(world.enemies) do
+                    if enemy.hp > 0 then
+                        print("  [" .. i .. "] " .. enemy.name)
+                    end
+                end
+                io.write("> ")
+                local input = io.read()
+                if not input then
+                    print("\nInput stream closed. Exiting game.")
+                    gameOver = true
+                    break
+                end
+
+                local targetIndex = tonumber(input)
+                if targetIndex and targetIndex >= 1 and targetIndex <= #world.enemies and world.enemies[targetIndex].hp > 0 then
+                    context = world.enemies[targetIndex]
+                    validInput = true
+                else
+                    print("Invalid target. Try again.")
+                end
+
+            elseif pendingContextType == "cards_in_hand" or pendingContextType == "cards_in_discard" or pendingContextType == "cards_in_deck" then
+                -- Card selection
+                local state = pendingContextType == "cards_in_hand" and "HAND"
+                           or pendingContextType == "cards_in_discard" and "DISCARD_PILE"
+                           or "DECK"
+
+                local availableCards = Engine.getCardsByState(world.player, state)
+
+                -- Remove the card being played from selection (if selecting from hand)
+                local selectableCards = {}
+                for _, card in ipairs(availableCards) do
+                    if card ~= pendingCard then
+                        table.insert(selectableCards, card)
+                    end
+                end
+
+                if #selectableCards == 0 then
+                    print("No cards available to select.")
+                    validInput = true
+                    context = {}  -- Empty array
+                else
+                    local pileName = pendingContextType == "cards_in_hand" and "hand"
+                                  or pendingContextType == "cards_in_discard" and "discard pile"
+                                  or "deck"
+
+                    print("\nChoose a card from " .. pileName .. ":")
+                    for i, card in ipairs(selectableCards) do
+                        print("  [" .. i .. "] " .. card.name)
+                    end
+                    print("  [0] Cancel")
+                    io.write("> ")
+                    local input = io.read()
+                    if not input then
+                        print("\nInput stream closed. Exiting game.")
+                        gameOver = true
+                        break
+                    end
+
+                    local cardIndex = tonumber(input)
+                    if cardIndex == 0 then
+                        -- Cancel card play
+                        print("Cancelled.")
+                        waitingForContext = false
+                        pendingCard = nil
+                        pendingContextType = nil
+                        validInput = false
+                    elseif cardIndex and cardIndex >= 1 and cardIndex <= #selectableCards then
+                        context = {selectableCards[cardIndex]}  -- Return as array
+                        validInput = true
+                    else
+                        print("Invalid selection. Try again.")
+                    end
                 end
             end
-            io.write("> ")
-            local input = io.read()
-            if not input then
-                print("\nInput stream closed. Exiting game.")
-                gameOver = true
-                break
-            end
 
-            local targetIndex = tonumber(input)
-            if targetIndex and targetIndex >= 1 and targetIndex <= #world.enemies and world.enemies[targetIndex].hp > 0 then
-                -- Execute the pending card with target
-                PlayCard.execute(world, world.player, pendingCard, world.enemies[targetIndex])
+            if validInput then
+                -- Execute the pending card with context
+                PlayCard.execute(world, world.player, pendingCard, context)
                 Engine.displayLog(world, 3)
-                waitingForTarget = false
+                waitingForContext = false
                 pendingCard = nil
-            else
-                print("Invalid target. Try again.")
+                pendingContextType = nil
             end
         else
             print("\nActions:")
@@ -244,14 +312,18 @@ function Engine.playGame(world)
                 if cardIndex and cardIndex >= 1 and cardIndex <= #hand then
                     local card = hand[cardIndex]
 
-                    -- Check if card requires targeting
-                    if card.Targeted == 1 then
-                        pendingCard = card
-                        waitingForTarget = true
-                    else
-                        -- Non-targeted card, execute immediately
-                        PlayCard.execute(world, world.player, card, world.player)
+                    -- Check what context type this card needs
+                    local contextType = ContextProvider.getContextType(card)
+
+                    if contextType == "none" then
+                        -- No context needed, execute immediately
+                        PlayCard.execute(world, world.player, card, nil)
                         Engine.displayLog(world, 3)
+                    else
+                        -- Card requires context, wait for user input
+                        pendingCard = card
+                        pendingContextType = contextType
+                        waitingForContext = true
                     end
                 else
                     print("Invalid card number. Try again.")

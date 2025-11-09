@@ -65,7 +65,8 @@ function ContextProvider.execute(world, player, card)
     elseif contextType == "enemy" then
         -- Single enemy target
         -- Return the first alive enemy as default
-        -- (PlayCard.execute will handle explicit targeting via user input)
+        -- (Engine.playGame handles explicit user targeting, passing enemy to PlayCard.execute)
+        -- This code path is used for automated/non-interactive card execution
         for _, enemy in ipairs(world.enemies) do
             if enemy.hp > 0 then
                 return enemy
