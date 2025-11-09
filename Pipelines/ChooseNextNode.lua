@@ -3,16 +3,16 @@
 -- targetNodeId: the ID of the node to move to
 --
 -- Handles:
--- - Validate move is legal (connected or Winged Boots)
+-- - Validate move is legal (connected path or Winged Boots charges)
 -- - Move player to target node
 -- - Update floor number
 -- - Consume Winged Boots charge if used
 -- - Trigger node event (combat, rest, merchant, etc.)
 --
 -- Winged Boots:
--- - Allows choosing any node on next floor (ignoring paths)
+-- - If world.wingedBootsCharges > 0, can choose any node on next floor
 -- - Cannot choose same floor, skip floors, or go back
--- - Charges stored in world.wingedBootsCharges
+-- - Consumes 1 charge per use
 
 local ChooseNextNode = {}
 
