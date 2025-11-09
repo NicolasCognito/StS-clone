@@ -1,10 +1,4 @@
--- ENEMIES DATA
--- Enemy definitions with their stats and attack patterns
--- Each enemy has:
--- - Data parameters (hp, maxHp, damage values)
--- - executeIntent: pushes event to queue representing enemy's action
-
-local Enemies = {
+return {
     Goblin = {
         id = "Goblin",
         name = "Goblin",
@@ -24,5 +18,3 @@ local Enemies = {
         end
     }
 }
-
-return Enemies

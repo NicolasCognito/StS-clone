@@ -2,9 +2,9 @@
 -- Sets up and runs a simple combat encounter
 
 local Engine = require("Engine")
-local Cards = require("Data.Cards.Cards")
-local Enemies = require("Data.Enemies.Enemies")
-local Relics = require("Data.Relics.Relics")
+local Cards = require("Data.cards")
+local Enemies = require("Data.enemies")
+local Relics = require("Data.relics")
 local Utils = require("utils")
 
 -- Build a starting deck (5 Strikes, 4 Defends, 1 Bash)
