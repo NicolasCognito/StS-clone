@@ -64,17 +64,15 @@ function ApplyCaps.execute(world)
         applyToCharacter(world.player)
     end
 
-    -- Apply to enemy (single enemy for now)
     if world.enemy then
         applyToCharacter(world.enemy)
     end
 
-    -- TODO: When multiple enemies are supported, loop through all enemies
-    -- if world.enemies then
-    --     for _, enemy in ipairs(world.enemies) do
-    --         applyToCharacter(enemy)
-    --     end
-    -- end
+    if world.enemies then
+        for _, enemy in ipairs(world.enemies) do
+            applyToCharacter(enemy)
+        end
+    end
 end
 
 return ApplyCaps

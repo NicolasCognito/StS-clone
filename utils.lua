@@ -3,8 +3,7 @@
 
 local Utils = {}
 
--- Shallow copy function for cards (copies top-level properties only)
--- Used for creating cards from templates
+-- Used for legacy flows where cards entered combat-ready decks immediately
 function Utils.copyCard(cardTemplate)
     local copy = {}
     for k, v in pairs(cardTemplate) do
@@ -41,6 +40,23 @@ function Utils.deepCopyDeck(deck)
     local copy = {}
     for i, card in ipairs(deck) do
         table.insert(copy, Utils.deepCopyCard(card))
+    end
+    return copy
+end
+
+-- Template copy helpers (no combat state) for persistent world decks/enemies
+function Utils.copyCardTemplate(cardTemplate)
+    local copy = {}
+    for k, v in pairs(cardTemplate) do
+        copy[k] = v
+    end
+    return copy
+end
+
+function Utils.copyEnemyTemplate(enemyTemplate)
+    local copy = {}
+    for k, v in pairs(enemyTemplate) do
+        copy[k] = v
     end
     return copy
 end
