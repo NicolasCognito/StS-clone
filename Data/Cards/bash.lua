@@ -5,7 +5,7 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 8,
-        Targeted = 1,
+        contextProvider = "enemy",
         description = "Deal 8 damage. Apply 2 Vulnerable.",
 
         onPlay = function(self, world, player, target)

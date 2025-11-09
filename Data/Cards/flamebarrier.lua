@@ -6,7 +6,6 @@ return {
         type = "SKILL",
         block = 12,
         thorns = 4,
-        Targeted = 0,
         description = "Gain 12 block. Gain 4 Thorns.",
 
         onPlay = function(self, world, player, target)

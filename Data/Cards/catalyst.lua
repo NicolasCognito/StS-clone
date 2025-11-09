@@ -5,7 +5,7 @@ return {
         cost = 1,
         type = "SKILL",
         poisonMultiplier = 2,
-        Targeted = 1,
+        contextProvider = "enemy",
         description = "Double the target's Poison.",
 
         onPlay = function(self, world, player, target)

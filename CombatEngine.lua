@@ -98,7 +98,7 @@ function CombatEngine.displayGameState(world)
     else
         for i, card in ipairs(hand) do
             local cardCost = GetCost.execute(world, world.player, card)
-            local targetInfo = card.Targeted == 1 and " [TARGETED]" or ""
+            local targetInfo = card.contextProvider == "enemy" and " [TARGETED]" or ""
             print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ")" .. targetInfo .. " - " .. card.description)
         end
     end
@@ -153,8 +153,8 @@ function CombatEngine.playGame(world)
                 else
                     print("Invalid target. Try again.")
                 end
-            elseif pendingContextType == "cards_in_hand" or pendingContextType == "cards_in_discard" or pendingContextType == "cards_in_deck" or pendingContextType == "cards" then
-                -- Use ContextProvider to get valid cards (handles both legacy and new flexible system)
+            elseif pendingContextType == "cards" then
+                -- Card selection system
                 local selectableCards = ContextProvider.getValidCards(world, world.player, pendingCard)
 
                 if #selectableCards == 0 then
@@ -162,25 +162,9 @@ function CombatEngine.playGame(world)
                     validInput = true
                     context = {}
                 else
-                    -- Determine display name for the card source
-                    local sourceName
-                    if pendingContextType == "cards_in_hand" then
-                        sourceName = "hand"
-                    elseif pendingContextType == "cards_in_discard" then
-                        sourceName = "discard pile"
-                    elseif pendingContextType == "cards_in_deck" then
-                        sourceName = "deck"
-                    else
-                        -- New flexible system
-                        local info = ContextProvider.getSelectionInfo(pendingCard)
-                        if info.state then
-                            sourceName = info.state == "HAND" and "hand"
-                                      or info.state == "DISCARD_PILE" and "discard pile"
-                                      or "deck"
-                        else
-                            sourceName = info.source == "master" and "master deck" or "available cards"
-                        end
-                    end
+                    -- Get display name for card source
+                    local info = ContextProvider.getSelectionInfo(pendingCard)
+                    local sourceName = info.source == "master" and "master deck" or "available cards"
 
                     print("\nChoose a card from " .. sourceName .. ":")
                     for i, card in ipairs(selectableCards) do
