@@ -54,9 +54,15 @@ function ContextProvider.execute(world, player, card)
         return nil
 
     elseif contextType == "enemy" then
-        -- Single enemy target
-        -- For now, just return the enemy from world
-        -- In a real game, this would prompt player to select from multiple enemies
+        if world.enemies then
+            for _, enemy in ipairs(world.enemies) do
+                if enemy.hp > 0 then
+                    return enemy
+                end
+            end
+            return world.enemies[1]
+        end
+
         return world.enemy
 
     elseif contextType == "cards_in_hand" or contextType == "cards_in_discard" or contextType == "cards_in_deck" then

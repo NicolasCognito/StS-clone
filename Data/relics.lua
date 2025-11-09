@@ -7,7 +7,8 @@ local relicFiles = {
     "burningblood",
     "paperphrog",
     "sneckoeye",
-    "theboot"
+    "theboot",
+    "wingedboots"
 }
 
 for _, fileName in ipairs(relicFiles) do
