@@ -184,6 +184,7 @@ function PlayCard.execute(world, player, card, providedContext)
 
     -- DOUBLE TAP: Replay Attack cards
     -- Check for Double Tap status (stackable effect from Double Tap skill)
+    local doubleTapTriggered = false
     if player.status and player.status.doubleTap and player.status.doubleTap > 0 and card.type == "ATTACK" then
         table.insert(world.log, "Double Tap triggers!")
 
@@ -193,12 +194,19 @@ function PlayCard.execute(world, player, card, providedContext)
 
         -- Decrement Double Tap stacks
         player.status.doubleTap = player.status.doubleTap - 1
+        doubleTapTriggered = true
     end
 
     -- Check if card needs post-play phase
     if card.postPlayContext then
         -- Store original context for post-play effect
         card.originalPlayContext = context
+
+        -- If Double Tap triggered, mark card for replay
+        if doubleTapTriggered then
+            card.postPlayReplaysRemaining = 1  -- Execute postPlay one additional time
+        end
+
         -- Return special value to indicate post-play is needed
         return {success = true, needsPostPlay = true}
     end
@@ -238,8 +246,16 @@ function PlayCard.executePostPlay(world, player, card, providedPostContext)
     -- STEP 3: PROCESS EFFECT QUEUE
     ProcessEffectQueue.execute(world)
 
-    -- Clean up stored context
+    -- STEP 4: CHECK FOR REPLAYS (Double Tap)
+    if card.postPlayReplaysRemaining and card.postPlayReplaysRemaining > 0 then
+        card.postPlayReplaysRemaining = card.postPlayReplaysRemaining - 1
+        -- Signal that postPlay needs to execute again
+        return {needsPostPlay = true}
+    end
+
+    -- Clean up stored context - all replays complete
     card.originalPlayContext = nil
+    card.postPlayReplaysRemaining = nil
 
     return true
 end

@@ -210,11 +210,20 @@ function CombatEngine.playGame(world)
             if validInput and pendingCard then
                 if waitingForPostPlayContext then
                     -- Execute post-play phase
-                    PlayCard.executePostPlay(world, world.player, pendingCard, context)
+                    local result = PlayCard.executePostPlay(world, world.player, pendingCard, context)
                     CombatEngine.displayLog(world, 3)
-                    waitingForPostPlayContext = false
-                    pendingCard = nil
-                    pendingContextType = nil
+
+                    -- Check if postPlay needs to execute again (e.g., Double Tap)
+                    if type(result) == "table" and result.needsPostPlay then
+                        -- Stay in postPlay mode, prompt again for next discard
+                        -- pendingCard and pendingContextType remain unchanged
+                    else
+                        -- All postPlay executions complete
+                        waitingForContext = false
+                        waitingForPostPlayContext = false
+                        pendingCard = nil
+                        pendingContextType = nil
+                    end
                 else
                     -- Execute main play
                     local result = PlayCard.execute(world, world.player, pendingCard, context)
