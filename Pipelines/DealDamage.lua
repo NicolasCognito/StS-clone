@@ -65,8 +65,9 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags)
         local vulnerableMultiplier = 1.5  -- default 50%
 
         -- Check if attacker has Paper Phrog relic
-        if Utils.hasRelic(attacker, "Paper_Phrog") then
-            vulnerableMultiplier = 1.75  -- Paper Phrog: 75%
+        local paperPhrog = Utils.getRelic(attacker, "Paper_Phrog")
+        if paperPhrog then
+            vulnerableMultiplier = paperPhrog.vulnerableMultiplier
         end
 
         damage = math.floor(damage * vulnerableMultiplier)
