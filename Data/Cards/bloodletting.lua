@@ -6,7 +6,6 @@ return {
         type = "SKILL",
         hpLoss = 3,
         energyGain = 2,
-        Targeted = 0,
         description = "Lose 3 HP. Gain 2 Energy.",
 
         onPlay = function(self, world, player, target)

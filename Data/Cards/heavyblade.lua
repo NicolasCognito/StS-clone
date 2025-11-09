@@ -6,7 +6,7 @@ return {
         type = "ATTACK",
         damage = 14,
         strengthMultiplier = 3,
-        Targeted = 1,
+        contextProvider = "enemy",
         description = "Deal 14 damage. Strength affects this card 3 times.",
 
         onPlay = function(self, world, player, target)

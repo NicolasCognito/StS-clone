@@ -6,7 +6,7 @@ return {
         type = "ATTACK",
         damage = 18,
         costReductionPerHpLoss = 1,  -- Reduces cost by 1 for each time player lost HP
-        Targeted = 1,
+        contextProvider = "enemy",
         description = "Deal 18 damage. Costs 1 less for each time you lose HP this combat.",
 
         onPlay = function(self, world, player, target)

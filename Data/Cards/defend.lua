@@ -5,7 +5,6 @@ return {
         cost = 1,
         type = "SKILL",
         block = 5,
-        Targeted = 0,
         description = "Gain 5 block.",
 
         onPlay = function(self, world, player, target)

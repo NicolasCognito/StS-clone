@@ -4,7 +4,6 @@ return {
         name = "Corruption",
         cost = 3,
         type = "POWER",
-        Targeted = 0,
         description = "Skills cost 0. Whenever you play a Skill, Exhaust it.",
 
         onPlay = function(self, world, player, target)
