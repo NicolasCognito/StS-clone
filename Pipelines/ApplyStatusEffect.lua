@@ -49,6 +49,12 @@ function ApplyStatusEffect.execute(world, event)
     else
         table.insert(world.log, "Unknown status effect: " .. effectType)
     end
+
+    -- Apply caps to target (HP, block, status effects)
+    world.queue:push({
+        type = "ON_APPLY_CAPS",
+        character = target
+    })
 end
 
 return ApplyStatusEffect

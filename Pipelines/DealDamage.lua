@@ -89,6 +89,12 @@ function DealDamage.execute(world, event)
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
 
+    -- Apply caps to defender (HP, block, status effects)
+    world.queue:push({
+        type = "ON_APPLY_CAPS",
+        character = defender
+    })
+
     -- Track HP loss for Blood for Blood (only if player lost HP)
     if defender == world.player and damage > 0 then
         world.combat.timesHpLost = world.combat.timesHpLost + 1

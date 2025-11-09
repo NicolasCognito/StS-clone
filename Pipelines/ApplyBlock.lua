@@ -19,6 +19,12 @@ function ApplyBlock.execute(world, event)
 
     target.block = target.block + amount
 
+    -- Apply caps to target (HP, block, status effects)
+    world.queue:push({
+        type = "ON_APPLY_CAPS",
+        character = target
+    })
+
     table.insert(world.log, target.name .. " gained " .. amount .. " block")
 end
 
