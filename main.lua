@@ -5,45 +5,7 @@ local Engine = require("Engine")
 local Cards = require("Data.Cards.Cards")
 local Enemies = require("Data.Enemies.Enemies")
 local Relics = require("Data.Relics.Relics")
-
--- Helper function to copy a card (for deck building)
-local function copyCard(cardTemplate)
-    local copy = {}
-    for k, v in pairs(cardTemplate) do
-        copy[k] = v
-    end
-    -- Initialize state to DECK
-    copy.state = "DECK"
-    return copy
-end
-
--- Deep copy function for cards (preserves all properties)
-local function deepCopyCard(card)
-    local copy = {}
-    for k, v in pairs(card) do
-        if type(v) == "table" then
-            -- Deep copy tables (except functions)
-            copy[k] = {}
-            for innerK, innerV in pairs(v) do
-                copy[k][innerK] = innerV
-            end
-        else
-            copy[k] = v
-        end
-    end
-    -- Reset state to DECK for battle start
-    copy.state = "DECK"
-    return copy
-end
-
--- Deep copy an entire deck
-local function deepCopyDeck(deck)
-    local copy = {}
-    for i, card in ipairs(deck) do
-        table.insert(copy, deepCopyCard(card))
-    end
-    return copy
-end
+local Utils = require("utils")
 
 -- Build a starting deck (5 Strikes, 4 Defends, 1 Bash)
 -- Returns an array of cards with state = "DECK"
@@ -52,31 +14,31 @@ local function buildStartingDeck()
 
     -- Add 5 Strikes
     for i = 1, 5 do
-        table.insert(cards, copyCard(Cards.Strike))
+        table.insert(cards, Utils.copyCard(Cards.Strike))
     end
 
     -- Add 4 Defends
     for i = 1, 4 do
-        table.insert(cards, copyCard(Cards.Defend))
+        table.insert(cards, Utils.copyCard(Cards.Defend))
     end
 
     -- Add 1 Bash
-    table.insert(cards, copyCard(Cards.Bash))
+    table.insert(cards, Utils.copyCard(Cards.Bash))
 
     -- Add 1 Flame Barrier (for testing Thorns)
-    table.insert(cards, copyCard(Cards.FlameBarrier))
+    table.insert(cards, Utils.copyCard(Cards.FlameBarrier))
 
     -- Add 1 Bloodletting (for testing HP loss with ignoreBlock)
-    table.insert(cards, copyCard(Cards.Bloodletting))
+    table.insert(cards, Utils.copyCard(Cards.Bloodletting))
 
     -- Add 1 Blood for Blood (for testing dynamic cost reduction)
-    table.insert(cards, copyCard(Cards.BloodForBlood))
+    table.insert(cards, Utils.copyCard(Cards.BloodForBlood))
 
     -- Add 1 Infernal Blade (for testing costsZeroThisTurn)
-    table.insert(cards, copyCard(Cards.InfernalBlade))
+    table.insert(cards, Utils.copyCard(Cards.InfernalBlade))
 
     -- Add 1 Corruption (for testing powers)
-    table.insert(cards, copyCard(Cards.Corruption))
+    table.insert(cards, Utils.copyCard(Cards.Corruption))
 
     return cards
 end
@@ -89,7 +51,7 @@ local playerData = {
 }
 
 -- Initialize enemy (copy the Goblin template)
-local enemyData = copyCard(Enemies.Goblin)
+local enemyData = Utils.copyCard(Enemies.Goblin)
 
 -- Create game state
 local world = Engine.createGameState(playerData, enemyData)
@@ -98,7 +60,7 @@ local world = Engine.createGameState(playerData, enemyData)
 world.globalDeck = buildStartingDeck()
 
 -- Deep copy globalDeck into player.cards for this battle
-world.player.cards = deepCopyDeck(world.globalDeck)
+world.player.cards = Utils.deepCopyDeck(world.globalDeck)
 
 -- Apply relic combat-start effects
 -- Check if player has Snecko Eye and apply Confused
