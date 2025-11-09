@@ -7,10 +7,13 @@
 --
 -- Context parameter passed to card.onPlay:
 -- - For "enemy" context: enemy entity
--- - For "cards_in_*" contexts: array of cards (always array, even for single card)
+-- - For card selection contexts: array of cards (always array, even for single card)
 -- - For "none" context: nil
 --
 -- Handles:
+-- - Check energy cost
+-- - Check custom playability (if card has isPlayable function)
+-- - Execute pre-play action (if card has prePlayAction function)
 -- - Collect context (via ContextProvider if not provided)
 -- - Pay energy cost
 -- - Track combat statistics (Powers played, etc.)
@@ -19,6 +22,17 @@
 -- - Remove card from hand
 -- - Add to discard pile (or exhaust if Corruption + Skill)
 -- - Combat logging
+--
+-- Custom Playability:
+-- Some cards (Grand Finale, etc.) have special requirements beyond energy.
+-- If card.isPlayable exists, it's called to validate if card can be played.
+-- Returns: true if playable, false + optional error message if not.
+--
+-- Pre-Play Actions:
+-- Some cards (Discovery, etc.) need to set up choices BEFORE context collection.
+-- If card.prePlayAction exists, it's called before ContextProvider.execute().
+-- Example: Discovery generates 3 random cards with state="DRAFT", then contextProvider
+--          filters for DRAFT cards for player to choose from.
 
 local PlayCard = {}
 
@@ -28,7 +42,34 @@ local ContextProvider = require("Pipelines.ContextProvider")
 local Utils = require("utils")
 
 function PlayCard.execute(world, player, card, providedContext)
-    -- STEP 1: COLLECT CONTEXT
+    -- STEP 1: CHECK ENERGY
+    -- Get the current cost of the card (allows for dynamic cost calculation)
+    local cardCost = GetCost.execute(world, player, card)
+
+    -- Check if player has enough energy (but don't pay yet)
+    if player.energy < cardCost then
+        table.insert(world.log, "Not enough energy to play " .. card.name)
+        return false
+    end
+
+    -- STEP 2: CHECK CUSTOM PLAYABILITY (Optional)
+    -- Some cards have special requirements (e.g., Grand Finale: deck must be empty)
+    if card.isPlayable then
+        local playable, errorMsg = card:isPlayable(world, player)
+        if not playable then
+            table.insert(world.log, errorMsg or ("Cannot play " .. card.name))
+            return false
+        end
+    end
+
+    -- STEP 3: PRE-PLAY ACTION (Optional)
+    -- Execute pre-play setup if card defines it
+    -- Used for cards like Discovery that generate choices before context collection
+    if card.prePlayAction then
+        card:prePlayAction(world, player)
+    end
+
+    -- STEP 4: COLLECT CONTEXT
     -- Get context via ContextProvider if not explicitly provided
     local context = providedContext
     if context == nil then
@@ -42,38 +83,29 @@ function PlayCard.execute(world, player, card, providedContext)
         return false
     end
 
-    -- STEP 2: CHECK ENERGY
-    -- Get the current cost of the card (allows for dynamic cost calculation)
-    local cardCost = GetCost.execute(world, player, card)
-
-    -- Check if player has enough energy
-    if player.energy < cardCost then
-        table.insert(world.log, "Not enough energy to play " .. card.name)
-        return false
-    end
-
-    -- Pay energy cost
+    -- STEP 5: PAY ENERGY
+    -- Now that we know the card can be played, pay the cost
     player.energy = player.energy - cardCost
     table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
 
-    -- STEP 3: TRACK STATISTICS
+    -- STEP 6: TRACK STATISTICS
     -- Track combat statistics
     if card.type == "POWER" then
         world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
     end
 
-    -- STEP 4: EXECUTE CARD EFFECT
+    -- STEP 7: EXECUTE CARD EFFECT
     -- Call card's onPlay function with context
     -- Context can be: enemy entity, cards array, or nil (depending on contextType)
     if card.onPlay then
         card:onPlay(world, player, context)
     end
 
-    -- STEP 5: PROCESS EFFECT QUEUE
+    -- STEP 8: PROCESS EFFECT QUEUE
     -- Process all events from the queue
     ProcessEffectQueue.execute(world)
 
-    -- STEP 6: CARD CLEANUP (Discard or Exhaust)
+    -- STEP 9: CARD CLEANUP (Discard or Exhaust)
     -- Determine where card goes after being played
     -- Check if card should be exhausted (Corruption for Skills, or card has exhaust property)
     local shouldExhaust = false

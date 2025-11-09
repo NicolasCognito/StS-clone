@@ -3,7 +3,7 @@
 --
 -- Event should have:
 -- - source: character dealing damage (can be nil for Thorns/Poison)
--- - target: character taking damage
+-- - target: character taking damage OR "all" for all enemies
 -- - amount: raw damage amount
 -- - tags: optional array of tags (e.g., ["ignoreBlock"])
 --
@@ -14,6 +14,7 @@
 -- - Block absorption (unless "ignoreBlock" tag is present)
 -- - HP reduction
 -- - Combat logging
+-- - AOE damage (target = "all")
 --
 -- Used for: Thorns, Poison, other non-attack damage sources
 
@@ -27,6 +28,32 @@ function DealNonAttackDamage.execute(world, event)
     local damage = event.amount or 0
     local tags = event.tags or {}
 
+    -- Handle AOE: target = "all" means hit all enemies
+    if target == "all" then
+        -- Add "aoe" tag so relics/powers can detect AOE effects
+        local aoeTags = {}
+        for _, tag in ipairs(tags) do
+            table.insert(aoeTags, tag)
+        end
+        table.insert(aoeTags, "aoe")
+
+        if world.enemies then
+            for _, enemy in ipairs(world.enemies) do
+                if enemy.hp > 0 then
+                    -- Call with aoe tag added
+                    DealNonAttackDamage.executeSingle(world, source, enemy, damage, aoeTags)
+                end
+            end
+        end
+        return
+    end
+
+    -- Single target damage
+    DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
+end
+
+-- Execute non-attack damage against a single target
+function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block

@@ -13,7 +13,9 @@ local cardFiles = {
     "bloodforblood",
     "infernalblade",
     "corruption",
-    "catalyst"
+    "catalyst",
+    "discovery",
+    "grandfinale"
 }
 
 for _, fileName in ipairs(cardFiles) do
