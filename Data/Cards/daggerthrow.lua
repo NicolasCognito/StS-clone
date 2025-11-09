@@ -5,55 +5,47 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 9,
-        bonusDamage = 4,  -- Bonus damage if card is discarded
         contextProvider = "enemy",
-        description = "Deal 9 damage. Discard 1: Deal 4 damage.",
+        description = "Deal 9 damage. Draw 1 card. Discard 1 card.",
 
         onPlay = function(self, world, player, target)
-            -- Deal initial damage
+            -- Deal damage
             world.queue:push({
                 type = "ON_DAMAGE",
                 attacker = player,
                 defender = target,
                 card = self
             })
+
+            -- Draw 1 card
+            world.queue:push({
+                type = "ON_DRAW",
+                player = player,
+                count = 1
+            })
         end,
 
         -- POST-PLAY PHASE: Prompt to discard a card from hand
         postPlayContext = {
             source = "combat",
-            count = {min = 0, max = 1},  -- Optional: can choose 0 or 1 card
+            count = {min = 1, max = 1},  -- Must discard exactly 1 card
             filter = function(world, player, card, candidateCard)
-                -- Can only discard cards from hand (not the card being played)
+                -- Can only discard cards from hand
                 return candidateCard.state == "HAND"
             end
         },
 
         postPlayEffect = function(self, world, player, discardedCards, originalTarget)
-            if #discardedCards > 0 then
-                local discardedCard = discardedCards[1]
+            local discardedCard = discardedCards[1]
 
-                -- Move card to discard pile
-                discardedCard.state = "DISCARD_PILE"
-                table.insert(world.log, player.id .. " discarded " .. discardedCard.name)
-
-                -- Deal bonus damage to the original target
-                world.queue:push({
-                    type = "ON_DAMAGE",
-                    attacker = player,
-                    defender = originalTarget,
-                    card = self,
-                    damage = self.bonusDamage  -- Use bonus damage from card
-                })
-            else
-                table.insert(world.log, player.id .. " chose not to discard")
-            end
+            -- Move card to discard pile
+            discardedCard.state = "DISCARD_PILE"
+            table.insert(world.log, player.id .. " discarded " .. discardedCard.name)
         end,
 
         onUpgrade = function(self)
             self.damage = 12
-            self.bonusDamage = 6
-            self.description = "Deal 12 damage. Discard 1: Deal 6 damage."
+            self.description = "Deal 12 damage. Draw 1 card. Discard 1 card."
         end
     }
 }

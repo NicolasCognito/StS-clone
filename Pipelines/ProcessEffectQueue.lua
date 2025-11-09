@@ -12,6 +12,7 @@
 -- - ON_BLOCK: routes to ApplyBlock, then ApplyCaps
 -- - ON_HEAL: routes to Heal, then ApplyCaps
 -- - ON_STATUS_GAIN: routes to ApplyStatusEffect, then ApplyCaps
+-- - ON_DRAW: routes to DrawCard
 -- - ON_ACQUIRE_CARD: routes to AcquireCard
 -- - ON_APPLY_POWER: routes to ApplyPower
 -- - ON_EXHAUST: routes to Exhaust
@@ -28,6 +29,7 @@ local DealNonAttackDamage = require("Pipelines.DealNonAttackDamage")
 local ApplyBlock = require("Pipelines.ApplyBlock")
 local Heal = require("Pipelines.Heal")
 local ApplyStatusEffect = require("Pipelines.ApplyStatusEffect")
+local DrawCard = require("Pipelines.DrawCard")
 local AcquireCard = require("Pipelines.AcquireCard")
 local ApplyPower = require("Pipelines.ApplyPower")
 local Exhaust = require("Pipelines.Exhaust")
@@ -63,6 +65,9 @@ function ProcessEffectQueue.execute(world)
             ApplyStatusEffect.execute(world, event)
             -- Apply caps to all characters after status gain
             ApplyCaps.execute(world)
+
+        elseif event.type == "ON_DRAW" then
+            DrawCard.execute(world, event.player, event.count)
 
         elseif event.type == "ON_ACQUIRE_CARD" then
             AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
