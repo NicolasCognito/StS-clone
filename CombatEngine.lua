@@ -117,6 +117,7 @@ end
 function CombatEngine.playGame(world)
     local gameOver = false
     local waitingForContext = false
+    local waitingForPostPlayContext = false
     local pendingCard = nil
     local pendingContextType = nil
 
@@ -128,7 +129,12 @@ function CombatEngine.playGame(world)
             local validInput = false
 
             if pendingContextType == "enemy" then
-                print("\nChoose a target:")
+                -- Show appropriate prompt for post-play vs regular play
+                if waitingForPostPlayContext then
+                    print("\n" .. pendingCard.name .. " - Choose a target:")
+                else
+                    print("\nChoose a target:")
+                end
                 local living = aliveEnemies(world)
                 for i, enemy in ipairs(living) do
                     print("  [" .. i .. "] " .. enemy.name .. " (" .. enemy.hp .. " HP)")
@@ -143,6 +149,7 @@ function CombatEngine.playGame(world)
                 local choice = tonumber(input)
                 if choice == 0 then
                     waitingForContext = false
+                    waitingForPostPlayContext = false
                     pendingCard = nil
                     pendingContextType = nil
                     validInput = false
@@ -155,7 +162,8 @@ function CombatEngine.playGame(world)
                 end
             elseif pendingContextType == "cards" then
                 -- Card selection system
-                local selectableCards = ContextProvider.getValidCards(world, world.player, pendingCard)
+                local contextField = waitingForPostPlayContext and "postPlayContext" or "contextProvider"
+                local selectableCards = ContextProvider.getValidCards(world, world.player, pendingCard, contextField)
 
                 if #selectableCards == 0 then
                     print("No cards available to select.")
@@ -163,10 +171,15 @@ function CombatEngine.playGame(world)
                     context = {}
                 else
                     -- Get display name for card source
-                    local info = ContextProvider.getSelectionInfo(pendingCard)
+                    local info = ContextProvider.getSelectionInfo(pendingCard, contextField)
                     local sourceName = info.source == "master" and "master deck" or "available cards"
 
-                    print("\nChoose a card from " .. sourceName .. ":")
+                    -- Show appropriate prompt for post-play vs regular play
+                    if waitingForPostPlayContext then
+                        print("\n" .. pendingCard.name .. " - Choose a card from " .. sourceName .. ":")
+                    else
+                        print("\nChoose a card from " .. sourceName .. ":")
+                    end
                     for i, card in ipairs(selectableCards) do
                         print("  [" .. i .. "] " .. card.name)
                     end
@@ -180,6 +193,7 @@ function CombatEngine.playGame(world)
                     local cardIndex = tonumber(input)
                     if cardIndex == 0 then
                         waitingForContext = false
+                        waitingForPostPlayContext = false
                         pendingCard = nil
                         pendingContextType = nil
                         validInput = false
@@ -194,11 +208,31 @@ function CombatEngine.playGame(world)
             end
 
             if validInput and pendingCard then
-                PlayCard.execute(world, world.player, pendingCard, context)
-                CombatEngine.displayLog(world, 3)
-                waitingForContext = false
-                pendingCard = nil
-                pendingContextType = nil
+                if waitingForPostPlayContext then
+                    -- Execute post-play phase
+                    PlayCard.executePostPlay(world, world.player, pendingCard, context)
+                    CombatEngine.displayLog(world, 3)
+                    waitingForPostPlayContext = false
+                    pendingCard = nil
+                    pendingContextType = nil
+                else
+                    -- Execute main play
+                    local result = PlayCard.execute(world, world.player, pendingCard, context)
+                    CombatEngine.displayLog(world, 3)
+
+                    -- Check if card needs post-play phase
+                    if type(result) == "table" and result.needsPostPlay then
+                        -- Enter post-play context collection mode
+                        pendingContextType = ContextProvider.getContextType(pendingCard, "postPlayContext")
+                        waitingForPostPlayContext = true
+                        -- Keep pendingCard for post-play execution
+                    else
+                        -- Normal completion
+                        waitingForContext = false
+                        pendingCard = nil
+                        pendingContextType = nil
+                    end
+                end
             end
         else
             print("\nActions:")
@@ -223,8 +257,17 @@ function CombatEngine.playGame(world)
                     local card = hand[cardIndex]
                     local contextType = ContextProvider.getContextType(card)
                     if contextType == "none" then
-                        PlayCard.execute(world, world.player, card, nil)
+                        -- Play card without initial context
+                        local result = PlayCard.execute(world, world.player, card, nil)
                         CombatEngine.displayLog(world, 3)
+
+                        -- Check if card needs post-play phase
+                        if type(result) == "table" and result.needsPostPlay then
+                            pendingCard = card
+                            pendingContextType = ContextProvider.getContextType(card, "postPlayContext")
+                            waitingForContext = true
+                            waitingForPostPlayContext = true
+                        end
                     else
                         pendingCard = card
                         pendingContextType = contextType
