@@ -28,11 +28,18 @@ function DealDamage.execute(world, event)
 
     -- Handle AOE: defender = "all" means hit all enemies
     if defender == "all" then
+        -- Add "aoe" tag so relics/powers can detect AOE attacks (e.g., Pen Nib)
+        local aoeTags = {}
+        for _, tag in ipairs(tags) do
+            table.insert(aoeTags, tag)
+        end
+        table.insert(aoeTags, "aoe")
+
         if world.enemies then
             for _, enemy in ipairs(world.enemies) do
                 if enemy.hp > 0 then
-                    -- Recursively call with each enemy as defender
-                    DealDamage.executeSingle(world, attacker, enemy, card, tags)
+                    -- Call with aoe tag added
+                    DealDamage.executeSingle(world, attacker, enemy, card, aoeTags)
                 end
             end
         end

@@ -30,11 +30,18 @@ function DealNonAttackDamage.execute(world, event)
 
     -- Handle AOE: target = "all" means hit all enemies
     if target == "all" then
+        -- Add "aoe" tag so relics/powers can detect AOE effects
+        local aoeTags = {}
+        for _, tag in ipairs(tags) do
+            table.insert(aoeTags, tag)
+        end
+        table.insert(aoeTags, "aoe")
+
         if world.enemies then
             for _, enemy in ipairs(world.enemies) do
                 if enemy.hp > 0 then
-                    -- Recursively call with each enemy as target
-                    DealNonAttackDamage.executeSingle(world, source, enemy, damage, tags)
+                    -- Call with aoe tag added
+                    DealNonAttackDamage.executeSingle(world, source, enemy, damage, aoeTags)
                 end
             end
         end
