@@ -61,12 +61,16 @@ local Utils = require("utils")
 
 -- Determines the type of context a card needs
 -- Returns: "none", "enemy", or "cards"
-function ContextProvider.getContextType(card)
-    if not card.contextProvider then
+-- contextField: which field to check ("contextProvider" or "postPlayContext")
+function ContextProvider.getContextType(card, contextField)
+    contextField = contextField or "contextProvider"  -- Default to main context
+    local provider = card[contextField]
+
+    if not provider then
         return "none"  -- No context needed (Defend, Corruption, etc.)
-    elseif card.contextProvider == "enemy" then
+    elseif provider == "enemy" then
         return "enemy"  -- Enemy targeting (Strike, Bash, etc.)
-    elseif type(card.contextProvider) == "table" then
+    elseif type(provider) == "table" then
         return "cards"  -- Card selection (Setup, Eviscerate, etc.)
     else
         return "none"  -- Unknown/invalid contextProvider
@@ -75,16 +79,18 @@ end
 
 -- Gets selection info for UI display (used by CombatEngine)
 -- Returns table with: {type, source?, count?}
-function ContextProvider.getSelectionInfo(card)
-    if not card.contextProvider then
+-- contextField: which field to check ("contextProvider" or "postPlayContext")
+function ContextProvider.getSelectionInfo(card, contextField)
+    contextField = contextField or "contextProvider"  -- Default to main context
+    local provider = card[contextField]
+
+    if not provider then
         return {type = "none"}
 
-    elseif card.contextProvider == "enemy" then
+    elseif provider == "enemy" then
         return {type = "enemy"}
 
-    elseif type(card.contextProvider) == "table" then
-        local provider = card.contextProvider
-
+    elseif type(provider) == "table" then
         -- Extract count (handle both static and dynamic)
         local count = provider.count or {min = 1, max = 1}
         if type(count) == "function" then
@@ -106,13 +112,15 @@ end
 -- Gets all valid cards that can be selected (used by UI before player choice)
 -- This applies the filter but doesn't enforce count constraints
 -- Returns: array of valid cards (empty if not a card selection context)
-function ContextProvider.getValidCards(world, player, card)
+-- contextField: which field to check ("contextProvider" or "postPlayContext")
+function ContextProvider.getValidCards(world, player, card, contextField)
+    contextField = contextField or "contextProvider"  -- Default to main context
+    local provider = card[contextField]
+
     -- Only card selection contexts return cards
-    if type(card.contextProvider) ~= "table" then
+    if type(provider) ~= "table" then
         return {}
     end
-
-    local provider = card.contextProvider
 
     -- STEP 1: Determine which deck to select from
     local source = provider.source or "combat"
@@ -148,12 +156,16 @@ end
 
 -- Main execute function - collects and returns context for a card
 -- Returns: nil, enemy entity, or array of cards (depending on contextProvider)
-function ContextProvider.execute(world, player, card)
-    if not card.contextProvider then
+-- contextField: which field to check ("contextProvider" or "postPlayContext")
+function ContextProvider.execute(world, player, card, contextField)
+    contextField = contextField or "contextProvider"  -- Default to main context
+    local provider = card[contextField]
+
+    if not provider then
         -- NO CONTEXT (Defend, Corruption, Bloodletting, etc.)
         return nil
 
-    elseif card.contextProvider == "enemy" then
+    elseif provider == "enemy" then
         -- ENEMY TARGETING (Strike, Bash, Catalyst, etc.)
         -- Auto-select first alive enemy (in real game, player would choose)
         if world.enemies then
@@ -166,9 +178,9 @@ function ContextProvider.execute(world, player, card)
         end
         return world.enemy  -- Single enemy format (legacy)
 
-    elseif type(card.contextProvider) == "table" then
+    elseif type(provider) == "table" then
         -- CARD SELECTION (Setup, Eviscerate, etc.)
-        return ContextProvider.executeCardSelection(world, player, card)
+        return ContextProvider.executeCardSelection(world, player, card, contextField)
 
     else
         -- Unknown/invalid contextProvider
@@ -178,8 +190,10 @@ end
 
 -- Executes card selection logic
 -- Returns: array of selected cards (or nil if constraints not met)
-function ContextProvider.executeCardSelection(world, player, card)
-    local provider = card.contextProvider
+-- contextField: which field to check ("contextProvider" or "postPlayContext")
+function ContextProvider.executeCardSelection(world, player, card, contextField)
+    contextField = contextField or "contextProvider"  -- Default to main context
+    local provider = card[contextField]
 
     -- STEP 1: Get count constraints (min/max cards to select)
     local count
@@ -192,7 +206,7 @@ function ContextProvider.executeCardSelection(world, player, card)
     end
 
     -- STEP 2: Get all valid cards that pass the filter
-    local validCards = ContextProvider.getValidCards(world, player, card)
+    local validCards = ContextProvider.getValidCards(world, player, card, contextField)
 
     -- STEP 3: Auto-select cards (in real game, player would choose)
     -- Currently just takes first N cards

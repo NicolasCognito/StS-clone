@@ -57,11 +57,18 @@ function EndTurn.execute(world, player)
                 -- Card stays in hand (don't change state)
                 table.insert(world.log, card.name .. " was retained")
             else
-                -- Normal discard
-                card.state = "DISCARD_PILE"
+                -- Normal discard via event queue
+                world.queue:push({
+                    type = "ON_DISCARD",
+                    card = card,
+                    player = player
+                })
             end
         end
     end
+
+    -- Process all discard events
+    ProcessEffectQueue.execute(world)
 
     -- Clear temporary turn-based flags from ALL cards
     for _, card in ipairs(player.combatDeck) do

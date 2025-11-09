@@ -33,6 +33,14 @@
 -- If card.prePlayAction exists, it's called before ContextProvider.execute().
 -- Example: Discovery generates 3 random cards with state="DRAFT", then contextProvider
 --          filters for DRAFT cards for player to choose from.
+--
+-- Post-Play Phase:
+-- Some cards (Dagger Throw, etc.) need to prompt for additional input AFTER the main effect.
+-- If card.postPlayContext exists, the card will prompt for additional context after playing.
+-- Card must define:
+--   - postPlayContext: same format as contextProvider ("enemy", {card selection config}, etc.)
+--   - postPlayEffect: function(self, world, player, postContext, originalContext)
+-- The postPlayEffect receives both the post-play context and the original play context.
 
 local PlayCard = {}
 
@@ -100,8 +108,13 @@ function PlayCard.executeCardEffect(world, player, card, context, skipDiscard)
         })
         ProcessEffectQueue.execute(world)
     elseif not skipDiscard then
-        -- Normal discard (skip for replays where card is already in a pile)
-        card.state = "DISCARD_PILE"
+        -- Normal discard via event queue (skip for replays where card is already in a pile)
+        world.queue:push({
+            type = "ON_DISCARD",
+            card = card,
+            player = player
+        })
+        ProcessEffectQueue.execute(world)
     end
 end
 
@@ -181,6 +194,52 @@ function PlayCard.execute(world, player, card, providedContext)
         -- Decrement Double Tap stacks
         player.status.doubleTap = player.status.doubleTap - 1
     end
+
+    -- Check if card needs post-play phase
+    if card.postPlayContext then
+        -- Store original context for post-play effect
+        card.originalPlayContext = context
+        -- Return special value to indicate post-play is needed
+        return {success = true, needsPostPlay = true}
+    end
+
+    return true
+end
+
+-- EXECUTE POST-PLAY PHASE
+-- Called after the main card play when card has postPlayContext
+-- world: the complete game state
+-- player: the player character
+-- card: the card that was played
+-- providedPostContext: optional pre-provided post-play context
+--                      If nil, will be auto-collected by ContextProvider
+function PlayCard.executePostPlay(world, player, card, providedPostContext)
+    -- STEP 1: COLLECT POST-PLAY CONTEXT
+    -- Get context via ContextProvider if not explicitly provided
+    local postContext = providedPostContext
+    if postContext == nil then
+        postContext = ContextProvider.execute(world, player, card, "postPlayContext")
+    end
+
+    -- Validate that context exists when needed
+    local postContextType = ContextProvider.getContextType(card, "postPlayContext")
+    if postContextType ~= "none" and postContext == nil then
+        table.insert(world.log, "Card " .. card.name .. " post-play requires context of type " .. postContextType)
+        return false
+    end
+
+    -- STEP 2: EXECUTE POST-PLAY EFFECT
+    -- Call card's postPlayEffect function with both contexts
+    -- originalPlayContext was stored during the main play
+    if card.postPlayEffect then
+        card:postPlayEffect(world, player, postContext, card.originalPlayContext)
+    end
+
+    -- STEP 3: PROCESS EFFECT QUEUE
+    ProcessEffectQueue.execute(world)
+
+    -- Clean up stored context
+    card.originalPlayContext = nil
 
     return true
 end
