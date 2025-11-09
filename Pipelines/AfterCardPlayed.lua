@@ -7,19 +7,14 @@
 
 local AfterCardPlayed = {}
 
+local Utils = require("utils")
+
 function AfterCardPlayed.execute(world, player)
-    -- Check if player has Pen Nib relic and counter has reached trigger threshold
-    if player.relics then
-        for _, relic in ipairs(player.relics) do
-            if relic.id == "Pen_Nib" then
-                -- Reset counter if it has reached the trigger threshold
-                if world.penNibCounter >= relic.triggerCount then
-                    world.penNibCounter = 0
-                    table.insert(world.log, "Pen Nib reset!")
-                end
-                break
-            end
-        end
+    -- Reset Pen Nib counter if it has reached trigger threshold
+    local penNib = Utils.getRelic(player, "Pen_Nib")
+    if penNib and world.penNibCounter >= penNib.triggerCount then
+        world.penNibCounter = 0
+        table.insert(world.log, "Pen Nib reset!")
     end
 end
 
