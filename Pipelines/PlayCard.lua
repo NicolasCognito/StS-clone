@@ -152,13 +152,22 @@ function PlayCard.execute(world, player, card, providedContext)
     player.energy = player.energy - cardCost
     table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
 
-    -- Save card and context for potential replay (Double Tap, etc.)
-    world.lastPlayedCard = card
-    world.lastPlayedContext = context
-
     -- STEPS 6-9: Execute the card effect (the "bracketed section")
     -- This can be replayed by effects like Double Tap
     PlayCard.executeCardEffect(world, player, card, context, false)
+
+    -- DOUBLE TAP: Replay Attack cards
+    -- Check for Double Tap status (stackable effect from Double Tap skill)
+    if player.status and player.status.doubleTap and player.status.doubleTap > 0 and card.type == "ATTACK" then
+        table.insert(world.log, "Double Tap triggers!")
+
+        -- Replay the bracketed section (steps 6-9)
+        -- skipDiscard = true because card is already in discard/exhaust pile
+        PlayCard.executeCardEffect(world, player, card, context, true)
+
+        -- Decrement Double Tap stacks
+        player.status.doubleTap = player.status.doubleTap - 1
+    end
 
     return true
 end
