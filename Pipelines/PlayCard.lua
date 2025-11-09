@@ -41,53 +41,10 @@ local GetCost = require("Pipelines.GetCost")
 local ContextProvider = require("Pipelines.ContextProvider")
 local Utils = require("utils")
 
-function PlayCard.execute(world, player, card, providedContext)
-    -- STEP 1: CHECK ENERGY
-    -- Get the current cost of the card (allows for dynamic cost calculation)
-    local cardCost = GetCost.execute(world, player, card)
-
-    -- Check if player has enough energy (but don't pay yet)
-    if player.energy < cardCost then
-        table.insert(world.log, "Not enough energy to play " .. card.name)
-        return false
-    end
-
-    -- STEP 2: CHECK CUSTOM PLAYABILITY (Optional)
-    -- Some cards have special requirements (e.g., Grand Finale: deck must be empty)
-    if card.isPlayable then
-        local playable, errorMsg = card:isPlayable(world, player)
-        if not playable then
-            table.insert(world.log, errorMsg or ("Cannot play " .. card.name))
-            return false
-        end
-    end
-
-    -- STEP 3: PRE-PLAY ACTION (Optional)
-    -- Execute pre-play setup if card defines it
-    -- Used for cards like Discovery that generate choices before context collection
-    if card.prePlayAction then
-        card:prePlayAction(world, player)
-    end
-
-    -- STEP 4: COLLECT CONTEXT
-    -- Get context via ContextProvider if not explicitly provided
-    local context = providedContext
-    if context == nil then
-        context = ContextProvider.execute(world, player, card)
-    end
-
-    -- Validate that context exists when needed
-    local contextType = ContextProvider.getContextType(card)
-    if contextType ~= "none" and context == nil then
-        table.insert(world.log, "Card " .. card.name .. " requires context of type " .. contextType)
-        return false
-    end
-
-    -- STEP 5: PAY ENERGY
-    -- Now that we know the card can be played, pay the cost
-    player.energy = player.energy - cardCost
-    table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
-
+-- EXECUTE CARD EFFECT (Steps 6-9)
+-- This is the "bracketed section" that gets replayed for effects like Double Tap
+-- skipDiscard: if true, don't move card to discard pile (for replays where card is already in a pile)
+function PlayCard.executeCardEffect(world, player, card, context, skipDiscard)
     -- STEP 6: TRACK STATISTICS
     -- Track combat statistics
     if card.type == "POWER" then
@@ -142,10 +99,66 @@ function PlayCard.execute(world, player, card, providedContext)
             source = exhaustSource
         })
         ProcessEffectQueue.execute(world)
-    else
-        -- Normal discard
+    elseif not skipDiscard then
+        -- Normal discard (skip for replays where card is already in a pile)
         card.state = "DISCARD_PILE"
     end
+end
+
+function PlayCard.execute(world, player, card, providedContext)
+    -- STEP 1: CHECK ENERGY
+    -- Get the current cost of the card (allows for dynamic cost calculation)
+    local cardCost = GetCost.execute(world, player, card)
+
+    -- Check if player has enough energy (but don't pay yet)
+    if player.energy < cardCost then
+        table.insert(world.log, "Not enough energy to play " .. card.name)
+        return false
+    end
+
+    -- STEP 2: CHECK CUSTOM PLAYABILITY (Optional)
+    -- Some cards have special requirements (e.g., Grand Finale: deck must be empty)
+    if card.isPlayable then
+        local playable, errorMsg = card:isPlayable(world, player)
+        if not playable then
+            table.insert(world.log, errorMsg or ("Cannot play " .. card.name))
+            return false
+        end
+    end
+
+    -- STEP 3: PRE-PLAY ACTION (Optional)
+    -- Execute pre-play setup if card defines it
+    -- Used for cards like Discovery that generate choices before context collection
+    if card.prePlayAction then
+        card:prePlayAction(world, player)
+    end
+
+    -- STEP 4: COLLECT CONTEXT
+    -- Get context via ContextProvider if not explicitly provided
+    local context = providedContext
+    if context == nil then
+        context = ContextProvider.execute(world, player, card)
+    end
+
+    -- Validate that context exists when needed
+    local contextType = ContextProvider.getContextType(card)
+    if contextType ~= "none" and context == nil then
+        table.insert(world.log, "Card " .. card.name .. " requires context of type " .. contextType)
+        return false
+    end
+
+    -- STEP 5: PAY ENERGY
+    -- Now that we know the card can be played, pay the cost
+    player.energy = player.energy - cardCost
+    table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
+
+    -- Save card and context for potential replay (Double Tap, etc.)
+    world.lastPlayedCard = card
+    world.lastPlayedContext = context
+
+    -- STEPS 6-9: Execute the card effect (the "bracketed section")
+    -- This can be replayed by effects like Double Tap
+    PlayCard.executeCardEffect(world, player, card, context, false)
 
     return true
 end
