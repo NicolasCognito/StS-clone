@@ -4,6 +4,8 @@ return {
         name = "Flame Barrier",
         cost = 2,
         type = "SKILL",
+        character = "IRONCLAD",
+        rarity = "UNCOMMON",
         block = 12,
         thorns = 4,
         description = "Gain 12 block. Gain 4 Thorns.",

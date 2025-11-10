@@ -7,6 +7,8 @@ return {
         name = "Havoc",
         cost = 1,
         type = "SKILL",
+        character = "IRONCLAD",
+        rarity = "UNCOMMON",
         exhausts = true,
         description = "Play the top card of your draw pile. Exhaust.",
 

@@ -11,6 +11,8 @@ return {
         name = "Double Tap",
         cost = 1,
         type = "SKILL",
+        character = "IRONCLAD",
+        rarity = "RARE",
         doubleTapStacks = 1,
         description = "Your next Attack is played twice.",
 

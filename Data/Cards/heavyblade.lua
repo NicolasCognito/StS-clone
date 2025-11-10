@@ -4,6 +4,8 @@ return {
         name = "Heavy Blade",
         cost = 2,
         type = "ATTACK",
+        character = "IRONCLAD",
+        rarity = "COMMON",
         damage = 14,
         strengthMultiplier = 3,
         description = "Deal 14 damage. Strength affects this card 3 times.",

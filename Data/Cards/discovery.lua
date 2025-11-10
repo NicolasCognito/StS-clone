@@ -4,6 +4,8 @@ return {
         name = "Discovery",
         cost = 1,
         type = "SKILL",
+        character = "COLORLESS",
+        rarity = "COMMON",
         description = "Choose 1 of 3 random cards to add to your hand. It costs 0 this turn.",
 
         -- PRE-PLAY ACTION: Generate 3 random cards before player chooses

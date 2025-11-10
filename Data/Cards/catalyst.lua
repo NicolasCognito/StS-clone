@@ -4,6 +4,8 @@ return {
         name = "Catalyst",
         cost = 1,
         type = "SKILL",
+        character = "SILENT",
+        rarity = "UNCOMMON",
         poisonMultiplier = 2,
         description = "Double the target's Poison.",
 

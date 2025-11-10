@@ -4,6 +4,8 @@ return {
         name = "Bloodletting",
         cost = 0,
         type = "SKILL",
+        character = "IRONCLAD",
+        rarity = "UNCOMMON",
         hpLoss = 3,
         energyGain = 2,
         description = "Lose 3 HP. Gain 2 Energy.",

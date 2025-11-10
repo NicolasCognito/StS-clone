@@ -4,6 +4,8 @@ return {
         name = "Dagger Throw",
         cost = 1,
         type = "ATTACK",
+        character = "SILENT",
+        rarity = "COMMON",
         damage = 9,
         description = "Deal 9 damage. Draw 1 card. Discard 1 card.",
 

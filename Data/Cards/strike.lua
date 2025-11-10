@@ -4,6 +4,8 @@ return {
         name = "Strike",
         cost = 1,
         type = "ATTACK",
+        character = "IRONCLAD",
+        rarity = "STARTER",
         damage = 6,
         description = "Deal 6 damage.",
 

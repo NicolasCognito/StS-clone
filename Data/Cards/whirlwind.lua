@@ -4,6 +4,8 @@ return {
         name = "Whirlwind",
         cost = "X",
         type = "ATTACK",
+        character = "IRONCLAD",
+        rarity = "UNCOMMON",
         damage = 5,
         description = "Deal 5 damage to ALL enemies X times.",
 

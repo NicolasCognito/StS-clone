@@ -4,6 +4,8 @@ return {
         name = "Grand Finale",
         cost = 0,
         type = "ATTACK",
+        character = "SILENT",
+        rarity = "RARE",
         damage = 50,
         description = "Can only be played if there are no cards in your draw pile. Deal 50 damage to ALL enemies.",
 

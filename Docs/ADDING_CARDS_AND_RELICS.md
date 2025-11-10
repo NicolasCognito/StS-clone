@@ -36,7 +36,9 @@ NewCard = {
     id = "New_Card",
     name = "New Card",
     cost = 1,
-    type = "ATTACK",  -- or "SKILL", "POWER"
+    type = "ATTACK",  -- or "SKILL", "POWER", "CURSE"
+    character = "IRONCLAD",  -- or "SILENT", "DEFECT", "WATCHER", "COLORLESS", "CURSE"
+    rarity = "COMMON",  -- or "UNCOMMON", "RARE", "STARTER", "CURSE"
     damage = 10,      -- optional, for attack cards
     block = 5,        -- optional, for defense cards
     Targeted = 1,     -- 1 if requires target, 0 if self/AOE
@@ -113,7 +115,64 @@ world.queue:push({
 **Available Tags:**
 - `ignoreBlock` - Damage bypasses block (used for HP loss like Bloodletting)
 
-### Step 5: Add to Deck (for testing)
+### Step 5: Card Classes and Rarity
+
+All cards should have a `character` field to indicate which character class they belong to:
+
+**Character Classes:**
+- `IRONCLAD` - Red character, strength-based cards
+- `SILENT` - Green character, poison and combo cards
+- `DEFECT` - Blue character, orb and frost cards
+- `WATCHER` - Purple character, stance and calm cards
+- `COLORLESS` - Available to all characters (e.g., Discovery, Burst, Omniscience)
+- `CURSE` - Curse cards that hinder the player
+
+**Rarity Levels:**
+- `STARTER` - Starting deck cards (Strike, Defend, Bash)
+- `COMMON` - Frequently appears in card rewards
+- `UNCOMMON` - Less common, more powerful
+- `RARE` - Powerful cards, rare to find
+- `CURSE` - Curse cards only
+
+**Example Card Classes:**
+
+```lua
+-- IRONCLAD common attack
+Strike = {
+    id = "Strike",
+    name = "Strike",
+    cost = 1,
+    type = "ATTACK",
+    character = "IRONCLAD",
+    rarity = "STARTER",
+    damage = 6,
+    description = "Deal 6 damage."
+}
+
+-- COLORLESS uncommon skill
+Discovery = {
+    id = "Discovery",
+    name = "Discovery",
+    cost = 1,
+    type = "SKILL",
+    character = "COLORLESS",
+    rarity = "COMMON",
+    description = "Choose 1 of 3 random cards to add to your hand."
+}
+
+-- CURSE
+Pain = {
+    id = "Pain",
+    name = "Pain",
+    cost = -2,  -- Unplayable
+    type = "CURSE",
+    character = "CURSE",
+    rarity = "CURSE",
+    description = "Unplayable. When you exhaust this card, lose 1 HP."
+}
+```
+
+### Step 6: Add to Deck (for testing)
 
 In `main.lua`, add your card to the starting deck:
 
