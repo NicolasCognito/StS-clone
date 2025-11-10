@@ -4,7 +4,8 @@
 local Powers = {}
 
 local powerFiles = {
-    "corruption"
+    "corruption",
+    "echoform"
 }
 
 for _, fileName in ipairs(powerFiles) do
