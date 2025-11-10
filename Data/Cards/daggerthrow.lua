@@ -5,45 +5,55 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 9,
-        contextProvider = "enemy",
+        contextProvider = {type = "enemy", stability = "stable"},
         description = "Deal 9 damage. Draw 1 card. Discard 1 card.",
 
-        onPlay = function(self, world, player, target)
-            -- Deal damage
-            world.queue:push({
-                type = "ON_DAMAGE",
-                attacker = player,
-                defender = target,
-                card = self
-            })
+        onPlay = function(self, world, player)
+            if not self.additionalContextCollected then
+                -- PHASE 1: Main effect (damage + draw)
+                local target = world.combat.latestContext  -- enemy from main contextProvider
 
-            -- Draw 1 card
-            world.queue:push({
-                type = "ON_DRAW",
-                player = player,
-                count = 1
-            })
-        end,
+                -- Deal damage
+                world.queue:push({
+                    type = "ON_DAMAGE",
+                    attacker = player,
+                    defender = target,
+                    card = self
+                })
 
-        -- POST-PLAY PHASE: Prompt to discard a card from hand
-        postPlayContext = {
-            source = "combat",
-            count = {min = 1, max = 1},  -- Must discard exactly 1 card
-            filter = function(world, player, card, candidateCard)
-                -- Can only discard cards from hand
-                return candidateCard.state == "HAND"
+                -- Draw 1 card
+                world.queue:push({
+                    type = "ON_DRAW",
+                    player = player,
+                    count = 1
+                })
+
+                -- Request additional context for discard
+                world.combat.contextRequest = {
+                    card = self,
+                    contextProvider = {
+                        type = "cards",
+                        stability = "temp",
+                        source = "combat",
+                        count = {min = 1, max = 1},
+                        filter = function(world, player, card, candidateCard)
+                            return candidateCard.state == "HAND"
+                        end
+                    }
+                }
+                self.additionalContextCollected = true
+            else
+                -- PHASE 2: Additional effect (discard)
+                local cardsToDiscard = world.combat.latestContext
+                if cardsToDiscard and #cardsToDiscard > 0 then
+                    world.queue:push({
+                        type = "ON_DISCARD",
+                        card = cardsToDiscard[1],
+                        player = player
+                    })
+                end
+                self.additionalContextCollected = nil  -- Reset for next play
             end
-        },
-
-        postPlayEffect = function(self, world, player, discardedCards, originalTarget)
-            local discardedCard = discardedCards[1]
-
-            -- Discard the selected card
-            world.queue:push({
-                type = "ON_DISCARD",
-                card = discardedCard,
-                player = player
-            })
         end,
 
         onUpgrade = function(self)

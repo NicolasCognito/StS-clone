@@ -5,10 +5,11 @@ return {
         cost = "X",
         type = "ATTACK",
         damage = 7,
-        contextProvider = "enemy",
+        contextProvider = {type = "enemy", stability = "stable"},
         description = "Deal 7 damage X times.",
 
-        onPlay = function(self, world, player, target)
+        onPlay = function(self, world, player)
+            local target = world.combat.latestContext
             -- Deal damage X times to the same target (where X = energySpent)
             for i = 1, self.energySpent do
                 world.queue:push({

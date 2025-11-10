@@ -22,7 +22,7 @@ return {
         -- No context provider - doesn't target specific enemy, hits ALL enemies
         contextProvider = nil,
 
-        onPlay = function(self, world, player, context)
+        onPlay = function(self, world, player)
             -- Deal damage to ALL enemies
             -- DealDamage pipeline handles the "all" keyword
             world.queue:push({

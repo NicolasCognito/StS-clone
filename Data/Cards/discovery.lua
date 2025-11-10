@@ -41,6 +41,8 @@ return {
 
         -- CONTEXT PROVIDER: Filter for DRAFT cards
         contextProvider = {
+            type = "cards",
+            stability = "temp",
             source = "combat",
             count = {min = 1, max = 1},
             filter = function(world, player, card, candidateCard)
@@ -50,8 +52,9 @@ return {
         },
 
         -- ON PLAY: Move chosen card to hand, remove other drafts
-        onPlay = function(self, world, player, chosenCards)
-            local chosenCard = chosenCards[1]
+        onPlay = function(self, world, player)
+            local selectedCards = world.combat.latestContext
+            local chosenCard = selectedCards[1]
 
             -- Move chosen card to hand with cost 0 this turn
             chosenCard.state = "HAND"

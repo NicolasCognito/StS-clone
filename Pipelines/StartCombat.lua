@@ -11,7 +11,12 @@ function StartCombat.execute(world)
     world.combat = {
         timesHpLost = 0,
         cardsDiscardedThisTurn = 0,
-        powersPlayedThisCombat = 0
+        powersPlayedThisCombat = 0,
+        -- Context system
+        stableContext = nil,      -- Persists across duplications (e.g., enemy target)
+        tempContext = nil,        -- Re-collected on duplications (e.g., card discard)
+        latestContext = nil,      -- Points to the most recently collected context
+        contextRequest = nil      -- Request for context collection: {card, contextProvider, stability}
     }
 
     world.queue = EventQueue.new()

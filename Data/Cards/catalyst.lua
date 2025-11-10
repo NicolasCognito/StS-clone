@@ -5,10 +5,11 @@ return {
         cost = 1,
         type = "SKILL",
         poisonMultiplier = 2,
-        contextProvider = "enemy",
+        contextProvider = {type = "enemy", stability = "stable"},
         description = "Double the target's Poison.",
 
-        onPlay = function(self, world, player, target)
+        onPlay = function(self, world, player)
+            local target = world.combat.latestContext
             -- Check if target has poison status
             if target.status and target.status.poison and target.status.poison > 0 then
                 local oldPoison = target.status.poison

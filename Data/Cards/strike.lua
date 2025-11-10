@@ -5,10 +5,11 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 6,
-        contextProvider = "enemy",
+        contextProvider = {type = "enemy", stability = "stable"},
         description = "Deal 6 damage.",
 
-        onPlay = function(self, world, player, target)
+        onPlay = function(self, world, player)
+            local target = world.combat.latestContext
             world.queue:push({
                 type = "ON_DAMAGE",
                 attacker = player,
