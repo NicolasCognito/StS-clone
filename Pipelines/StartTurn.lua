@@ -21,6 +21,22 @@ function StartTurn.execute(world, player)
     -- Clear turn-based player flags
     player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
 
+    -- Reset turn-based duplication flags
+    player.status = player.status or {}
+    player.status.necronomiconThisTurn = false  -- Necronomicon can trigger again
+
+    -- Set Echo Form counter from power stacks
+    -- Echo Form: first N cards each turn are played twice (N = power stacks)
+    if player.powers then
+        local echoFormStacks = 0
+        for _, power in ipairs(player.powers) do
+            if power.id == "EchoForm" then
+                echoFormStacks = echoFormStacks + power.stacks
+            end
+        end
+        player.status.echoFormThisTurn = echoFormStacks
+    end
+
     -- Reset block
     player.block = 0
 

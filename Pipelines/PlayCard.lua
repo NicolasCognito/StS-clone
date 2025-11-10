@@ -48,6 +48,7 @@ local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
 local GetCost = require("Pipelines.GetCost")
 local ContextProvider = require("Pipelines.ContextProvider")
 local Utils = require("utils")
+local DuplicationHelpers = require("Pipelines.PlayCard_DuplicationHelpers")
 
 -- EXECUTE CARD EFFECT (Steps 6-9)
 -- This is the "bracketed section" that gets replayed for effects like Double Tap
@@ -169,6 +170,9 @@ function PlayCard.execute(world, player, card, providedContext)
     -- Card can access this value in onPlay via self.energySpent
     card.energySpent = cardCost
 
+    -- Store cost when played for Necronomicon checking
+    card.costWhenPlayed = cardCost
+
     -- Chemical X: Add bonus to X cost cards
     if card.cost == "X" then
         local chemicalX = Utils.getRelic(player, "Chemical_X")
@@ -179,33 +183,26 @@ function PlayCard.execute(world, player, card, providedContext)
     end
 
     -- STEPS 6-9: Execute the card effect (the "bracketed section")
-    -- This can be replayed by effects like Double Tap
+    -- This can be replayed by duplication effects
     PlayCard.executeCardEffect(world, player, card, context, false)
 
-    -- DOUBLE TAP: Replay Attack cards
-    -- Check for Double Tap status (stackable effect from Double Tap skill)
-    local doubleTapTriggered = false
-    if player.status and player.status.doubleTap and player.status.doubleTap > 0 and card.type == "ATTACK" then
-        table.insert(world.log, "Double Tap triggers!")
+    -- DUPLICATION LOOP
+    -- Check all duplication sources and replay card as needed
+    -- Sources: Duplication Potion, Double Tap, Burst, Amplify, Echo Form, Necronomicon
+    while true do
+        local shouldReplay, source = DuplicationHelpers.shouldBePlayedAgain(world, player, card)
+        if not shouldReplay then
+            break
+        end
 
-        -- Replay the bracketed section (steps 6-9)
-        -- skipDiscard = true because card is already in discard/exhaust pile
-        PlayCard.executeCardEffect(world, player, card, context, true)
-
-        -- Decrement Double Tap stacks
-        player.status.doubleTap = player.status.doubleTap - 1
-        doubleTapTriggered = true
+        table.insert(world.log, source .. " triggers!")
+        PlayCard.executeCardEffect(world, player, card, context, true)  -- skipDiscard=true
     end
 
     -- Check if card needs post-play phase
     if card.postPlayContext then
         -- Store original context for post-play effect
         card.originalPlayContext = context
-
-        -- If Double Tap triggered, mark card for replay
-        if doubleTapTriggered then
-            card.postPlayReplaysRemaining = 1  -- Execute postPlay one additional time
-        end
 
         -- Return special value to indicate post-play is needed
         return {success = true, needsPostPlay = true}
@@ -246,16 +243,16 @@ function PlayCard.executePostPlay(world, player, card, providedPostContext)
     -- STEP 3: PROCESS EFFECT QUEUE
     ProcessEffectQueue.execute(world)
 
-    -- STEP 4: CHECK FOR REPLAYS (Double Tap)
-    if card.postPlayReplaysRemaining and card.postPlayReplaysRemaining > 0 then
-        card.postPlayReplaysRemaining = card.postPlayReplaysRemaining - 1
-        -- Signal that postPlay needs to execute again
-        return {needsPostPlay = true}
+    -- STEP 4: CHECK FOR DUPLICATION (reuse shouldBePlayedAgain)
+    -- This handles all duplication sources automatically
+    local shouldReplay, source = DuplicationHelpers.shouldBePlayedAgain(world, player, card)
+    if shouldReplay then
+        table.insert(world.log, source .. " triggers! (post-play)")
+        return {needsPostPlay = true}  -- Continue duplication loop
     end
 
     -- Clean up stored context - all replays complete
     card.originalPlayContext = nil
-    card.postPlayReplaysRemaining = nil
 
     return true
 end
