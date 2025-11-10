@@ -21,49 +21,62 @@ local DuplicationHelpers = {}
 
 local Utils = require("utils")
 
--- CHECK IF CARD SHOULD BE PLAYED AGAIN
--- Called after each card execution to determine if duplication applies
--- Returns: (shouldReplay: boolean, sourceName: string or nil)
---
--- Priority order ensures most specific effects trigger first:
--- 1. Duplication Potion (any card)
--- 2. Type-specific effects (Double Tap/Burst/Amplify)
--- 3. Echo Form (any card, turn-limited)
--- 4. Necronomicon (cost-limited, turn-limited)
-function DuplicationHelpers.shouldBePlayedAgain(world, player, card)
+local function ensureStatus(player)
     player.status = player.status or {}
+    return player.status
+end
 
-    -- PRIORITY 1: Duplication Potion (any card)
-    if player.status.duplicationPotion and player.status.duplicationPotion > 0 then
-        player.status.duplicationPotion = player.status.duplicationPotion - 1
-        return true, "Duplication Potion"
+-- BUILD REPLAY PLAN
+-- Returns an ordered array of source names that should replay the card once each.
+-- Sources are consumed immediately to make sequencing deterministic.
+function DuplicationHelpers.buildReplayPlan(world, player, card)
+    local plan = {}
+    local status = ensureStatus(player)
+
+    -- Forced replays are queued externally and should always run first
+    if card._forcedReplays and #card._forcedReplays > 0 then
+        for _, sourceName in ipairs(card._forcedReplays) do
+            table.insert(plan, sourceName or "Forced Replay")
+        end
+        card._forcedReplays = nil
+    end
+
+    -- Helper to append a source name to the plan
+    local function add(sourceName)
+        table.insert(plan, sourceName)
+    end
+
+    -- PRIORITY 1: Duplication Potion (any card, one trigger per stack)
+    if status.duplicationPotion and status.duplicationPotion > 0 then
+        status.duplicationPotion = status.duplicationPotion - 1
+        add("Duplication Potion")
     end
 
     -- PRIORITY 2: Type-specific effects
 
     -- Double Tap (Attacks only)
-    if card.type == "ATTACK" and player.status.doubleTap and player.status.doubleTap > 0 then
-        player.status.doubleTap = player.status.doubleTap - 1
-        return true, "Double Tap"
+    if card.type == "ATTACK" and status.doubleTap and status.doubleTap > 0 then
+        status.doubleTap = status.doubleTap - 1
+        add("Double Tap")
     end
 
     -- Burst (Skills only)
-    if card.type == "SKILL" and player.status.burst and player.status.burst > 0 then
-        player.status.burst = player.status.burst - 1
-        return true, "Burst"
+    if card.type == "SKILL" and status.burst and status.burst > 0 then
+        status.burst = status.burst - 1
+        add("Burst")
     end
 
     -- Amplify (Powers only)
-    if card.type == "POWER" and player.status.amplify and player.status.amplify > 0 then
-        player.status.amplify = player.status.amplify - 1
-        return true, "Amplify"
+    if card.type == "POWER" and status.amplify and status.amplify > 0 then
+        status.amplify = status.amplify - 1
+        add("Amplify")
     end
 
     -- PRIORITY 3: Echo Form (any card, first N cards each turn)
-    if player.status.echoFormThisTurn and player.status.echoFormThisTurn > 0 and not card._echoFormApplied then
-        player.status.echoFormThisTurn = player.status.echoFormThisTurn - 1
+    if status.echoFormThisTurn and status.echoFormThisTurn > 0 and not card._echoFormApplied then
+        status.echoFormThisTurn = status.echoFormThisTurn - 1
         card._echoFormApplied = true
-        return true, "Echo Form"
+        add("Echo Form")
     end
 
     -- PRIORITY 4: Necronomicon (Attacks costing 2+, once per turn)
@@ -71,14 +84,13 @@ function DuplicationHelpers.shouldBePlayedAgain(world, player, card)
         and card.costWhenPlayed
         and card.costWhenPlayed >= 2
         and Utils.hasRelic(player, "Necronomicon")
-        and not player.status.necronomiconThisTurn then
+        and not status.necronomiconThisTurn then
 
-        player.status.necronomiconThisTurn = true
-        return true, "Necronomicon"
+        status.necronomiconThisTurn = true
+        add("Necronomicon")
     end
 
-    -- No duplication sources apply
-    return false, nil
+    return plan
 end
 
 return DuplicationHelpers

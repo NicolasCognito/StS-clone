@@ -17,7 +17,7 @@ function Discard.execute(world, event)
     local player = event.player
 
     -- Validate card is in hand
-    if card.state ~= "HAND" then
+    if card.state ~= "HAND" and card.state ~= "PROCESSING" then
         table.insert(world.log, "Cannot discard " .. card.name .. " - not in hand")
         return
     end

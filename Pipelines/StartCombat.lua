@@ -4,6 +4,7 @@
 local StartCombat = {}
 
 local EventQueue = require("Pipelines.EventQueue")
+local CardQueue = require("Pipelines.CardQueue")
 local StartTurn = require("Pipelines.StartTurn")
 local Utils = require("utils")
 
@@ -20,6 +21,7 @@ function StartCombat.execute(world)
     }
 
     world.queue = EventQueue.new()
+    world.cardQueue = CardQueue.new()
     world.log = {}
 
     -- Ensure combat-only status/power tables exist

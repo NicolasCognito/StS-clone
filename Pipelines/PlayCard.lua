@@ -9,11 +9,6 @@
 -- - Cards read context from world.combat.latestContext during onPlay
 -- - Context can be "stable" (persists across duplications) or "temp" (re-collected each duplication)
 --
--- Context available to card.onPlay:
--- - For "enemy" context: world.combat.latestContext is enemy entity
--- - For card selection contexts: world.combat.latestContext is array of cards
--- - For "none" context: world.combat.latestContext is nil
---
 -- Handles:
 -- - Check energy cost
 -- - Check custom playability (if card has isPlayable function)
@@ -23,26 +18,10 @@
 -- - Track combat statistics (Powers played, etc.)
 -- - Call card.onPlay to generate events
 -- - Process effect queue
--- - Handle card duplication (Double Tap, etc.)
+-- - Schedule duplications (Double Tap, Burst, etc.) ahead of time
 -- - Remove card from hand
 -- - Add to discard pile (or exhaust if Corruption + Skill)
 -- - Combat logging
---
--- Custom Playability:
--- Some cards (Grand Finale, etc.) have special requirements beyond energy.
--- If card.isPlayable exists, it's called to validate if card can be played.
--- Returns: true if playable, false + optional error message if not.
---
--- Pre-Play Actions:
--- Some cards (Discovery, etc.) need to set up choices BEFORE context collection.
--- If card.prePlayAction exists, it's called before context collection.
--- Example: Discovery generates 3 random cards with state="DRAFT", then contextProvider
---          filters for DRAFT cards for player to choose from.
---
--- Additional Context During Play:
--- Cards can request additional context during their onPlay by setting world.combat.contextRequest.
--- Example: Dagger Throw first uses enemy context, then during onPlay requests card selection.
--- CombatEngine will collect the additional context and call PlayCard again to continue.
 
 local PlayCard = {}
 
@@ -50,14 +29,160 @@ local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
 local GetCost = require("Pipelines.GetCost")
 local Utils = require("utils")
 local DuplicationHelpers = require("Pipelines.PlayCard_DuplicationHelpers")
+local ClearContext = require("Pipelines.ClearContext")
+local ContextProvider = require("Pipelines.ContextProvider")
 
-local function clearContext(world)
-    if not world.combat then
-        return
+local function ensureCombatContext(world)
+    world.combat = world.combat or {}
+    return world.combat
+end
+
+local function enterProcessingState(card)
+    if card.state ~= "PROCESSING" then
+        if card._previousState == nil then
+            card._previousState = card.state
+        end
+        card.state = "PROCESSING"
     end
-    world.combat.stableContext = nil
-    world.combat.tempContext = nil
-    world.combat.contextRequest = nil
+end
+
+local function revertProcessingState(card)
+    if card._previousState then
+        card.state = card._previousState
+        card._previousState = nil
+    elseif card.state == "PROCESSING" then
+        card.state = "HAND"
+    end
+end
+
+local function prepareCardPlay(world, player, card, options)
+    options = options or {}
+
+    if card.energyPaid then
+        return true
+    end
+
+    local skipEnergyCost = options.skipEnergyCost or false
+    local energySpentOverride = options.energySpentOverride
+    local playSource = options.playSource
+    local costWhenPlayedOverride = options.costWhenPlayedOverride
+
+    -- STEP 1: CHECK ENERGY
+    local cardCost = costWhenPlayedOverride or GetCost.execute(world, player, card)
+    if not skipEnergyCost and player.energy < cardCost then
+        table.insert(world.log, "Not enough energy to play " .. card.name)
+        return false
+    end
+
+    -- STEP 2: CHECK CUSTOM PLAYABILITY (Optional)
+    if card.isPlayable then
+        local playable, errorMsg = card:isPlayable(world, player)
+        if not playable then
+            table.insert(world.log, errorMsg or ("Cannot play " .. card.name))
+            return false
+        end
+    end
+
+    -- STEP 3: PRE-PLAY ACTION (Optional)
+    if card.prePlayAction then
+        card:prePlayAction(world, player)
+    end
+
+    -- STEP 4: PAY ENERGY
+    if not skipEnergyCost then
+        player.energy = player.energy - cardCost
+    end
+
+    local loggedCost = skipEnergyCost and 0 or cardCost
+    local logMessage = player.id .. " played " .. card.name .. " (cost: " .. loggedCost .. ")"
+    if playSource then
+        logMessage = logMessage .. " via " .. playSource
+    elseif skipEnergyCost then
+        logMessage = logMessage .. " for free"
+    end
+    table.insert(world.log, logMessage)
+
+    card.costWhenPlayed = cardCost
+
+    if energySpentOverride ~= nil then
+        card.energySpent = energySpentOverride
+    elseif card.cost == "X" and skipEnergyCost then
+        card.energySpent = 0
+    else
+        card.energySpent = cardCost
+    end
+
+    -- Chemical X: Add bonus to X cost cards
+    if card.cost == "X" then
+        local chemicalX = Utils.getRelic(player, "Chemical_X")
+        if chemicalX then
+            card.energySpent = card.energySpent + chemicalX.xCostBonus
+            table.insert(world.log, "Chemical X activated! (X + " .. chemicalX.xCostBonus .. ")")
+        end
+    end
+
+    card.energyPaid = true
+    ensureCombatContext(world).deferStableContextClear = true
+    enterProcessingState(card)
+    return true
+end
+
+local function finalizeCardPlay(world, card)
+    card.energyPaid = nil
+    card._pendingContextPhase = nil
+    card._effectInitialized = nil
+    card._echoFormApplied = nil
+    card._runActive = nil
+    card._pendingEntries = nil
+    card._previousState = nil
+    ensureCombatContext(world).deferStableContextClear = false
+    ClearContext.execute(world)
+end
+
+local function enqueueCardEntries(world, player, card, options)
+    local queue = world.cardQueue
+    if not queue then
+        error("Card queue is not initialized. Did you forget to start combat?")
+    end
+
+    local prepared = prepareCardPlay(world, player, card, options)
+    if prepared ~= true then
+        return prepared
+    end
+
+    local replayPlan = DuplicationHelpers.buildReplayPlan(world, player, card)
+    local totalEntries = 1 + #replayPlan
+
+    -- Push duplication entries first so LIFO order executes initial play before replays
+    for i = #replayPlan, 1, -1 do
+        local sourceName = replayPlan[i]
+        queue:push({
+            card = card,
+            player = player,
+            options = options,
+            replaySource = sourceName,
+            isInitial = false,
+            isLast = (i == #replayPlan),
+            phase = "duplication",
+            skipDiscard = (i ~= #replayPlan)
+        })
+    end
+
+    -- Initial play runs last (top of stack)
+    queue:push({
+        card = card,
+        player = player,
+        options = options,
+        replaySource = nil,
+        isInitial = true,
+        isLast = (#replayPlan == 0),
+        phase = "main",
+        skipDiscard = (#replayPlan ~= 0)
+    })
+
+    card._runActive = true
+    card._pendingEntries = totalEntries
+    return true
 end
 
 -- EXECUTE CARD EFFECT (Steps 6-9)
@@ -92,7 +217,7 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
 
     -- STEP 8: PROCESS EFFECT QUEUE
     local queueResult = ProcessEffectQueue.execute(world)
-    if queueResult and queueResult.needsContext then
+    if type(queueResult) == "table" and queueResult.needsContext then
         card._pendingContextPhase = phase
         return queueResult
     end
@@ -101,16 +226,15 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
     local shouldExhaust = false
     local exhaustSource = nil
 
+    if card.exhausts then
+        shouldExhaust = true
+        exhaustSource = exhaustSource or "SelfExhaust"
+    end
+
     if Utils.hasPower(player, "Corruption") and card.type == "SKILL" then
         shouldExhaust = true
         exhaustSource = "Corruption"
     end
-
-    -- TODO: Card-specific exhaust (e.g., Offering, True Grit+, etc.)
-    -- if card.exhausts then
-    --     shouldExhaust = true
-    --     exhaustSource = "SelfExhaust"
-    -- end
 
     if shouldExhaust then
         world.queue:push({
@@ -119,7 +243,7 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
             source = exhaustSource
         })
         queueResult = ProcessEffectQueue.execute(world)
-        if queueResult and queueResult.needsContext then
+        if type(queueResult) == "table" and queueResult.needsContext then
             card._pendingContextPhase = phase
             return queueResult
         end
@@ -130,105 +254,122 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
             player = player
         })
         queueResult = ProcessEffectQueue.execute(world)
-        if queueResult and queueResult.needsContext then
+        if type(queueResult) == "table" and queueResult.needsContext then
             card._pendingContextPhase = phase
             return queueResult
         end
+
     end
-
-    card._effectInitialized = nil
-    card._pendingContextPhase = nil
-end
-
-function PlayCard.execute(world, player, card)
-    local resumingDuplication = (card._pendingContextPhase == "duplication")
-
-    -- Check if this is a continuation (card already paid energy)
-    if not card.energyPaid then
-        -- STEP 1: CHECK ENERGY
-        local cardCost = GetCost.execute(world, player, card)
-        if player.energy < cardCost then
-            table.insert(world.log, "Not enough energy to play " .. card.name)
-            return false
-        end
-
-        -- STEP 2: CHECK CUSTOM PLAYABILITY (Optional)
-        if card.isPlayable then
-            local playable, errorMsg = card:isPlayable(world, player)
-            if not playable then
-                table.insert(world.log, errorMsg or ("Cannot play " .. card.name))
-                return false
-            end
-        end
-
-        -- STEP 3: PRE-PLAY ACTION (Optional)
-        if card.prePlayAction then
-            card:prePlayAction(world, player)
-        end
-
-        -- STEP 4: PAY ENERGY
-        player.energy = player.energy - cardCost
-        table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
-
-        card.energySpent = cardCost
-        card.costWhenPlayed = cardCost
-
-        -- Chemical X: Add bonus to X cost cards
-        if card.cost == "X" then
-            local chemicalX = Utils.getRelic(player, "Chemical_X")
-            if chemicalX then
-                card.energySpent = card.energySpent + chemicalX.xCostBonus
-                table.insert(world.log, "Chemical X activated! (X + " .. chemicalX.xCostBonus .. ")")
-            end
-        end
-
-        card.energyPaid = true
-        world.combat.deferStableContextClear = true
-    end
-
-    -- STEP 5: Execute card effect (may pause for context collection)
-    if not resumingDuplication then
-        local effectResult = PlayCard.executeCardEffect(world, player, card, false, "main")
-        if effectResult and effectResult.needsContext then
-            return effectResult  -- Pause and return to CombatEngine
-        end
-    end
-
-    -- STEP 6: DUPLICATION LOOP
-    while true do
-        local replaySource = nil
-
-        if card._activeReplay then
-            replaySource = card._activeReplay.source
-        else
-            local shouldReplay, source = DuplicationHelpers.shouldBePlayedAgain(world, player, card)
-            if not shouldReplay then
-                break
-            end
-
-            card._activeReplay = {source = source}
-            replaySource = source
-            table.insert(world.log, source .. " triggers!")
-        end
-
-        local effectResult = PlayCard.executeCardEffect(world, player, card, true, "duplication")
-        if effectResult and effectResult.needsContext then
-            return effectResult  -- Pause for context collection in duplication
-        end
-
-        card._activeReplay = nil
-    end
-
-    -- Clean up for next card
-    card.energyPaid = nil
-    card._pendingContextPhase = nil
-    card._activeReplay = nil
-    card._effectInitialized = nil
-    card._echoFormApplied = nil
-    world.combat.deferStableContextClear = false
-    clearContext(world)
 
     return true
+end
+
+local function resolveEntry(world, entry)
+    if not entry then
+        return nil
+    end
+
+    local card = entry.card
+    local player = entry.player
+    local skipDiscard = entry.skipDiscard
+    local phase = entry.phase or (entry.isInitial and "main" or "duplication")
+
+    if not entry.resuming then
+        card._effectInitialized = nil
+    end
+
+    if entry.replaySource and not entry.replayLogged then
+        table.insert(world.log, entry.replaySource .. " triggers!")
+        entry.replayLogged = true
+    end
+
+    local result = PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
+    if type(result) == "table" and result.needsContext then
+        entry.phase = card._pendingContextPhase or phase
+        entry.resuming = true
+        world.cardQueue:push(entry)
+        return result
+    end
+
+    card._effectInitialized = nil
+    card._pendingContextPhase = nil
+    entry.resuming = nil
+
+    if entry.isLast then
+        finalizeCardPlay(world, card)
+    end
+
+    return true
+end
+
+function PlayCard.resolveQueuedEntry(world, entry)
+    return resolveEntry(world, entry)
+end
+
+function PlayCard.execute(world, player, card, options)
+    options = options or {}
+
+    if not card._runActive then
+        local enqueueResult = enqueueCardEntries(world, player, card, options)
+        if enqueueResult ~= true then
+            return enqueueResult
+        end
+    end
+
+    local queueResult = ProcessEffectQueue.execute(world)
+    if type(queueResult) == "table" and queueResult.needsContext then
+        return queueResult
+    end
+
+    return true
+end
+
+function PlayCard.autoExecute(world, player, card, options)
+    options = options or {}
+
+    while true do
+        local result = PlayCard.execute(world, player, card, options)
+
+        if result == true then
+            return true
+        end
+
+        if type(result) == "table" and result.needsContext then
+            local request = world.combat and world.combat.contextRequest
+            if not request then
+                return false
+            end
+
+            local context = ContextProvider.execute(world, player, request.contextProvider, request.card)
+            if not context then
+                world.combat.contextRequest = nil
+                return false
+            end
+
+            if request.stability == "stable" then
+                world.combat.stableContext = context
+            else
+                world.combat.tempContext = context
+            end
+
+            world.combat.contextRequest = nil
+        else
+            revertProcessingState(card)
+            return result
+        end
+    end
+end
+
+function PlayCard.queueForcedReplay(card, sourceName, count)
+    count = count or 1
+    if count <= 0 then
+        return
+    end
+
+    card._forcedReplays = card._forcedReplays or {}
+    for _ = 1, count do
+        table.insert(card._forcedReplays, sourceName or "Forced Replay")
+    end
 end
 
 return PlayCard

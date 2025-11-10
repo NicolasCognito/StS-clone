@@ -4,9 +4,17 @@
 --
 -- Responsibilities:
 -- - Clear stable context (enemy targets, etc.) for next card
--- - Future: End-of-action cleanup, triggers, etc.
+-- - Trigger next queued card (if any) via ResolveCard
 
 local QueueOver = {}
+
+local resolver
+local function getResolveCard()
+    if not resolver then
+        resolver = require("Pipelines.ResolveCard")
+    end
+    return resolver
+end
 
 function QueueOver.execute(world)
     -- Temp context should not persist once queue resolves
@@ -16,6 +24,10 @@ function QueueOver.execute(world)
     -- is still resolving. Outside those windows, clear it.
     if not world.combat.deferStableContextClear then
         world.combat.stableContext = nil
+    end
+
+    if world.cardQueue and not world.cardQueue:isEmpty() then
+        return getResolveCard().execute(world)
     end
 end
 

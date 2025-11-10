@@ -37,9 +37,10 @@ local AcquireCard = require("Pipelines.AcquireCard")
 local ApplyPower = require("Pipelines.ApplyPower")
 local Exhaust = require("Pipelines.Exhaust")
 local CustomEffect = require("Pipelines.CustomEffect")
+local ClearContext = require("Pipelines.ClearContext")
 local ApplyCaps = require("Pipelines.ApplyCaps")
 local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
-local QueueOver = require("Pipelines.QueueOver")
+local QueueOver = require("Pipelines.EffectQueueOver")
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
         local event = world.queue:next()
@@ -115,6 +116,9 @@ function ProcessEffectQueue.execute(world)
         elseif event.type == "ON_CUSTOM_EFFECT" then
             CustomEffect.execute(world, event)
 
+        elseif event.type == "CLEAR_CONTEXT" then
+            ClearContext.execute(world, event)
+
         elseif event.type == "AFTER_CARD_PLAYED" then
             AfterCardPlayed.execute(world, event.player)
 
@@ -124,7 +128,10 @@ function ProcessEffectQueue.execute(world)
     end
 
     -- Queue is now empty - run cleanup
-    QueueOver.execute(world)
+    local queueOverResult = QueueOver.execute(world)
+    if queueOverResult then
+        return queueOverResult
+    end
 end
 
 return ProcessEffectQueue

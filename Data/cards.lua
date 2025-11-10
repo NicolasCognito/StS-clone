@@ -24,7 +24,9 @@ local cardFiles = {
     "doubletap",
     "headbutt",
     "burst",
-    "amplify"
+    "amplify",
+    "havoc",
+    "omniscience"
 }
 
 for _, fileName in ipairs(cardFiles) do

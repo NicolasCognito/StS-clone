@@ -35,6 +35,30 @@ local function countLogEntries(log, text)
     return total
 end
 
+local function findLogIndex(log, text)
+    for i, entry in ipairs(log) do
+        if entry == text then
+            return i
+        end
+    end
+    return nil
+end
+
+local function labeledCard(template, label)
+    local card = copyCard(template)
+    card._testLabel = label
+    return card
+end
+
+local function findCardByLabel(deck, label)
+    for _, card in ipairs(deck) do
+        if card._testLabel == label then
+            return card
+        end
+    end
+    error("Card with label " .. label .. " not found")
+end
+
 local function playCardWithAutoContext(world, player, card)
     while true do
         local result = PlayCard.execute(world, player, card)
@@ -295,6 +319,124 @@ do
     assert(countLogEntries(world.log, "Echo Form triggers!") == 2, "Echo Form should NOT trigger for third card")
 
     print("  ✓ Echo Form with multiple stacks works correctly")
+end
+print()
+
+-- TEST 6: Havoc consumes one Burst stack and queues auto-plays
+print("TEST 6: Havoc Burst scheduling")
+do
+    local deck = {
+        copyCard(Cards.Havoc),
+        copyCard(Cards.Strike),
+        copyCard(Cards.Strike),
+        copyCard(Cards.Strike),
+        copyCard(Cards.Defend),
+        copyCard(Cards.Defend),
+        copyCard(Cards.Defend)
+    }
+
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        cards = deck,
+        relics = {}
+    })
+
+    world.enemies = { copyEnemy(Enemies.Goblin) }
+    StartCombat.execute(world)
+
+    local player = world.player
+    player.status = player.status or {}
+    player.status.burst = 2
+
+    local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
+    assert(#deckCards == 2, "Expected two cards remaining in draw pile after initial draw")
+    local topCard = deckCards[1]
+    local secondCard = deckCards[2]
+
+    local havoc = findCardById(player.combatDeck, "Havoc")
+    playCardWithAutoContext(world, player, havoc)
+
+    assert(topCard.state == "DISCARD_PILE", "Top draw pile card should have been played")
+    assert(secondCard.state == "DISCARD_PILE", "Second draw pile card should have been played by Havoc duplication")
+    assert(countLogEntries(world.log, "Burst triggers!") == 2, "Burst should trigger for Havoc and the first auto-played skill")
+    assert((player.status.burst or 0) == 0, "Burst stacks should be fully consumed by Havoc chain")
+end
+print()
+
+-- TEST 7: Context is re-collected for duplicated plays
+print("TEST 7: Context resume for duplications")
+do
+    local deck = {
+        copyCard(Cards.DaggerThrow),
+        labeledCard(Cards.Defend, "DiscardA"),
+        labeledCard(Cards.Strike, "DiscardB"),
+        copyCard(Cards.Defend),
+        copyCard(Cards.Strike),
+        copyCard(Cards.Strike),
+        copyCard(Cards.Defend)
+    }
+
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        cards = deck,
+        relics = {}
+    })
+
+    world.enemies = { copyEnemy(Enemies.Goblin) }
+    StartCombat.execute(world)
+
+    local player = world.player
+    player.status = player.status or {}
+    player.status.duplicationPotion = 1
+
+    local daggerThrow = findCardById(player.combatDeck, "DaggerThrow")
+    local discardA = findCardByLabel(player.combatDeck, "DiscardA")
+    local discardB = findCardByLabel(player.combatDeck, "DiscardB")
+
+    playCardWithAutoContext(world, player, daggerThrow)
+
+    assert(countLogEntries(world.log, "Duplication Potion triggers!") == 1, "Duplication Potion should trigger exactly once")
+    assert((player.status.duplicationPotion or 0) == 0, "Duplication Potion stack should be consumed")
+    assert(discardA.state == "DISCARD_PILE", "First selected card should be discarded during initial play")
+    assert(discardB.state == "DISCARD_PILE", "Second selected card should be discarded during duplicated play")
+end
+print()
+
+-- TEST 8: Forced replays resolve before other duplication sources
+print("TEST 8: Forced replay priority")
+do
+    local deck = {
+        copyCard(Cards.Strike),
+        copyCard(Cards.Defend),
+        copyCard(Cards.Defend)
+    }
+
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        cards = deck,
+        relics = {}
+    })
+
+    world.enemies = { copyEnemy(Enemies.Goblin) }
+    StartCombat.execute(world)
+
+    local player = world.player
+    player.status = player.status or {}
+    player.status.doubleTap = 1
+
+    local strikeCard = findCardById(player.combatDeck, "Strike")
+    PlayCard.queueForcedReplay(strikeCard, "Test Replay", 1)
+
+    playCardWithAutoContext(world, player, strikeCard)
+
+    local forcedIndex = findLogIndex(world.log, "Test Replay triggers!")
+    local doubleIndex = findLogIndex(world.log, "Double Tap triggers!")
+    assert(forcedIndex and doubleIndex and forcedIndex < doubleIndex, "Forced replay should resolve before Double Tap")
+    assert(countLogEntries(world.log, "IronClad dealt 6 damage to Goblin") == 3, "Strike should hit three times (normal + forced + Double Tap)")
+    assert((player.status.doubleTap or 0) == 0, "Double Tap stack should be consumed")
 end
 print()
 
