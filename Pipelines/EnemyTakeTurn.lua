@@ -26,15 +26,9 @@ function EnemyTakeTurn.execute(world, enemy, player)
     -- Process all queued events
     ProcessEffectQueue.execute(world)
 
-    -- Tick down enemy status effects
-    if enemy.status then
-        if enemy.status.vulnerable and enemy.status.vulnerable > 0 then
-            enemy.status.vulnerable = enemy.status.vulnerable - 1
-        end
-        if enemy.status.weak and enemy.status.weak > 0 then
-            enemy.status.weak = enemy.status.weak - 1
-        end
-    end
+    -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down
+    -- in the EndRound pipeline, not here. This is because they are "End of Round"
+    -- effects, not "End of Turn" effects.
 
     table.insert(world.log, enemy.name .. " ended turn")
 end
