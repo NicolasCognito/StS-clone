@@ -29,15 +29,9 @@ function EndTurn.execute(world, player)
     -- Process all queued events from relics
     ProcessEffectQueue.execute(world)
 
-    -- Tick down player status effects
-    if player.status then
-        if player.status.vulnerable and player.status.vulnerable > 0 then
-            player.status.vulnerable = player.status.vulnerable - 1
-        end
-        if player.status.weak and player.status.weak > 0 then
-            player.status.weak = player.status.weak - 1
-        end
-    end
+    -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down
+    -- in the EndRound pipeline, not here. This is because they are "End of Round"
+    -- effects, not "End of Turn" effects.
 
     -- Handle Retain mechanics and discard hand
     local hasEstablishment = Utils.hasPower(player, "Establishment")

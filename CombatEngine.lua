@@ -2,6 +2,7 @@
 
 local PlayCard = require("Pipelines.PlayCard")
 local EndTurn = require("Pipelines.EndTurn")
+local EndRound = require("Pipelines.EndRound")
 local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
 local StartTurn = require("Pipelines.StartTurn")
 local GetCost = require("Pipelines.GetCost")
@@ -242,6 +243,35 @@ function CombatEngine.playGame(world)
                         CombatEngine.displayLog(world, 3)
                     end
 
+                    -- VAULT SPECIAL HANDLING
+                    -- Vault skips enemies' turns and End of Round, then starts a new player turn
+                    if world.combat.vaultPlayed then
+                        world.combat.vaultPlayed = nil
+
+                        -- End player's turn (discard hand, etc.)
+                        EndTurn.execute(world, world.player)
+
+                        -- Check if combat is over
+                        if not hasLivingEnemies(world) then
+                            print("\n🎉 Victory! You defeated all enemies!")
+                            gameOver = true
+                        elseif world.player.hp <= 0 then
+                            print("\n💀 Defeat! You were slain!")
+                            gameOver = true
+                        else
+                            -- Skip enemies' turns entirely (no block reset, no intents, no status ticking)
+                            table.insert(world.log, "--- Enemies' turns skipped (Vault) ---")
+
+                            -- Skip End of Round phase (no status effect ticking)
+                            -- (Status effects like vulnerable, weak, etc. do NOT decrease)
+
+                            -- Start new player turn
+                            StartTurn.execute(world, world.player)
+
+                            CombatEngine.displayLog(world, 5)
+                        end
+                    end
+
                     -- If needsContext, the next iteration will handle it via contextRequest
                 else
                     print("Invalid card number. Try again.")
@@ -258,6 +288,10 @@ function CombatEngine.playGame(world)
                             EnemyTakeTurn.execute(world, enemy, world.player)
                         end
                     end
+
+                    -- End of Round: tick down status effects for all combatants
+                    EndRound.execute(world, world.player, world.enemies)
+
                     CombatEngine.displayLog(world, 5)
 
                     if world.player.hp <= 0 then
