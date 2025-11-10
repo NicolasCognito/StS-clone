@@ -58,9 +58,10 @@ function World.createWorld(playerData)
         map = playerData.map or nil,
         currentNode = playerData.startNode or nil,
         floor = playerData.floor or 1,
+        mapQueue = nil, -- Initialized lazily via Map_MapQueue
 
         -- Relic state (persists across fights)
-        -- Winged Boots state (managed by AcquireRelic/LoseRelic pipelines)
+        -- Winged Boots state (managed by Map_AcquireRelic/Map_LoseRelic pipelines)
         wingedBootsCharges = playerData.wingedBootsCharges or 0,
         -- Pen Nib counter (increments each Attack played, resets after 10th)
         penNibCounter = playerData.penNibCounter or 0

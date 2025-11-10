@@ -1,9 +1,9 @@
--- ACQUIRE RELIC PIPELINE
--- Adds a relic to the player's collection and handles special cases
+-- MAP ACQUIRE RELIC PIPELINE
+-- Adds a relic to the player's collection and handles overworld bookkeeping
 
-local AcquireRelic = {}
+local Map_AcquireRelic = {}
 
-function AcquireRelic.execute(world, relic)
+function Map_AcquireRelic.execute(world, relic)
     table.insert(world.player.relics, relic)
 
     if relic.id == "Winged_Boots" and relic.charges then
@@ -14,5 +14,4 @@ function AcquireRelic.execute(world, relic)
     end
 end
 
-return AcquireRelic
-
+return Map_AcquireRelic

@@ -1,9 +1,9 @@
--- LOSE RELIC PIPELINE
+-- MAP LOSE RELIC PIPELINE
 -- Removes a relic from the player's inventory and resets related state
 
-local LoseRelic = {}
+local Map_LoseRelic = {}
 
-function LoseRelic.execute(world, relicId)
+function Map_LoseRelic.execute(world, relicId)
     for i, relic in ipairs(world.player.relics) do
         if relic.id == relicId then
             table.remove(world.player.relics, i)
@@ -21,5 +21,4 @@ function LoseRelic.execute(world, relicId)
     return false
 end
 
-return LoseRelic
-
+return Map_LoseRelic

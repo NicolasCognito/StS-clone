@@ -1,7 +1,7 @@
--- CHOOSE NEXT NODE PIPELINE
+-- MAP CHOOSE NEXT NODE PIPELINE
 -- Validates map traversal and consumes Winged Boots charges when bypassing paths
 
-local ChooseNextNode = {}
+local Map_ChooseNextNode = {}
 
 local MapEngine = require("MapEngine")
 
@@ -13,7 +13,7 @@ local function displayNodeInfo(node)
     print("  - " .. nodeDesc)
 end
 
-function ChooseNextNode.execute(world, targetNodeId)
+function Map_ChooseNextNode.execute(world, targetNodeId)
     if not world.map then
         print("No map loaded.")
         return false
@@ -89,5 +89,4 @@ function ChooseNextNode.execute(world, targetNodeId)
     return true
 end
 
-return ChooseNextNode
-
+return Map_ChooseNextNode

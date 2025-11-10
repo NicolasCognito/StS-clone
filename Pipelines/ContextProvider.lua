@@ -15,6 +15,7 @@
 --        type = "cards",
 --        stability = "stable" or "temp",
 --        source = "combat" or "master",  -- which deck to select from (default: "combat")
+--        environment = "combat" (default) or "map" (overworld selection)
 --        count = {min = 1, max = 1} or function(world, player, card) -> {min, max},
 --        filter = function(world, player, card, candidateCard) -> boolean
 --    }
@@ -112,6 +113,7 @@ function ContextProvider.getSelectionInfo(contextProvider)
         return {
             type = "cards",
             source = contextProvider.source or "combat",
+            environment = contextProvider.environment or "combat",
             count = count,
             stability = contextProvider.stability or "temp"
         }
@@ -132,15 +134,20 @@ function ContextProvider.getValidCards(world, player, contextProvider, card)
     end
 
     -- STEP 1: Determine which deck to select from
-    local source = contextProvider.source or "combat"
+    local environment = contextProvider.environment or "combat"
+    local source = contextProvider.source
+    if not source then
+        source = (environment == "map") and "master" or "combat"
+    end
+
     local sourceDeck
     if source == "master" then
         -- Select from masterDeck (permanent deck, for deck modification cards)
-        sourceDeck = player.masterDeck
+        sourceDeck = player.masterDeck or {}
     else
         -- Select from combatDeck (temporary, for in-combat selection)
         -- Falls back to masterDeck if not in combat
-        sourceDeck = player.combatDeck or player.masterDeck
+        sourceDeck = player.combatDeck or player.masterDeck or {}
     end
 
     -- STEP 2: Filter cards from the deck
