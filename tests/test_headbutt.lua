@@ -58,11 +58,30 @@ do
     -- Put Strike into discard pile to target
     strike.state = "DISCARD_PILE"
 
-    local result = PlayCard.execute(world, player, headbutt, nil)
-    assert(type(result) == "table" and result.needsPostPlay, "Headbutt should request post-play context")
+    -- First call: Headbutt requests enemy context
+    local result = PlayCard.execute(world, player, headbutt)
+    assert(type(result) == "table" and result.needsContext, "Headbutt should request enemy context")
+    assert(world.combat.contextRequest ~= nil, "Context request should be set")
 
-    local postResult = PlayCard.executePostPlay(world, player, headbutt, {strike})
-    assert(postResult == true, "Headbutt post-play should finish without replays")
+    -- Provide enemy context
+    world.combat.latestContext = world.enemies[1]
+    world.combat.stableContext = world.enemies[1]
+    world.combat.contextRequest = nil
+    world.combat.contextCollected = true
+
+    -- Second call: Headbutt plays and requests additional context for card selection
+    result = PlayCard.execute(world, player, headbutt)
+    assert(type(result) == "table" and result.needsContext, "Headbutt should request additional context for card selection")
+    assert(world.combat.contextRequest ~= nil, "Context request for card selection should be set")
+
+    -- Provide card selection context
+    world.combat.latestContext = {strike}
+    world.combat.tempContext = {strike}
+    world.combat.contextRequest = nil
+
+    -- Third call: Headbutt completes the discard effect
+    result = PlayCard.execute(world, player, headbutt)
+    assert(result == true, "Headbutt should complete successfully")
     assert(strike.state == "DECK", "Headbutt should move the selected card back to the deck")
 
     local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
@@ -89,21 +108,44 @@ do
     local strikeA = findCard(player.combatDeck, "Strike")
     local defend = findCard(player.combatDeck, "Defend")
 
-    -- Put two cards into discard pile so both post-play executions have options
+    -- Put two cards into discard pile so both additional context collections have options
     strikeA.state = "DISCARD_PILE"
     defend.state = "DISCARD_PILE"
 
-    assert(PlayCard.execute(world, player, doubleTap, nil) == true, "Double Tap should resolve successfully")
+    -- Play Double Tap
+    assert(PlayCard.execute(world, player, doubleTap) == true, "Double Tap should resolve successfully")
 
-    local headbuttResult = PlayCard.execute(world, player, headbutt, nil)
-    assert(type(headbuttResult) == "table" and headbuttResult.needsPostPlay, "Headbutt should require post-play when Double Tap is active")
+    -- First call: Headbutt requests enemy context
+    local result = PlayCard.execute(world, player, headbutt)
+    assert(type(result) == "table" and result.needsContext, "Headbutt should request enemy context")
+
+    -- Provide enemy context
+    world.combat.latestContext = world.enemies[1]
+    world.combat.stableContext = world.enemies[1]
+    world.combat.contextRequest = nil
+
+    -- Second call: Headbutt plays first time and requests card selection
+    result = PlayCard.execute(world, player, headbutt)
+    assert(type(result) == "table" and result.needsContext, "Headbutt should request card selection context")
     assert(player.status.doubleTap == 0, "Headbutt should consume the Double Tap stack during play")
 
-    local firstPost = PlayCard.executePostPlay(world, player, headbutt, {strikeA})
-    assert(type(firstPost) == "table" and firstPost.needsPostPlay, "First Headbutt post-play should signal another execution due to Double Tap")
+    -- Provide first card selection
+    world.combat.latestContext = {strikeA}
+    world.combat.tempContext = {strikeA}
+    world.combat.contextRequest = nil
 
-    local secondPost = PlayCard.executePostPlay(world, player, headbutt, {defend})
-    assert(secondPost == true, "Second Headbutt post-play should finish the replay sequence")
+    -- Third call: Complete first execution, then duplication triggers and requests new card selection (temp context)
+    result = PlayCard.execute(world, player, headbutt)
+    assert(type(result) == "table" and result.needsContext and result.isDuplication, "Headbutt duplication should request new card context")
+
+    -- Provide second card selection
+    world.combat.latestContext = {defend}
+    world.combat.tempContext = {defend}
+    world.combat.contextRequest = nil
+
+    -- Fourth call: Complete second execution
+    result = PlayCard.execute(world, player, headbutt)
+    assert(result == true, "Second Headbutt execution should complete")
 
     local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
     assert(deckCards[1] == defend, "Most recent Headbutt selection should be on top of the draw pile")

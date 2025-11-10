@@ -5,14 +5,21 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 6,
-        contextProvider = "enemy",
         description = "Deal 6 damage.",
 
-        onPlay = function(self, world, player, target)
+        onPlay = function(self, world, player)
+            -- Request context collection
+            world.queue:push({
+                type = "COLLECT_CONTEXT",
+                card = self,
+                contextProvider = {type = "enemy", stability = "stable"}
+            }, "FIRST")
+
+            -- Push damage event with lazy-evaluated defender
             world.queue:push({
                 type = "ON_DAMAGE",
                 attacker = player,
-                defender = target,
+                defender = function() return world.combat.stableContext end,
                 card = self
             })
         end,

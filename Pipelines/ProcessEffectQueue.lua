@@ -7,6 +7,7 @@
 -- - Relics' onEndCombat functions
 --
 -- Event types:
+-- - COLLECT_CONTEXT: requests context collection (pauses queue processing)
 -- - ON_DAMAGE: routes to DealDamage, then ApplyCaps
 -- - ON_NON_ATTACK_DAMAGE: routes to DealNonAttackDamage, then ApplyCaps
 -- - ON_BLOCK: routes to ApplyBlock, then ApplyCaps
@@ -38,12 +39,39 @@ local Exhaust = require("Pipelines.Exhaust")
 local CustomEffect = require("Pipelines.CustomEffect")
 local ApplyCaps = require("Pipelines.ApplyCaps")
 local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
+local QueueOver = require("Pipelines.QueueOver")
 
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
         local event = world.queue:next()
 
-        if event.type == "ON_DAMAGE" then
+        -- Pre-process: evaluate all function fields
+        -- This allows cards to use lazy evaluation for context
+        for key, value in pairs(event) do
+            if type(value) == "function" then
+                event[key] = value()  -- Replace function with its result
+            end
+        end
+
+        if event.type == "COLLECT_CONTEXT" then
+            -- Check if context already exists (for stable context reuse)
+            local stability = event.stability or "temp"
+            local contextExists = (stability == "stable" and world.combat.stableContext ~= nil) or
+                                 (stability == "temp" and world.combat.tempContext ~= nil)
+
+            if not contextExists then
+                -- Context not yet collected - put event back and pause processing
+                world.queue:push(event, "FIRST")
+                world.combat.contextRequest = {
+                    card = event.card,  -- Card that needs context (for CombatEngine to resume)
+                    contextProvider = event.contextProvider,
+                    stability = stability
+                }
+                return {needsContext = true}
+            end
+            -- Context exists - event consumed, continue to next event
+
+        elseif event.type == "ON_DAMAGE" then
             DealDamage.execute(world, event)
             -- Apply caps to all characters after damage
             ApplyCaps.execute(world)
@@ -93,6 +121,9 @@ function ProcessEffectQueue.execute(world)
             table.insert(world.log, "Unknown event type: " .. event.type)
         end
     end
+
+    -- Queue is now empty - run cleanup
+    QueueOver.execute(world)
 end
 
 return ProcessEffectQueue

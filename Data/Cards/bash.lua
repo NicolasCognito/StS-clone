@@ -5,19 +5,28 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 8,
-        contextProvider = "enemy",
         description = "Deal 8 damage. Apply 2 Vulnerable.",
 
-        onPlay = function(self, world, player, target)
+        onPlay = function(self, world, player)
+            -- Request context collection
+            world.queue:push({
+                type = "COLLECT_CONTEXT",
+                card = self,
+                contextProvider = {type = "enemy", stability = "stable"}
+            }, "FIRST")
+
+            -- Push damage event with lazy-evaluated defender
             world.queue:push({
                 type = "ON_DAMAGE",
                 attacker = player,
-                defender = target,
+                defender = function() return world.combat.stableContext end,
                 card = self
             })
+
+            -- Push status effect with lazy-evaluated target
             world.queue:push({
                 type = "ON_STATUS_GAIN",
-                target = target,
+                target = function() return world.combat.stableContext end,
                 effectType = "Vulnerable",
                 amount = 2,
                 source = self

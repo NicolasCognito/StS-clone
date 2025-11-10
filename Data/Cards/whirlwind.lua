@@ -5,10 +5,9 @@ return {
         cost = "X",
         type = "ATTACK",
         damage = 5,
-        contextProvider = "none",
         description = "Deal 5 damage to ALL enemies X times.",
 
-        onPlay = function(self, world, player, context)
+        onPlay = function(self, world, player)
             -- Deal damage X times (where X = energySpent)
             for i = 1, self.energySpent do
                 world.queue:push({

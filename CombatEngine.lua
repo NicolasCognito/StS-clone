@@ -98,8 +98,7 @@ function CombatEngine.displayGameState(world)
     else
         for i, card in ipairs(hand) do
             local cardCost = GetCost.execute(world, world.player, card)
-            local targetInfo = card.contextProvider == "enemy" and " [TARGETED]" or ""
-            print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ")" .. targetInfo .. " - " .. card.description)
+            print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ") - " .. card.description)
         end
     end
     print(string.rep("=", 60))
@@ -116,72 +115,29 @@ end
 
 function CombatEngine.playGame(world)
     local gameOver = false
-    local waitingForContext = false
-    local waitingForPostPlayContext = false
-    local pendingCard = nil
-    local pendingContextType = nil
 
     while not gameOver do
         CombatEngine.displayGameState(world)
 
-        if waitingForContext then
+        -- Check if there's a context request pending
+        if world.combat.contextRequest then
+            local request = world.combat.contextRequest
             local context = nil
             local validInput = false
 
-            if pendingContextType == "enemy" then
-                -- Show appropriate prompt for post-play vs regular play
-                if waitingForPostPlayContext then
-                    print("\n" .. pendingCard.name .. " - Choose a target:")
-                else
+            -- Check if we can reuse stable context
+            if request.stability == "stable" and world.combat.stableContext then
+                context = world.combat.stableContext
+                validInput = true
+            else
+                -- Need to collect context from user
+                local contextType = ContextProvider.getContextType(request.contextProvider)
+
+                if contextType == "enemy" then
                     print("\nChoose a target:")
-                end
-                local living = aliveEnemies(world)
-                for i, enemy in ipairs(living) do
-                    print("  [" .. i .. "] " .. enemy.name .. " (" .. enemy.hp .. " HP)")
-                end
-                print("  [0] Cancel")
-                io.write("> ")
-                local input = io.read()
-                if not input then
-                    print("\nInput stream closed. Exiting game.")
-                    break
-                end
-                local choice = tonumber(input)
-                if choice == 0 then
-                    waitingForContext = false
-                    waitingForPostPlayContext = false
-                    pendingCard = nil
-                    pendingContextType = nil
-                    validInput = false
-                    print("Cancelled.")
-                elseif choice and choice >= 1 and choice <= #living then
-                    context = living[choice]
-                    validInput = true
-                else
-                    print("Invalid target. Try again.")
-                end
-            elseif pendingContextType == "cards" then
-                -- Card selection system
-                local contextField = waitingForPostPlayContext and "postPlayContext" or "contextProvider"
-                local selectableCards = ContextProvider.getValidCards(world, world.player, pendingCard, contextField)
-
-                if #selectableCards == 0 then
-                    print("No cards available to select.")
-                    validInput = true
-                    context = {}
-                else
-                    -- Get display name for card source
-                    local info = ContextProvider.getSelectionInfo(pendingCard, contextField)
-                    local sourceName = info.source == "master" and "master deck" or "available cards"
-
-                    -- Show appropriate prompt for post-play vs regular play
-                    if waitingForPostPlayContext then
-                        print("\n" .. pendingCard.name .. " - Choose a card from " .. sourceName .. ":")
-                    else
-                        print("\nChoose a card from " .. sourceName .. ":")
-                    end
-                    for i, card in ipairs(selectableCards) do
-                        print("  [" .. i .. "] " .. card.name)
+                    local living = aliveEnemies(world)
+                    for i, enemy in ipairs(living) do
+                        print("  [" .. i .. "] " .. enemy.name .. " (" .. enemy.hp .. " HP)")
                     end
                     print("  [0] Cancel")
                     io.write("> ")
@@ -190,58 +146,73 @@ function CombatEngine.playGame(world)
                         print("\nInput stream closed. Exiting game.")
                         break
                     end
-                    local cardIndex = tonumber(input)
-                    if cardIndex == 0 then
-                        waitingForContext = false
-                        waitingForPostPlayContext = false
-                        pendingCard = nil
-                        pendingContextType = nil
+                    local choice = tonumber(input)
+                    if choice == 0 then
+                        world.combat.contextRequest = nil
+                        world.combat.stableContext = nil
+                        world.combat.tempContext = nil
                         validInput = false
                         print("Cancelled.")
-                    elseif cardIndex and cardIndex >= 1 and cardIndex <= #selectableCards then
-                        context = {selectableCards[cardIndex]}
+                    elseif choice and choice >= 1 and choice <= #living then
+                        context = living[choice]
                         validInput = true
                     else
-                        print("Invalid selection. Try again.")
+                        print("Invalid target. Try again.")
+                    end
+                elseif contextType == "cards" then
+                    -- Card selection system
+                    local selectableCards = ContextProvider.getValidCards(world, world.player, request.contextProvider, request.card)
+
+                    if #selectableCards == 0 then
+                        print("No cards available to select.")
+                        validInput = true
+                        context = {}
+                    else
+                        -- Get display name for card source
+                        local info = ContextProvider.getSelectionInfo(request.contextProvider)
+                        local sourceName = info.source == "master" and "master deck" or "available cards"
+
+                        print("\nChoose a card from " .. sourceName .. ":")
+                        for i, card in ipairs(selectableCards) do
+                            print("  [" .. i .. "] " .. card.name)
+                        end
+                        print("  [0] Cancel")
+                        io.write("> ")
+                        local input = io.read()
+                        if not input then
+                            print("\nInput stream closed. Exiting game.")
+                            break
+                        end
+                        local cardIndex = tonumber(input)
+                        if cardIndex == 0 then
+                            world.combat.contextRequest = nil
+                            world.combat.stableContext = nil
+                            world.combat.tempContext = nil
+                            validInput = false
+                            print("Cancelled.")
+                        elseif cardIndex and cardIndex >= 1 and cardIndex <= #selectableCards then
+                            context = {selectableCards[cardIndex]}
+                            validInput = true
+                        else
+                            print("Invalid selection. Try again.")
+                        end
                     end
                 end
             end
 
-            if validInput and pendingCard then
-                if waitingForPostPlayContext then
-                    -- Execute post-play phase
-                    local result = PlayCard.executePostPlay(world, world.player, pendingCard, context)
-                    CombatEngine.displayLog(world, 3)
-
-                    -- Check if postPlay needs to execute again (e.g., Double Tap)
-                    if type(result) == "table" and result.needsPostPlay then
-                        -- Stay in postPlay mode, prompt again for next discard
-                        -- pendingCard and pendingContextType remain unchanged
-                    else
-                        -- All postPlay executions complete
-                        waitingForContext = false
-                        waitingForPostPlayContext = false
-                        pendingCard = nil
-                        pendingContextType = nil
-                    end
+            -- Store collected context
+            if validInput then
+                if request.stability == "stable" then
+                    world.combat.stableContext = context
                 else
-                    -- Execute main play
-                    local result = PlayCard.execute(world, world.player, pendingCard, context)
-                    CombatEngine.displayLog(world, 3)
-
-                    -- Check if card needs post-play phase
-                    if type(result) == "table" and result.needsPostPlay then
-                        -- Enter post-play context collection mode
-                        pendingContextType = ContextProvider.getContextType(pendingCard, "postPlayContext")
-                        waitingForPostPlayContext = true
-                        -- Keep pendingCard for post-play execution
-                    else
-                        -- Normal completion
-                        waitingForContext = false
-                        pendingCard = nil
-                        pendingContextType = nil
-                    end
+                    world.combat.tempContext = context
                 end
+                world.combat.contextRequest = nil
+
+                -- Continue playing the card
+                local result = PlayCard.execute(world, world.player, request.card)
+                CombatEngine.displayLog(world, 3)
+                -- Context cleanup handled by QueueOver pipeline
             end
         else
             print("\nActions:")
@@ -264,24 +235,14 @@ function CombatEngine.playGame(world)
                 local hand = CombatEngine.getCardsByState(world.player, "HAND")
                 if cardIndex and cardIndex >= 1 and cardIndex <= #hand then
                     local card = hand[cardIndex]
-                    local contextType = ContextProvider.getContextType(card)
-                    if contextType == "none" then
-                        -- Play card without initial context
-                        local result = PlayCard.execute(world, world.player, card, nil)
-                        CombatEngine.displayLog(world, 3)
+                    local result = PlayCard.execute(world, world.player, card)
 
-                        -- Check if card needs post-play phase
-                        if type(result) == "table" and result.needsPostPlay then
-                            pendingCard = card
-                            pendingContextType = ContextProvider.getContextType(card, "postPlayContext")
-                            waitingForContext = true
-                            waitingForPostPlayContext = true
-                        end
-                    else
-                        pendingCard = card
-                        pendingContextType = contextType
-                        waitingForContext = true
+                    -- Check if result is successful (not needsContext)
+                    if type(result) ~= "table" or not result.needsContext then
+                        CombatEngine.displayLog(world, 3)
                     end
+
+                    -- If needsContext, the next iteration will handle it via contextRequest
                 else
                     print("Invalid card number. Try again.")
                 end
