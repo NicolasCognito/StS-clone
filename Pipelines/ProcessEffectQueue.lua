@@ -39,6 +39,7 @@ local Exhaust = require("Pipelines.Exhaust")
 local CustomEffect = require("Pipelines.CustomEffect")
 local ApplyCaps = require("Pipelines.ApplyCaps")
 local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
+local QueueOver = require("Pipelines.QueueOver")
 
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
@@ -120,6 +121,9 @@ function ProcessEffectQueue.execute(world)
             table.insert(world.log, "Unknown event type: " .. event.type)
         end
     end
+
+    -- Queue is now empty - run cleanup
+    QueueOver.execute(world)
 end
 
 return ProcessEffectQueue
