@@ -13,9 +13,18 @@ function EventQueue.new()
     return queue
 end
 
-function EventQueue:push(event)
+function EventQueue:push(event, strategy)
     -- event should be a table with at least 'type' field
-    table.insert(self.events, event)
+    -- strategy: optional "FIRST" or "LAST" (default: "LAST")
+    -- LAST: add to end of queue
+    -- FIRST: add to beginning of queue
+    strategy = strategy or "LAST"
+
+    if strategy == "FIRST" then
+        table.insert(self.events, 1, event)
+    else
+        table.insert(self.events, event)
+    end
 end
 
 function EventQueue:isEmpty()
