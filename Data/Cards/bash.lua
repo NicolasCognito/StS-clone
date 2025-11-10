@@ -5,6 +5,7 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 8,
+        vulnerable = 2,
         description = "Deal 8 damage. Apply 2 Vulnerable.",
 
         onPlay = function(self, world, player)
@@ -28,14 +29,15 @@ return {
                 type = "ON_STATUS_GAIN",
                 target = function() return world.combat.stableContext end,
                 effectType = "Vulnerable",
-                amount = 2,
+                amount = self.vulnerable,
                 source = self
             })
         end,
 
         onUpgrade = function(self)
             self.damage = 10
-            self.description = "Deal 10 damage. Apply 2 Vulnerable."
+            self.vulnerable = 3
+            self.description = "Deal 10 damage. Apply 3 Vulnerable."
         end
     }
 }
