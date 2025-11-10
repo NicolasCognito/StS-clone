@@ -136,4 +136,28 @@ function Utils.getCardCountByState(deck, state)
     return count
 end
 
+-- Move a specific card reference to the front of the supplied deck table
+-- Used for effects that place cards on top of the draw pile (Headbutt, Recycle, etc.)
+function Utils.moveCardToDeckTop(deck, card)
+    if not deck or not card then
+        return false
+    end
+
+    local index = nil
+    for i, candidate in ipairs(deck) do
+        if candidate == card then
+            index = i
+            break
+        end
+    end
+
+    if not index then
+        return false
+    end
+
+    table.remove(deck, index)
+    table.insert(deck, 1, card)
+    return true
+end
+
 return Utils

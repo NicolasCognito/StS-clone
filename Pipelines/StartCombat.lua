@@ -17,6 +17,10 @@ function StartCombat.execute(world)
     world.queue = EventQueue.new()
     world.log = {}
 
+    -- Ensure combat-only status/power tables exist
+    world.player.status = world.player.status or {}
+    world.player.powers = world.player.powers or {}
+
     -- Create combatDeck as a deep copy of masterDeck
     -- This ensures combat-only modifications (generated cards, temporary upgrades)
     -- don't affect the player's permanent deck
