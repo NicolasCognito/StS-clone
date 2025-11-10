@@ -8,6 +8,7 @@ return {
         name = "Thunderclap",
         cost = 1,
         type = "ATTACK",
+        character = "IRONCLAD",
         rarity = "COMMON",
         damage = 7,
         description = "Deal 7 damage and apply 1 Vulnerable to ALL enemies.",

@@ -7,6 +7,8 @@ return {
         name = "Omniscience",
         cost = 4,
         type = "SKILL",
+        character = "COLORLESS",
+        rarity = "RARE",
         exhausts = true,
         description = "Choose a card in your draw pile. Play it twice and Exhaust it.",
 

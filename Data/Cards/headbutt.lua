@@ -6,6 +6,8 @@ return {
         name = "Headbutt",
         cost = 1,
         type = "ATTACK",
+        character = "IRONCLAD",
+        rarity = "COMMON",
         damage = 9,
         description = "Deal 9 damage. Put a card from your discard pile on top of your draw pile.",
 

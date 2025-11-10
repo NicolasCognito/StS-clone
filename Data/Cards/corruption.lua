@@ -4,6 +4,8 @@ return {
         name = "Corruption",
         cost = 3,
         type = "POWER",
+        character = "IRONCLAD",
+        rarity = "RARE",
         description = "Skills cost 0. Whenever you play a Skill, Exhaust it.",
 
         onPlay = function(self, world, player, target)

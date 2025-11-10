@@ -11,6 +11,8 @@ return {
         name = "Amplify",
         cost = 1,
         type = "SKILL",
+        character = "COLORLESS",
+        rarity = "UNCOMMON",
         amplifyStacks = 1,
         description = "Your next Power is played twice.",
 

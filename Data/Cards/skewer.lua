@@ -4,6 +4,8 @@ return {
         name = "Skewer",
         cost = "X",
         type = "ATTACK",
+        character = "IRONCLAD",
+        rarity = "UNCOMMON",
         damage = 7,
         description = "Deal 7 damage X times.",
 

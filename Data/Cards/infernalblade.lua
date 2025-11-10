@@ -4,6 +4,8 @@ return {
         name = "Infernal Blade",
         cost = 1,
         type = "SKILL",
+        character = "IRONCLAD",
+        rarity = "UNCOMMON",
         description = "Add a random Attack to your hand. It costs 0 this turn.",
 
         onPlay = function(self, world, player, target)

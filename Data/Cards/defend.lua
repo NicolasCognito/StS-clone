@@ -4,6 +4,8 @@ return {
         name = "Defend",
         cost = 1,
         type = "SKILL",
+        character = "IRONCLAD",
+        rarity = "STARTER",
         block = 5,
         description = "Gain 5 block.",
 

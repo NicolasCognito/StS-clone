@@ -4,6 +4,8 @@ return {
         name = "Blood for Blood",
         cost = 4,
         type = "ATTACK",
+        character = "IRONCLAD",
+        rarity = "UNCOMMON",
         damage = 18,
         costReductionPerHpLoss = 1,  -- Reduces cost by 1 for each time player lost HP
         description = "Deal 18 damage. Costs 1 less for each time you lose HP this combat.",

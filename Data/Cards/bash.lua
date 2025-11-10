@@ -4,6 +4,8 @@ return {
         name = "Bash",
         cost = 1,
         type = "ATTACK",
+        character = "IRONCLAD",
+        rarity = "STARTER",
         damage = 8,
         vulnerable = 2,
         description = "Deal 8 damage. Apply 2 Vulnerable.",

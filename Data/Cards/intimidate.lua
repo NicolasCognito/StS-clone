@@ -8,6 +8,7 @@ return {
         name = "Intimidate",
         cost = 0,
         type = "SKILL",
+        character = "IRONCLAD",
         rarity = "UNCOMMON",
         description = "Apply 1 Weak to ALL enemies.",
         keywords = {"Weak"},
