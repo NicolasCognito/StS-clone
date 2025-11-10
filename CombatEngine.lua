@@ -98,11 +98,7 @@ function CombatEngine.displayGameState(world)
     else
         for i, card in ipairs(hand) do
             local cardCost = GetCost.execute(world, world.player, card)
-            local targetInfo = ""
-            if card.contextProvider and card.contextProvider.type == "enemy" then
-                targetInfo = " [TARGETED]"
-            end
-            print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ")" .. targetInfo .. " - " .. card.description)
+            print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ") - " .. card.description)
         end
     end
     print(string.rep("=", 60))

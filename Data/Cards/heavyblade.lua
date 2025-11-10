@@ -6,15 +6,21 @@ return {
         type = "ATTACK",
         damage = 14,
         strengthMultiplier = 3,
-        contextProvider = {type = "enemy", stability = "stable"},
         description = "Deal 14 damage. Strength affects this card 3 times.",
 
         onPlay = function(self, world, player)
-            local target = world.combat.latestContext
+            -- Request context collection
+            world.queue:push({
+                type = "COLLECT_CONTEXT",
+                card = self,
+                contextProvider = {type = "enemy", stability = "stable"}
+            }, "FIRST")
+
+            -- Push events with lazy-evaluated fields
             world.queue:push({
                 type = "ON_DAMAGE",
                 attacker = player,
-                defender = target,
+                defender = function() return world.combat.stableContext end,
                 card = self
             })
         end,

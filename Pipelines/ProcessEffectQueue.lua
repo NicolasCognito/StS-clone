@@ -44,6 +44,14 @@ function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
         local event = world.queue:next()
 
+        -- Pre-process: evaluate all function fields
+        -- This allows cards to use lazy evaluation for context
+        for key, value in pairs(event) do
+            if type(value) == "function" then
+                event[key] = value()  -- Replace function with its result
+            end
+        end
+
         if event.type == "COLLECT_CONTEXT" then
             -- Check if context already exists (for stable context reuse)
             local stability = event.stability or "temp"

@@ -6,15 +6,21 @@ return {
         type = "ATTACK",
         damage = 18,
         costReductionPerHpLoss = 1,  -- Reduces cost by 1 for each time player lost HP
-        contextProvider = {type = "enemy", stability = "stable"},
         description = "Deal 18 damage. Costs 1 less for each time you lose HP this combat.",
 
         onPlay = function(self, world, player)
-            local target = world.combat.latestContext
+            -- Request context collection
+            world.queue:push({
+                type = "COLLECT_CONTEXT",
+                card = self,
+                contextProvider = {type = "enemy", stability = "stable"}
+            }, "FIRST")
+
+            -- Push events with lazy-evaluated fields
             world.queue:push({
                 type = "ON_DAMAGE",
                 attacker = player,
-                defender = target,
+                defender = function() return world.combat.stableContext end,
                 card = self
             })
         end,

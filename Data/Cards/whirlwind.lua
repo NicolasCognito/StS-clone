@@ -5,7 +5,6 @@ return {
         cost = "X",
         type = "ATTACK",
         damage = 5,
-        contextProvider = "none",
         description = "Deal 5 damage to ALL enemies X times.",
 
         onPlay = function(self, world, player)

@@ -39,21 +39,25 @@ return {
             table.insert(world.log, "Choose 1 of 3 cards...")
         end,
 
-        -- CONTEXT PROVIDER: Filter for DRAFT cards
-        contextProvider = {
-            type = "cards",
-            stability = "temp",
-            source = "combat",
-            count = {min = 1, max = 1},
-            filter = function(world, player, card, candidateCard)
-                -- Only show cards in DRAFT state
-                return candidateCard.state == "DRAFT"
-            end
-        },
-
-        -- ON PLAY: Move chosen card to hand, remove other drafts
+        -- ON PLAY: Request card selection, then move chosen card to hand
         onPlay = function(self, world, player)
-            local selectedCards = world.combat.latestContext
+            -- Request context collection for DRAFT cards
+            world.queue:push({
+                type = "COLLECT_CONTEXT",
+                card = self,
+                contextProvider = {
+                    type = "cards",
+                    stability = "temp",
+                    source = "combat",
+                    count = {min = 1, max = 1},
+                    filter = function(world, player, card, candidateCard)
+                        return candidateCard.state == "DRAFT"
+                    end
+                }
+            }, "FIRST")
+
+            -- Process the selection (will execute after context is collected)
+            local selectedCards = world.combat.tempContext
             local chosenCard = selectedCards[1]
 
             -- Move chosen card to hand with cost 0 this turn

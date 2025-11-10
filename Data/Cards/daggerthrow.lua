@@ -5,55 +5,52 @@ return {
         cost = 1,
         type = "ATTACK",
         damage = 9,
-        contextProvider = {type = "enemy", stability = "stable"},
         description = "Deal 9 damage. Draw 1 card. Discard 1 card.",
 
         onPlay = function(self, world, player)
-            if not self.additionalContextCollected then
-                -- PHASE 1: Main effect (damage + draw)
-                local target = world.combat.latestContext  -- enemy from main contextProvider
+            -- Request enemy context
+            world.queue:push({
+                type = "COLLECT_CONTEXT",
+                card = self,
+                contextProvider = {type = "enemy", stability = "stable"}
+            }, "FIRST")
 
-                -- Deal damage
-                world.queue:push({
-                    type = "ON_DAMAGE",
-                    attacker = player,
-                    defender = target,
-                    card = self
-                })
+            -- Push damage event
+            world.queue:push({
+                type = "ON_DAMAGE",
+                attacker = player,
+                defender = function() return world.combat.stableContext end,
+                card = self
+            })
 
-                -- Draw 1 card
-                world.queue:push({
-                    type = "ON_DRAW",
-                    player = player,
-                    count = 1
-                })
+            -- Push draw event
+            world.queue:push({
+                type = "ON_DRAW",
+                player = player,
+                count = 1
+            })
 
-                -- Request additional context for discard
-                world.combat.contextRequest = {
-                    card = self,
-                    contextProvider = {
-                        type = "cards",
-                        stability = "temp",
-                        source = "combat",
-                        count = {min = 1, max = 1},
-                        filter = function(world, player, card, candidateCard)
-                            return candidateCard.state == "HAND"
-                        end
-                    }
+            -- Request card discard context
+            world.queue:push({
+                type = "COLLECT_CONTEXT",
+                card = self,
+                contextProvider = {
+                    type = "cards",
+                    stability = "temp",
+                    source = "combat",
+                    count = {min = 1, max = 1},
+                    filter = function(world, player, card, candidateCard)
+                        return candidateCard.state == "HAND"
+                    end
                 }
-                self.additionalContextCollected = true
-            else
-                -- PHASE 2: Additional effect (discard)
-                local cardsToDiscard = world.combat.latestContext
-                if cardsToDiscard and #cardsToDiscard > 0 then
-                    world.queue:push({
-                        type = "ON_DISCARD",
-                        card = cardsToDiscard[1],
-                        player = player
-                    })
-                end
-                self.additionalContextCollected = nil  -- Reset for next play
-            end
+            })
+
+            -- Push discard event with lazy-evaluated card
+            world.queue:push({
+                type = "ON_DISCARD",
+                card = function() return world.combat.tempContext[1] end,
+                player = player
+            })
         end,
 
         onUpgrade = function(self)
