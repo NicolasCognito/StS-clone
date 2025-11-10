@@ -4,6 +4,7 @@ local Cards = require("Data.cards")
 local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
+local ContextProvider = require("Pipelines.ContextProvider")
 
 local function copyCard(template)
     return Utils.copyCardTemplate(template)
@@ -30,6 +31,23 @@ local function countCardsInState(deck, state)
         end
     end
     return count
+end
+
+local function fulfillContext(world, player, override)
+    local request = world.combat.contextRequest
+    assert(request, "Context request should exist")
+
+    local context = override or ContextProvider.execute(world, player, request.contextProvider, request.card)
+    assert(context, "ContextProvider failed to supply context")
+
+    if request.stability == "stable" then
+        world.combat.stableContext = context
+    else
+        world.combat.tempContext = context
+    end
+
+    world.combat.contextRequest = nil
+    return context
 end
 
 -- Build a deterministic deck so draw order is stable
@@ -65,17 +83,35 @@ local daggerThrowCard = findCardById(player.combatDeck, "DaggerThrow")
 assert(doubleTapCard.state == "HAND", "Double Tap should start in hand for the test")
 assert(daggerThrowCard.state == "HAND", "Dagger Throw should start in hand for the test")
 
-assert(PlayCard.execute(world, player, doubleTapCard, nil) == true, "Double Tap failed to resolve")
+assert(PlayCard.execute(world, player, doubleTapCard) == true, "Double Tap failed to resolve")
 assert(player.status.doubleTap == 1, "Double Tap should add exactly one stack")
 
-local daggerResult = PlayCard.execute(world, player, daggerThrowCard, nil)
-assert(type(daggerResult) == "table" and daggerResult.needsPostPlay, "Dagger Throw should require post-play selection")
+local firstDiscard = findCardById(player.combatDeck, "Strike")
+local secondDiscard = findCardById(player.combatDeck, "Defend")
+local discardOrder = {firstDiscard, secondDiscard}
+local discardIndex = 1
 
-local postResultFirst = PlayCard.executePostPlay(world, player, daggerThrowCard, nil)
-assert(type(postResultFirst) == "table" and postResultFirst.needsPostPlay, "First discard should request a replay due to Double Tap")
+while true do
+    local daggerResult = PlayCard.execute(world, player, daggerThrowCard)
+    if daggerResult == true then
+        break
+    end
 
-local postResultSecond = PlayCard.executePostPlay(world, player, daggerThrowCard, nil)
-assert(postResultSecond == true, "Second post-play execution should finish the sequence")
+    assert(type(daggerResult) == "table" and daggerResult.needsContext, "Dagger Throw should request context during resolution")
+    local request = world.combat.contextRequest
+    assert(request, "Context request should be populated")
+
+    if request.contextProvider.type == "enemy" then
+        fulfillContext(world, player)
+    else
+        local discardCard = discardOrder[discardIndex]
+        assert(discardCard, "Unexpected discard request count")
+        discardIndex = discardIndex + 1
+        fulfillContext(world, player, {discardCard})
+    end
+end
+
+assert(discardIndex == 3, "Dagger Throw should have requested two discard selections")
 
 assert((player.status.doubleTap or 0) == 0, "Double Tap stacks should be consumed after an attack")
 assert(enemy.hp == 0, "Enemy should be reduced to 0 HP after taking double damage")

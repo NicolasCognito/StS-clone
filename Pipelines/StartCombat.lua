@@ -15,7 +15,8 @@ function StartCombat.execute(world)
         -- Context system
         stableContext = nil,    -- Persists across duplications (e.g., enemy target)
         tempContext = nil,      -- Re-collected on duplications (e.g., card discard)
-        contextRequest = nil    -- Request for context collection: {contextProvider, stability}
+        contextRequest = nil,   -- Request for context collection: {contextProvider, stability}
+        deferStableContextClear = false
     }
 
     world.queue = EventQueue.new()

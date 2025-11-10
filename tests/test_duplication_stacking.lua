@@ -6,6 +6,7 @@ local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
 local StartTurn = require("Pipelines.StartTurn")
 local ApplyPower = require("Pipelines.ApplyPower")
+local ContextProvider = require("Pipelines.ContextProvider")
 
 local function copyCard(template)
     return Utils.copyCardTemplate(template)
@@ -32,6 +33,30 @@ local function countLogEntries(log, text)
         end
     end
     return total
+end
+
+local function playCardWithAutoContext(world, player, card)
+    while true do
+        local result = PlayCard.execute(world, player, card)
+        if result == true then
+            return true
+        end
+
+        assert(type(result) == "table" and result.needsContext, "Expected context request while resolving " .. card.name)
+        local request = world.combat.contextRequest
+        assert(request, "Context request should exist")
+
+        local context = ContextProvider.execute(world, player, request.contextProvider, request.card)
+        assert(context, "Failed to collect context for " .. card.name)
+
+        if request.stability == "stable" then
+            world.combat.stableContext = context
+        else
+            world.combat.tempContext = context
+        end
+
+        world.combat.contextRequest = nil
+    end
 end
 
 print("=== DUPLICATION STACKING TESTS ===")
@@ -64,7 +89,7 @@ do
     player.status.echoFormThisTurn = 1
 
     local strikeCard = findCardById(player.combatDeck, "Strike")
-    PlayCard.execute(world, player, strikeCard, enemy)
+    playCardWithAutoContext(world, player, strikeCard)
 
     -- Strike should be played 3 times:
     -- 1. Normal play
@@ -73,8 +98,8 @@ do
     assert(countLogEntries(world.log, "Double Tap triggers!") == 1, "Double Tap should trigger once")
     assert(countLogEntries(world.log, "Echo Form triggers!") == 1, "Echo Form should trigger once")
     assert(countLogEntries(world.log, "IronClad dealt 6 damage to Goblin") == 3, "Strike should deal damage 3 times")
-    assert(player.status.doubleTap == 0, "Double Tap should be consumed")
-    assert(player.status.echoFormThisTurn == 0, "Echo Form should be consumed")
+    assert((player.status.doubleTap or 0) == 0, "Double Tap should be consumed")
+    assert((player.status.echoFormThisTurn or 0) == 0, "Echo Form should be consumed")
 
     print("  ✓ Double Tap + Echo Form stacking works correctly (3 total plays)")
 end
@@ -84,7 +109,7 @@ print()
 print("TEST 2: Necronomicon")
 do
     local deck = {
-        copyCard(Cards.Bash),     -- Attack cost 2
+        copyCard(Cards.HeavyBlade),     -- Attack cost 2
         copyCard(Cards.Strike),   -- Attack cost 1
         copyCard(Cards.Defend)
     }
@@ -106,16 +131,16 @@ do
 
     StartTurn.execute(world, player)
 
-    -- Play Bash (cost 2) - should trigger Necronomicon
-    local bashCard = findCardById(player.combatDeck, "Bash")
-    PlayCard.execute(world, player, bashCard, enemy)
+    -- Play Heavy Blade (cost 2) - should trigger Necronomicon
+    local heavyBladeCard = findCardById(player.combatDeck, "Heavy_Blade")
+    playCardWithAutoContext(world, player, heavyBladeCard)
 
-    assert(countLogEntries(world.log, "Necronomicon triggers!") == 1, "Necronomicon should trigger for Bash")
+    assert(countLogEntries(world.log, "Necronomicon triggers!") == 1, "Necronomicon should trigger for Heavy Blade")
     assert(player.status.necronomiconThisTurn == true, "Necronomicon flag should be set")
 
     -- Play Strike (cost 1) - should NOT trigger Necronomicon (cost < 2)
     local strikeCard = findCardById(player.combatDeck, "Strike")
-    PlayCard.execute(world, player, strikeCard, enemy)
+    playCardWithAutoContext(world, player, strikeCard)
 
     assert(countLogEntries(world.log, "Necronomicon triggers!") == 1, "Necronomicon should NOT trigger for Strike")
 
@@ -151,10 +176,10 @@ do
 
     -- Play Defend (Skill) - should trigger Burst
     local defendCard = findCardById(player.combatDeck, "Defend")
-    PlayCard.execute(world, player, defendCard, nil)
+    playCardWithAutoContext(world, player, defendCard)
 
     assert(countLogEntries(world.log, "Burst triggers!") == 1, "Burst should trigger for Skill")
-    assert(player.status.burst == 0, "Burst should be consumed")
+    assert((player.status.burst or 0) == 0, "Burst should be consumed")
     assert(player.block == 10, "Defend should grant 5 block twice (10 total)")
 
     -- Set up Burst again
@@ -162,7 +187,7 @@ do
 
     -- Play Strike (Attack) - should NOT trigger Burst
     local strikeCard = findCardById(player.combatDeck, "Strike")
-    PlayCard.execute(world, player, strikeCard, enemy)
+    playCardWithAutoContext(world, player, strikeCard)
 
     assert(countLogEntries(world.log, "Burst triggers!") == 1, "Burst should NOT trigger for Attack")
     assert(player.status.burst == 1, "Burst should not be consumed by Attack")
@@ -199,7 +224,7 @@ do
     player.status.echoFormThisTurn = 1   -- Priority 3
 
     local strikeCard = findCardById(player.combatDeck, "Strike")
-    PlayCard.execute(world, player, strikeCard, enemy)
+    playCardWithAutoContext(world, player, strikeCard)
 
     -- Strike should be played 4 times:
     -- 1. Normal play
@@ -210,9 +235,9 @@ do
     assert(countLogEntries(world.log, "Double Tap triggers!") == 1, "Double Tap should trigger")
     assert(countLogEntries(world.log, "Echo Form triggers!") == 1, "Echo Form should trigger")
     assert(countLogEntries(world.log, "IronClad dealt 6 damage to Goblin") == 4, "Strike should deal damage 4 times")
-    assert(player.status.duplicationPotion == 0, "Duplication Potion consumed")
-    assert(player.status.doubleTap == 0, "Double Tap consumed")
-    assert(player.status.echoFormThisTurn == 0, "Echo Form consumed")
+    assert((player.status.duplicationPotion or 0) == 0, "Duplication Potion consumed")
+    assert((player.status.doubleTap or 0) == 0, "Double Tap consumed")
+    assert((player.status.echoFormThisTurn or 0) == 0, "Echo Form consumed")
 
     print("  ✓ Priority order: Duplication Potion > Double Tap > Echo Form")
 end
@@ -251,21 +276,21 @@ do
 
     -- Play first card (Strike) - should trigger
     local strikeCard = findCardById(player.combatDeck, "Strike")
-    PlayCard.execute(world, player, strikeCard, enemy)
+    playCardWithAutoContext(world, player, strikeCard)
 
     assert(countLogEntries(world.log, "Echo Form triggers!") == 1, "Echo Form should trigger for first card")
     assert(player.status.echoFormThisTurn == 1, "Echo Form counter should decrement to 1")
 
     -- Play second card (Defend) - should trigger
     local defendCard = findCardById(player.combatDeck, "Defend")
-    PlayCard.execute(world, player, defendCard, nil)
+    playCardWithAutoContext(world, player, defendCard)
 
     assert(countLogEntries(world.log, "Echo Form triggers!") == 2, "Echo Form should trigger for second card")
-    assert(player.status.echoFormThisTurn == 0, "Echo Form counter should decrement to 0")
+    assert((player.status.echoFormThisTurn or 0) == 0, "Echo Form counter should decrement to 0")
 
     -- Play third card (Bash) - should NOT trigger
     local bashCard = findCardById(player.combatDeck, "Bash")
-    PlayCard.execute(world, player, bashCard, enemy)
+    playCardWithAutoContext(world, player, bashCard)
 
     assert(countLogEntries(world.log, "Echo Form triggers!") == 2, "Echo Form should NOT trigger for third card")
 

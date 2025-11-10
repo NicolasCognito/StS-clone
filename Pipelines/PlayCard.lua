@@ -48,53 +48,59 @@ local PlayCard = {}
 
 local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
 local GetCost = require("Pipelines.GetCost")
-local ContextProvider = require("Pipelines.ContextProvider")
 local Utils = require("utils")
 local DuplicationHelpers = require("Pipelines.PlayCard_DuplicationHelpers")
+
+local function clearContext(world)
+    if not world.combat then
+        return
+    end
+    world.combat.stableContext = nil
+    world.combat.tempContext = nil
+    world.combat.contextRequest = nil
+end
 
 -- EXECUTE CARD EFFECT (Steps 6-9)
 -- This is the "bracketed section" that gets replayed for effects like Double Tap
 -- skipDiscard: if true, don't move card to discard pile (for replays where card is already in a pile)
 -- Context is read from world.combat.latestContext
-function PlayCard.executeCardEffect(world, player, card, skipDiscard)
-    -- STEP 6: TRACK STATISTICS
-    -- Track combat statistics
-    if card.type == "POWER" then
-        world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
-    end
+function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
+    phase = phase or "main"
 
-    -- Increment Pen Nib counter for Attack cards
-    if card.type == "ATTACK" then
-        world.penNibCounter = world.penNibCounter + 1
-    end
+    -- STEP 6: TRACK STATISTICS (only once per actual execution)
+    if not card._effectInitialized then
+        card._effectInitialized = true
 
-    -- STEP 7: EXECUTE CARD EFFECT
-    -- Call card's onPlay function
-    -- Card reads context from world.combat.latestContext if needed
-    if card.onPlay then
-        card:onPlay(world, player)
-    end
+        if card.type == "POWER" then
+            world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
+        end
 
-    -- Push AfterCardPlayed event to queue (processed after card effects)
-    world.queue:push({
-        type = "AFTER_CARD_PLAYED",
-        player = player
-    })
+        if card.type == "ATTACK" then
+            world.penNibCounter = world.penNibCounter + 1
+        end
+
+        -- STEP 7: EXECUTE CARD EFFECT
+        if card.onPlay then
+            card:onPlay(world, player)
+        end
+
+        world.queue:push({
+            type = "AFTER_CARD_PLAYED",
+            player = player
+        })
+    end
 
     -- STEP 8: PROCESS EFFECT QUEUE
-    -- Process all events from the queue
     local queueResult = ProcessEffectQueue.execute(world)
     if queueResult and queueResult.needsContext then
-        return queueResult  -- Pause and propagate context request
+        card._pendingContextPhase = phase
+        return queueResult
     end
 
     -- STEP 9: CARD CLEANUP (Discard or Exhaust)
-    -- Determine where card goes after being played
-    -- Check if card should be exhausted (Corruption for Skills, or card has exhaust property)
     local shouldExhaust = false
     local exhaustSource = nil
 
-    -- Corruption: Skills are exhausted
     if Utils.hasPower(player, "Corruption") and card.type == "SKILL" then
         shouldExhaust = true
         exhaustSource = "Corruption"
@@ -107,7 +113,6 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard)
     -- end
 
     if shouldExhaust then
-        -- Push exhaust event to queue
         world.queue:push({
             type = "ON_EXHAUST",
             card = card,
@@ -115,10 +120,10 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard)
         })
         queueResult = ProcessEffectQueue.execute(world)
         if queueResult and queueResult.needsContext then
+            card._pendingContextPhase = phase
             return queueResult
         end
     elseif not skipDiscard then
-        -- Normal discard via event queue (skip for replays where card is already in a pile)
         world.queue:push({
             type = "ON_DISCARD",
             card = card,
@@ -126,12 +131,18 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard)
         })
         queueResult = ProcessEffectQueue.execute(world)
         if queueResult and queueResult.needsContext then
+            card._pendingContextPhase = phase
             return queueResult
         end
     end
+
+    card._effectInitialized = nil
+    card._pendingContextPhase = nil
 end
 
 function PlayCard.execute(world, player, card)
+    local resumingDuplication = (card._pendingContextPhase == "duplication")
+
     -- Check if this is a continuation (card already paid energy)
     if not card.energyPaid then
         -- STEP 1: CHECK ENERGY
@@ -172,30 +183,50 @@ function PlayCard.execute(world, player, card)
         end
 
         card.energyPaid = true
+        world.combat.deferStableContextClear = true
     end
 
     -- STEP 5: Execute card effect (may pause for context collection)
-    local effectResult = PlayCard.executeCardEffect(world, player, card, false)
-    if effectResult and effectResult.needsContext then
-        return effectResult  -- Pause and return to CombatEngine
+    if not resumingDuplication then
+        local effectResult = PlayCard.executeCardEffect(world, player, card, false, "main")
+        if effectResult and effectResult.needsContext then
+            return effectResult  -- Pause and return to CombatEngine
+        end
     end
 
     -- STEP 6: DUPLICATION LOOP
     while true do
-        local shouldReplay, source = DuplicationHelpers.shouldBePlayedAgain(world, player, card)
-        if not shouldReplay then
-            break
+        local replaySource = nil
+
+        if card._activeReplay then
+            replaySource = card._activeReplay.source
+        else
+            local shouldReplay, source = DuplicationHelpers.shouldBePlayedAgain(world, player, card)
+            if not shouldReplay then
+                break
+            end
+
+            card._activeReplay = {source = source}
+            replaySource = source
+            table.insert(world.log, source .. " triggers!")
         end
 
-        table.insert(world.log, source .. " triggers!")
-        effectResult = PlayCard.executeCardEffect(world, player, card, true)  -- skipDiscard=true
+        local effectResult = PlayCard.executeCardEffect(world, player, card, true, "duplication")
         if effectResult and effectResult.needsContext then
             return effectResult  -- Pause for context collection in duplication
         end
+
+        card._activeReplay = nil
     end
 
     -- Clean up for next card
     card.energyPaid = nil
+    card._pendingContextPhase = nil
+    card._activeReplay = nil
+    card._effectInitialized = nil
+    card._echoFormApplied = nil
+    world.combat.deferStableContextClear = false
+    clearContext(world)
 
     return true
 end

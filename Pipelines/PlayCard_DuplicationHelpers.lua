@@ -60,8 +60,9 @@ function DuplicationHelpers.shouldBePlayedAgain(world, player, card)
     end
 
     -- PRIORITY 3: Echo Form (any card, first N cards each turn)
-    if player.status.echoFormThisTurn and player.status.echoFormThisTurn > 0 then
+    if player.status.echoFormThisTurn and player.status.echoFormThisTurn > 0 and not card._echoFormApplied then
         player.status.echoFormThisTurn = player.status.echoFormThisTurn - 1
+        card._echoFormApplied = true
         return true, "Echo Form"
     end
 

@@ -34,24 +34,30 @@ return {
                     stability = "temp",
                     source = "combat",
                     count = {min = 1, max = 1},
-                    filter = function(world, player, card, candidateCard)
+                    filter = function(_, _, _, candidateCard)
                         return candidateCard.state == "DISCARD_PILE"
                     end
                 }
             })
 
-            -- Move selected card to top of deck
-            local retrievedCard = world.combat.tempContext and world.combat.tempContext[1]
-            if not retrievedCard then
-                table.insert(world.log, "Headbutt could not find a card to place on top of the draw pile.")
-            else
-                retrievedCard.state = "DECK"
-                if not Utils.moveCardToDeckTop(player.combatDeck, retrievedCard) then
-                    table.insert(world.log, "Headbutt failed to move " .. retrievedCard.name .. " onto the draw pile.")
-                else
-                    table.insert(world.log, player.name .. " placed " .. retrievedCard.name .. " on top of the draw pile.")
+            -- Resolve selection once context has been collected
+            world.queue:push({
+                type = "ON_CUSTOM_EFFECT",
+                effect = function()
+                    local retrievedCard = world.combat.tempContext and world.combat.tempContext[1]
+                    if not retrievedCard then
+                        table.insert(world.log, "Headbutt could not find a card to place on top of the draw pile.")
+                        return
+                    end
+
+                    retrievedCard.state = "DECK"
+                    if not Utils.moveCardToDeckTop(player.combatDeck, retrievedCard) then
+                        table.insert(world.log, "Headbutt failed to move " .. retrievedCard.name .. " onto the draw pile.")
+                    else
+                        table.insert(world.log, player.name .. " placed " .. retrievedCard.name .. " on top of the draw pile.")
+                    end
                 end
-            end
+            })
         end,
 
         onUpgrade = function(self)

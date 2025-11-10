@@ -40,7 +40,6 @@ local CustomEffect = require("Pipelines.CustomEffect")
 local ApplyCaps = require("Pipelines.ApplyCaps")
 local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
 local QueueOver = require("Pipelines.QueueOver")
-
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
         local event = world.queue:next()
@@ -55,7 +54,9 @@ function ProcessEffectQueue.execute(world)
 
         if event.type == "COLLECT_CONTEXT" then
             -- Check if context already exists (for stable context reuse)
-            local stability = event.stability or "temp"
+            local stability = event.stability
+                or (event.contextProvider and event.contextProvider.stability)
+                or "temp"
             local contextExists = (stability == "stable" and world.combat.stableContext ~= nil) or
                                  (stability == "temp" and world.combat.tempContext ~= nil)
 

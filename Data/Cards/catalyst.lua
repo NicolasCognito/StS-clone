@@ -15,16 +15,25 @@ return {
                 contextProvider = {type = "enemy", stability = "stable"}
             }, "FIRST")
 
-            local target = world.combat.stableContext
-            -- Check if target has poison status
-            if target.status and target.status.poison and target.status.poison > 0 then
-                local oldPoison = target.status.poison
-                local newPoison = oldPoison * self.poisonMultiplier
-                target.status.poison = newPoison
-                table.insert(world.log, target.name .. "'s Poison increased from " .. oldPoison .. " to " .. newPoison)
-            else
-                table.insert(world.log, target.name .. " has no Poison to multiply")
-            end
+            world.queue:push({
+                type = "ON_CUSTOM_EFFECT",
+                effect = function()
+                    local target = world.combat.stableContext
+                    if not target then
+                        table.insert(world.log, "Catalyst had no target.")
+                        return
+                    end
+
+                    if target.status and target.status.poison and target.status.poison > 0 then
+                        local oldPoison = target.status.poison
+                        local newPoison = oldPoison * (self.poisonMultiplier or 2)
+                        target.status.poison = newPoison
+                        table.insert(world.log, target.name .. "'s Poison increased from " .. oldPoison .. " to " .. newPoison)
+                    else
+                        table.insert(world.log, target.name .. " has no Poison to multiply")
+                    end
+                end
+            })
         end,
 
         onUpgrade = function(self)

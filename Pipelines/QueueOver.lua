@@ -9,10 +9,14 @@
 local QueueOver = {}
 
 function QueueOver.execute(world)
-    -- Clear context for next card/action
-    -- Stable context should not persist across different cards
-    world.combat.stableContext = nil
+    -- Temp context should not persist once queue resolves
     world.combat.tempContext = nil
+
+    -- Allow stable context to persist while a card (or its duplications)
+    -- is still resolving. Outside those windows, clear it.
+    if not world.combat.deferStableContextClear then
+        world.combat.stableContext = nil
+    end
 end
 
 return QueueOver

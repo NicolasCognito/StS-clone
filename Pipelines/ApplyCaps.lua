@@ -34,23 +34,25 @@ local function applyToCharacter(character)
     -- Apply caps to all status effects
     if character.status then
         for statusId, statusValue in pairs(character.status) do
-            local statusDef = StatusEffects[statusId]
-            if statusDef then
-                -- Apply min/max from status definition
-                local minValue = statusDef.minValue or 0
-                local maxValue = statusDef.maxValue or 999
+            if type(statusValue) == "number" then
+                local statusDef = StatusEffects[statusId]
+                if statusDef then
+                    -- Apply min/max from status definition
+                    local minValue = statusDef.minValue or 0
+                    local maxValue = statusDef.maxValue or 999
 
-                character.status[statusId] = math.max(minValue, math.min(statusValue, maxValue))
+                    character.status[statusId] = math.max(minValue, math.min(statusValue, maxValue))
 
-                -- Remove status if it reaches 0 (cleanup)
-                if character.status[statusId] == 0 and minValue >= 0 then
-                    character.status[statusId] = nil
-                end
-            else
-                -- Unknown status effect - still apply basic 0 floor
-                character.status[statusId] = math.max(0, statusValue)
-                if character.status[statusId] == 0 then
-                    character.status[statusId] = nil
+                    -- Remove status if it reaches 0 (cleanup)
+                    if character.status[statusId] == 0 and minValue >= 0 then
+                        character.status[statusId] = nil
+                    end
+                else
+                    -- Unknown status effect - still apply basic 0 floor
+                    character.status[statusId] = math.max(0, statusValue)
+                    if character.status[statusId] == 0 then
+                        character.status[statusId] = nil
+                    end
                 end
             end
         end

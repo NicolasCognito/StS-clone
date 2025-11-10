@@ -56,23 +56,29 @@ return {
                 }
             }, "FIRST")
 
-            -- Process the selection (will execute after context is collected)
-            local selectedCards = world.combat.tempContext
-            local chosenCard = selectedCards[1]
+            -- Resolve the choice after context has been collected
+            world.queue:push({
+                type = "ON_CUSTOM_EFFECT",
+                effect = function()
+                    local selectedCards = world.combat.tempContext or {}
+                    local chosenCard = selectedCards[1]
+                    if not chosenCard then
+                        table.insert(world.log, "Discovery had no cards to choose from.")
+                        return
+                    end
 
-            -- Move chosen card to hand with cost 0 this turn
-            chosenCard.state = "HAND"
-            chosenCard.costsZeroThisTurn = 1
+                    chosenCard.state = "HAND"
+                    chosenCard.costsZeroThisTurn = 1
+                    table.insert(world.log, "Added " .. chosenCard.name .. " to hand (costs 0 this turn)")
 
-            table.insert(world.log, "Added " .. chosenCard.name .. " to hand (costs 0 this turn)")
-
-            -- Remove other DRAFT cards from combatDeck
-            for i = #player.combatDeck, 1, -1 do
-                local card = player.combatDeck[i]
-                if card.state == "DRAFT" and card ~= chosenCard then
-                    table.remove(player.combatDeck, i)
+                    for i = #player.combatDeck, 1, -1 do
+                        local card = player.combatDeck[i]
+                        if card.state == "DRAFT" and card ~= chosenCard then
+                            table.remove(player.combatDeck, i)
+                        end
+                    end
                 end
-            end
+            })
         end,
 
         onUpgrade = function(self)

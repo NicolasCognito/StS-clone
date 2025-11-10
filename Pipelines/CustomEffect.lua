@@ -12,10 +12,16 @@
 local CustomEffect = {}
 
 function CustomEffect.execute(world, event)
-    if event.effect then
-        world.queue:push(event.effect)
-    else
+    local effect = event.effect
+    if not effect then
         table.insert(world.log, "CustomEffect called without effect data")
+        return
+    end
+
+    if type(effect) == "function" then
+        effect(world)
+    else
+        world.queue:push(effect)
     end
 end
 
