@@ -1,18 +1,10 @@
 -- AUTO-LOADING MAPS AGGREGATOR
 -- Automatically loads map definition files from Data/Maps/
 
+local LoaderUtils = require("Data.loader_utils")
+local moduleName = ...
+
 local Maps = {}
-
-local mapFiles = {
-    "testmap"
-}
-
-for _, fileName in ipairs(mapFiles) do
-    local mapModule = require("Data.Maps." .. fileName)
-    for key, value in pairs(mapModule) do
-        Maps[key] = value
-    end
-end
+LoaderUtils.loadModules(Maps, "Data.Maps", "Maps", {moduleName = moduleName})
 
 return Maps
-

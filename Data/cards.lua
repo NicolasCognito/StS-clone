@@ -1,39 +1,10 @@
 -- AUTO-LOADING CARDS AGGREGATOR
 -- Automatically loads all card files from Data/Cards/ directory
 
+local LoaderUtils = require("Data.loader_utils")
+local moduleName = ...
+
 local Cards = {}
-
-local cardFiles = {
-    "strike",
-    "defend",
-    "bash",
-    "heavyblade",
-    "flamebarrier",
-    "bloodletting",
-    "bloodforblood",
-    "infernalblade",
-    "corruption",
-    "catalyst",
-    "discovery",
-    "grandfinale",
-    "whirlwind",
-    "skewer",
-    "intimidate",
-    "thunderclap",
-    "daggerthrow",
-    "doubletap",
-    "headbutt",
-    "burst",
-    "amplify",
-    "havoc",
-    "omniscience"
-}
-
-for _, fileName in ipairs(cardFiles) do
-    local card = require("Data.Cards." .. fileName)
-    for key, value in pairs(card) do
-        Cards[key] = value
-    end
-end
+LoaderUtils.loadModules(Cards, "Data.Cards", "Cards", {moduleName = moduleName})
 
 return Cards
