@@ -153,7 +153,6 @@ function CombatEngine.playGame(world)
                     local choice = tonumber(input)
                     if choice == 0 then
                         world.combat.contextRequest = nil
-                        world.combat.contextCollected = false
                         validInput = false
                         print("Cancelled.")
                     elseif choice and choice >= 1 and choice <= #living then
@@ -189,7 +188,6 @@ function CombatEngine.playGame(world)
                         local cardIndex = tonumber(input)
                         if cardIndex == 0 then
                             world.combat.contextRequest = nil
-                            world.combat.contextCollected = false
                             validInput = false
                             print("Cancelled.")
                         elseif cardIndex and cardIndex >= 1 and cardIndex <= #selectableCards then
@@ -209,7 +207,6 @@ function CombatEngine.playGame(world)
                 else
                     world.combat.tempContext = context
                 end
-                world.combat.latestContext = context
                 world.combat.contextRequest = nil
 
                 -- Continue playing the card
@@ -221,8 +218,6 @@ function CombatEngine.playGame(world)
                     -- Card play complete, clear context for next card
                     world.combat.stableContext = nil
                     world.combat.tempContext = nil
-                    world.combat.latestContext = nil
-                    world.combat.contextCollected = false
                 end
             end
         else

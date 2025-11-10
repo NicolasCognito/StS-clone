@@ -83,7 +83,10 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard)
 
     -- STEP 8: PROCESS EFFECT QUEUE
     -- Process all events from the queue
-    ProcessEffectQueue.execute(world)
+    local queueResult = ProcessEffectQueue.execute(world)
+    if queueResult and queueResult.needsContext then
+        return queueResult  -- Pause and propagate context request
+    end
 
     -- STEP 9: CARD CLEANUP (Discard or Exhaust)
     -- Determine where card goes after being played
@@ -110,7 +113,10 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard)
             card = card,
             source = exhaustSource
         })
-        ProcessEffectQueue.execute(world)
+        queueResult = ProcessEffectQueue.execute(world)
+        if queueResult and queueResult.needsContext then
+            return queueResult
+        end
     elseif not skipDiscard then
         -- Normal discard via event queue (skip for replays where card is already in a pile)
         world.queue:push({
@@ -118,27 +124,24 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard)
             card = card,
             player = player
         })
-        ProcessEffectQueue.execute(world)
+        queueResult = ProcessEffectQueue.execute(world)
+        if queueResult and queueResult.needsContext then
+            return queueResult
+        end
     end
 end
 
 function PlayCard.execute(world, player, card)
-    -- Check if this is a continuation from additional context collection
-    local isContinuation = card.energyPaid
-
-    if not isContinuation then
+    -- Check if this is a continuation (card already paid energy)
+    if not card.energyPaid then
         -- STEP 1: CHECK ENERGY
-        -- Get the current cost of the card (allows for dynamic cost calculation)
         local cardCost = GetCost.execute(world, player, card)
-
-        -- Check if player has enough energy (but don't pay yet)
         if player.energy < cardCost then
             table.insert(world.log, "Not enough energy to play " .. card.name)
             return false
         end
 
         -- STEP 2: CHECK CUSTOM PLAYABILITY (Optional)
-        -- Some cards have special requirements (e.g., Grand Finale: deck must be empty)
         if card.isPlayable then
             local playable, errorMsg = card:isPlayable(world, player)
             if not playable then
@@ -148,37 +151,15 @@ function PlayCard.execute(world, player, card)
         end
 
         -- STEP 3: PRE-PLAY ACTION (Optional)
-        -- Execute pre-play setup if card defines it
-        -- Used for cards like Discovery that generate choices before context collection
         if card.prePlayAction then
             card:prePlayAction(world, player)
         end
 
-        -- STEP 4: REQUEST CONTEXT IF NEEDED
-        -- Check if card needs context and if it's not already collected
-        if card.contextProvider and not world.combat.contextCollected then
-            -- Set context request for CombatEngine to handle
-            world.combat.contextRequest = {
-                card = card,
-                contextProvider = card.contextProvider,
-                stability = card.contextProvider.stability or (card.contextProvider.type == "enemy" and "stable" or "temp")
-            }
-            return {needsContext = true}
-        end
-
-        -- Mark that we've collected context (or didn't need it)
-        world.combat.contextCollected = true
-
-        -- STEP 5: PAY ENERGY
-        -- Now that we know the card can be played, pay the cost
+        -- STEP 4: PAY ENERGY
         player.energy = player.energy - cardCost
         table.insert(world.log, player.id .. " played " .. card.name .. " (cost: " .. cardCost .. ")")
 
-        -- Store energy spent for X cost cards (e.g., Whirlwind, Skewer)
-        -- Card can access this value in onPlay via self.energySpent
         card.energySpent = cardCost
-
-        -- Store cost when played for Necronomicon checking
         card.costWhenPlayed = cardCost
 
         -- Chemical X: Add bonus to X cost cards
@@ -190,17 +171,16 @@ function PlayCard.execute(world, player, card)
             end
         end
 
-        -- Mark that energy has been paid for this play
         card.energyPaid = true
     end
 
-    -- STEPS 6-9: Execute the card effect (the "bracketed section")
-    -- This can be replayed by duplication effects
-    PlayCard.executeCardEffect(world, player, card, false)
+    -- STEP 5: Execute card effect (may pause for context collection)
+    local effectResult = PlayCard.executeCardEffect(world, player, card, false)
+    if effectResult and effectResult.needsContext then
+        return effectResult  -- Pause and return to CombatEngine
+    end
 
-    -- DUPLICATION LOOP
-    -- Check all duplication sources and replay card as needed
-    -- Sources: Duplication Potion, Double Tap, Burst, Amplify, Echo Form, Necronomicon
+    -- STEP 6: DUPLICATION LOOP
     while true do
         local shouldReplay, source = DuplicationHelpers.shouldBePlayedAgain(world, player, card)
         if not shouldReplay then
@@ -208,29 +188,13 @@ function PlayCard.execute(world, player, card)
         end
 
         table.insert(world.log, source .. " triggers!")
-
-        -- For temp context, re-collect context
-        if card.contextProvider and card.contextProvider.stability == "temp" then
-            world.combat.contextRequest = {
-                card = card,
-                contextProvider = card.contextProvider,
-                stability = "temp"
-            }
-            -- Store that we need to continue duplication after context collection
-            world.combat.pendingDuplication = {card = card, source = source}
-            return {needsContext = true, isDuplication = true}
+        effectResult = PlayCard.executeCardEffect(world, player, card, true)  -- skipDiscard=true
+        if effectResult and effectResult.needsContext then
+            return effectResult  -- Pause for context collection in duplication
         end
-
-        PlayCard.executeCardEffect(world, player, card, true)  -- skipDiscard=true
     end
 
-    -- Check if card requested additional context during onPlay
-    if world.combat.contextRequest then
-        return {needsContext = true, isAdditionalContext = true}
-    end
-
-    -- Clear context collection and energy paid flags for next card
-    world.combat.contextCollected = false
+    -- Clean up for next card
     card.energyPaid = nil
 
     return true
