@@ -79,6 +79,16 @@ function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
         logMsg = logMsg .. " (blocked " .. blockAbsorbed .. ")"
     end
     table.insert(world.log, logMsg)
+
+    -- Queue death event if target died (FIFO - added to front of queue)
+    if target.hp <= 0 then
+        world.queue:push({
+            type = "ON_DEATH",
+            entity = target,
+            source = source,
+            damage = damage + blockAbsorbed
+        }, "FIRST")
+    end
 end
 
 return DealNonAttackDamage

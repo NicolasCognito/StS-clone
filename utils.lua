@@ -61,6 +61,7 @@ function Utils.copyEnemyTemplate(enemyTemplate)
     -- Ensure combat state containers exist so tests/pipelines can mutate status immediately
     copy.status = copy.status or {}
     copy.powers = copy.powers or {}
+    copy.dead = false
     return copy
 end
 
