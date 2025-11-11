@@ -4,6 +4,7 @@
 local MapQueue = require("Pipelines.Map_MapQueue")
 local Utils = require("utils")
 local Enemies = require("Data.enemies")
+local Encounters = require("Data.encounters")
 
 local function copyEnemy(template)
     return Utils.copyEnemyTemplate(template)
@@ -22,22 +23,30 @@ return {
                     local enemies = {}
                     local currentNode = world.map and world.map.nodes[world.currentNode]
                     local difficulty = currentNode and currentNode.difficulty or "normal"
+                    local encounterName = currentNode and currentNode.encounter
 
-                    if difficulty == "easy" or difficulty == "normal" then
-                        -- 2 goblins for normal fights
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                    elseif difficulty == "elite" then
-                        -- 3 goblins for elite
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                    elseif difficulty == "boss" then
-                        -- 4 goblins for boss (placeholder)
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        table.insert(enemies, copyEnemy(Enemies.Goblin))
+                    -- Use specific encounter if specified, otherwise random
+                    if encounterName then
+                        enemies = Encounters.getEncounter(encounterName, difficulty)
+                    else
+                        enemies = Encounters.getRandomEncounter(difficulty)
+                    end
+
+                    -- Fallback to goblins if encounters returns empty
+                    if not enemies or #enemies == 0 then
+                        if difficulty == "easy" or difficulty == "normal" then
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                        elseif difficulty == "elite" then
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                        elseif difficulty == "boss" then
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                            table.insert(enemies, copyEnemy(Enemies.Goblin))
+                        end
                     end
 
                     -- Queue combat start

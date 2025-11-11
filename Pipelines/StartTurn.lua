@@ -55,6 +55,16 @@ function StartTurn.execute(world, player)
     -- Draw cards
     DrawCard.execute(world, player, cardsToDraw)
 
+    -- Enemies select their intents for the upcoming round
+    -- This happens right after player gains energy
+    if world.enemies then
+        for _, enemy in ipairs(world.enemies) do
+            if enemy.hp > 0 and enemy.selectIntent then
+                enemy:selectIntent(world, player)
+            end
+        end
+    end
+
     -- TODO: Trigger start-of-turn power effects here
     -- if player.powers then
     --     for _, power in ipairs(player.powers) do
