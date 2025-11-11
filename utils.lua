@@ -58,6 +58,9 @@ function Utils.copyEnemyTemplate(enemyTemplate)
     for k, v in pairs(enemyTemplate) do
         copy[k] = v
     end
+    -- Ensure combat state containers exist so tests/pipelines can mutate status immediately
+    copy.status = copy.status or {}
+    copy.powers = copy.powers or {}
     return copy
 end
 

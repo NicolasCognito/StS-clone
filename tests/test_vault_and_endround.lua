@@ -106,6 +106,11 @@ local deck2 = {
     copyCard(Cards.Defend),
     copyCard(Cards.Defend),
     copyCard(Cards.Defend),
+    copyCard(Cards.Defend),
+    copyCard(Cards.Defend),
+    copyCard(Cards.Defend),
+    copyCard(Cards.Defend),
+    copyCard(Cards.Defend),
     copyCard(Cards.Defend)
 }
 

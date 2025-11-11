@@ -1,9 +1,10 @@
 -- Sets up world state and runs an expanded combat encounter
 
 local World = require("World")
-local CombatEngine = require("CombatEngine")
 local StartCombat = require("Pipelines.StartCombat")
 local EndCombat = require("Pipelines.EndCombat")
+local MapCLI = require("MapCLI")
+local CombatCLI = require("CombatCLI")
 
 local Cards = require("Data.cards")
 local Enemies = require("Data.enemies")
@@ -65,15 +66,14 @@ world.enemies = {
 }
 
 print("=== SLAY THE SPIRE CLONE ===")
-print("Welcome to combat!")
-print("\nCommands:")
-print("  play <number> - Play a card from your hand")
-print("  end - End your turn")
-print("\nPress Enter to start...")
+print("Entering map traversal demo...")
+MapCLI.play(world)
+
+print("\nMap traversal complete. Press Enter to start the combat demo...")
 io.read()
 
 StartCombat.execute(world)
-CombatEngine.playGame(world)
+CombatCLI.play(world)
 
 local playerAlive = world.player.hp > 0
 local enemiesDefeated = true

@@ -85,6 +85,25 @@ local handlers = {
             }
             return {needsContext = true}
         end
+    end,
+
+    MAP_REQUEST_SELECTION = function(world, event)
+        local mapEvent = ensureMapEventState(world)
+        if mapEvent.contextRequest then
+            Map_MapQueue.push(world, event, "FIRST")
+            return {needsContext = true}
+        end
+
+        mapEvent.contextRequest = {
+            mode = event.mode or "options",
+            options = event.options,
+            nodes = event.nodes,
+            prompt = event.prompt,
+            nodeId = event.nodeId,
+            stability = "temp"
+        }
+
+        return {needsContext = true}
     end
 }
 

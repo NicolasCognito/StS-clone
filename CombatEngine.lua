@@ -40,6 +40,54 @@ local function hasLivingEnemies(world)
     return #aliveEnemies(world) > 0
 end
 
+local function resolveSelectionBounds(world, request)
+    local provider = request.contextProvider or {}
+    local count = provider.count
+
+    if type(count) == "function" then
+        local ok, resolved = pcall(count, world, world.player, request.card)
+        if ok and type(resolved) == "table" then
+            count = resolved
+        else
+            count = nil
+        end
+    end
+
+    if type(count) ~= "table" then
+        count = {min = 1, max = 1}
+    end
+
+    local minSelect = count.min
+    local maxSelect = count.max
+
+    if type(minSelect) ~= "number" then
+        minSelect = 1
+    end
+    if type(maxSelect) ~= "number" then
+        maxSelect = minSelect
+    end
+
+    minSelect = math.max(0, math.floor(minSelect))
+    maxSelect = math.max(minSelect, math.floor(maxSelect))
+
+    return {min = minSelect, max = maxSelect}
+end
+
+local function enrichContextRequest(world, request)
+    if not request or not request.contextProvider then
+        return request
+    end
+
+    request.selectionInfo = request.selectionInfo or ContextProvider.getSelectionInfo(request.contextProvider)
+
+    if request.contextProvider.type == "cards" then
+        request.selectableCards = ContextProvider.getValidCards(world, world.player, request.contextProvider, request.card)
+        request.selectionBounds = resolveSelectionBounds(world, request)
+    end
+
+    return request
+end
+
 function CombatEngine.displayGameState(world)
     print("\n" .. string.rep("=", 60))
 
@@ -114,95 +162,70 @@ function CombatEngine.displayLog(world, count)
     end
 end
 
-function CombatEngine.playGame(world)
+local function resolveContext(world, handlers, request)
+    if request.stability == "stable" and world.combat.stableContext then
+        return world.combat.stableContext, "stable"
+    end
+
+    if not handlers or type(handlers.onContextRequest) ~= "function" then
+        error("CombatEngine.playGame: context requested but no onContextRequest handler provided")
+    end
+    return handlers.onContextRequest(world, request)
+end
+
+local function getPlayerAction(handlers, world)
+    if not handlers or type(handlers.onPlayerAction) ~= "function" then
+        error("CombatEngine.playGame requires an onPlayerAction handler")
+    end
+    return handlers.onPlayerAction(world)
+end
+
+local function notifyDisplayLog(handlers, world, count)
+    if handlers and type(handlers.onDisplayLog) == "function" then
+        handlers.onDisplayLog(world, count)
+    end
+end
+
+local function notifyRender(handlers, world)
+    if handlers and type(handlers.onRenderState) == "function" then
+        handlers.onRenderState(world)
+    end
+end
+
+local function notifyResult(handlers, world, result)
+    if handlers and type(handlers.onCombatResult) == "function" then
+        handlers.onCombatResult(world, result)
+    end
+end
+
+local function notifyCombatEnd(handlers, world, result)
+    if handlers and type(handlers.onCombatEnd) == "function" then
+        handlers.onCombatEnd(world, result)
+    end
+end
+
+function CombatEngine.playGame(world, handlers)
+    handlers = handlers or {}
     local gameOver = false
+    local resultToken = nil
 
     while not gameOver do
-        CombatEngine.displayGameState(world)
+        notifyRender(handlers, world)
 
-        -- Check if there's a context request pending
         if world.combat.contextRequest then
-            local request = world.combat.contextRequest
-            local context = nil
-            local validInput = false
+            local request = enrichContextRequest(world, world.combat.contextRequest)
+            local context, control = resolveContext(world, handlers, request)
 
-            -- Check if we can reuse stable context
-            if request.stability == "stable" and world.combat.stableContext then
-                context = world.combat.stableContext
-                validInput = true
-            else
-                -- Need to collect context from user
-                local contextType = ContextProvider.getContextType(request.contextProvider)
-
-                if contextType == "enemy" then
-                    print("\nChoose a target:")
-                    local living = aliveEnemies(world)
-                    for i, enemy in ipairs(living) do
-                        print("  [" .. i .. "] " .. enemy.name .. " (" .. enemy.hp .. " HP)")
-                    end
-                    print("  [0] Cancel")
-                    io.write("> ")
-                    local input = io.read()
-                    if not input then
-                        print("\nInput stream closed. Exiting game.")
-                        break
-                    end
-                    local choice = tonumber(input)
-                    if choice == 0 then
-                        world.combat.contextRequest = nil
-                        world.combat.stableContext = nil
-                        world.combat.tempContext = nil
-                        validInput = false
-                        print("Cancelled.")
-                    elseif choice and choice >= 1 and choice <= #living then
-                        context = living[choice]
-                        validInput = true
-                    else
-                        print("Invalid target. Try again.")
-                    end
-                elseif contextType == "cards" then
-                    -- Card selection system
-                    local selectableCards = ContextProvider.getValidCards(world, world.player, request.contextProvider, request.card)
-
-                    if #selectableCards == 0 then
-                        print("No cards available to select.")
-                        validInput = true
-                        context = {}
-                    else
-                        -- Get display name for card source
-                        local info = ContextProvider.getSelectionInfo(request.contextProvider)
-                        local sourceName = info.source == "master" and "master deck" or "available cards"
-
-                        print("\nChoose a card from " .. sourceName .. ":")
-                        for i, card in ipairs(selectableCards) do
-                            print("  [" .. i .. "] " .. card.name)
-                        end
-                        print("  [0] Cancel")
-                        io.write("> ")
-                        local input = io.read()
-                        if not input then
-                            print("\nInput stream closed. Exiting game.")
-                            break
-                        end
-                        local cardIndex = tonumber(input)
-                        if cardIndex == 0 then
-                            world.combat.contextRequest = nil
-                            world.combat.stableContext = nil
-                            world.combat.tempContext = nil
-                            validInput = false
-                            print("Cancelled.")
-                        elseif cardIndex and cardIndex >= 1 and cardIndex <= #selectableCards then
-                            context = {selectableCards[cardIndex]}
-                            validInput = true
-                        else
-                            print("Invalid selection. Try again.")
-                        end
-                    end
-                end
+            if control == "quit" then
+                resultToken = "quit"
+                break
             end
 
-            -- Store collected context
-            if validInput then
+            if context == nil then
+                world.combat.contextRequest = nil
+                world.combat.stableContext = nil
+                world.combat.tempContext = nil
+            else
                 if request.stability == "stable" then
                     world.combat.stableContext = context
                 else
@@ -210,77 +233,60 @@ function CombatEngine.playGame(world)
                 end
                 world.combat.contextRequest = nil
 
-                -- Continue playing the card
                 local result = PlayCard.execute(world, world.player, request.card)
-                CombatEngine.displayLog(world, 3)
-                -- Context cleanup handled by QueueOver pipeline
+                if type(result) ~= "table" or not result.needsContext then
+                    notifyDisplayLog(handlers, world, 3)
+                end
             end
         else
-            print("\nActions:")
-            print("  play <card number> - Play a card from your hand")
-            print("  end - End your turn")
-            io.write("> ")
-            local input = io.read()
-            if not input then
-                print("\nInput stream closed. Exiting game.")
+            local action, control = getPlayerAction(handlers, world)
+            if control == "quit" then
+                resultToken = "quit"
+                break
+            end
+            if not action then
+                resultToken = "quit"
                 break
             end
 
-            local command, arg = input:match("^(%S+)%s*(%S*)$")
-            if not command then
-                command = input
-            end
-
-            if command == "play" then
-                local cardIndex = tonumber(arg)
+            if action.type == "play" then
                 local hand = CombatEngine.getCardsByState(world.player, "HAND")
-                if cardIndex and cardIndex >= 1 and cardIndex <= #hand then
-                    local card = hand[cardIndex]
+                local card = action.card or (action.cardIndex and hand[action.cardIndex])
+                if not card then
+                    if handlers.onInvalidAction then
+                        handlers.onInvalidAction(world, action)
+                    end
+                else
                     local result = PlayCard.execute(world, world.player, card)
-
-                    -- Check if result is successful (not needsContext)
                     if type(result) ~= "table" or not result.needsContext then
-                        CombatEngine.displayLog(world, 3)
+                        notifyDisplayLog(handlers, world, 3)
                     end
 
-                    -- VAULT SPECIAL HANDLING
-                    -- Vault skips enemies' turns and End of Round, then starts a new player turn
                     if world.combat.vaultPlayed then
                         world.combat.vaultPlayed = nil
-
-                        -- End player's turn (discard hand, etc.)
                         EndTurn.execute(world, world.player)
 
-                        -- Check if combat is over
                         if not hasLivingEnemies(world) then
-                            print("\n🎉 Victory! You defeated all enemies!")
+                            notifyResult(handlers, world, "victory")
+                            resultToken = "victory"
                             gameOver = true
                         elseif world.player.hp <= 0 then
-                            print("\n💀 Defeat! You were slain!")
+                            notifyResult(handlers, world, "defeat")
+                            resultToken = "defeat"
                             gameOver = true
                         else
-                            -- Skip enemies' turns entirely (no block reset, no intents, no status ticking)
                             table.insert(world.log, "--- Enemies' turns skipped (Vault) ---")
-
-                            -- Skip End of Round phase (no status effect ticking)
-                            -- (Status effects like vulnerable, weak, etc. do NOT decrease)
-
-                            -- Start new player turn
                             StartTurn.execute(world, world.player)
-
-                            CombatEngine.displayLog(world, 5)
+                            notifyDisplayLog(handlers, world, 5)
                         end
                     end
-
-                    -- If needsContext, the next iteration will handle it via contextRequest
-                else
-                    print("Invalid card number. Try again.")
                 end
-            elseif command == "end" then
+            elseif action.type == "end" then
                 EndTurn.execute(world, world.player)
 
                 if not hasLivingEnemies(world) then
-                    print("\n🎉 Victory! You defeated all enemies!")
+                    notifyResult(handlers, world, "victory")
+                    resultToken = "victory"
                     gameOver = true
                 else
                     for _, enemy in ipairs(world.enemies or {}) do
@@ -289,38 +295,40 @@ function CombatEngine.playGame(world)
                         end
                     end
 
-                    -- End of Round: tick down status effects for all combatants
                     EndRound.execute(world, world.player, world.enemies)
-
-                    CombatEngine.displayLog(world, 5)
+                    notifyDisplayLog(handlers, world, 5)
 
                     if world.player.hp <= 0 then
-                        print("\n💀 Defeat! You were slain!")
+                        notifyResult(handlers, world, "defeat")
+                        resultToken = "defeat"
                         gameOver = true
                     else
                         StartTurn.execute(world, world.player)
                     end
                 end
             else
-                print("Unknown command. Type 'play <number>' or 'end'")
+                if handlers.onInvalidAction then
+                    handlers.onInvalidAction(world, action)
+                else
+                    error("CombatEngine.playGame: unknown action type " .. tostring(action.type))
+                end
             end
         end
 
         if not gameOver then
             if not hasLivingEnemies(world) then
-                print("\n🎉 Victory! You defeated all enemies!")
+                notifyResult(handlers, world, "victory")
+                resultToken = "victory"
                 gameOver = true
             elseif world.player.hp <= 0 then
-                print("\n💀 Defeat! You were slain!")
+                notifyResult(handlers, world, "defeat")
+                resultToken = "defeat"
                 gameOver = true
             end
         end
     end
 
-    print("\nGame Over!")
-    if world.log then
-        CombatEngine.displayLog(world, 10)
-    end
+    notifyCombatEnd(handlers, world, resultToken or "quit")
 end
 
 return CombatEngine

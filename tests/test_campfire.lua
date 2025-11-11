@@ -1,6 +1,6 @@
 local World = require("World")
 local MapEvents = require("Data.mapevents")
-local Map_ProcessQueue = require("Pipelines.Map_ProcessQueue")
+local MapEngine = require("MapEngine")
 local Relics = require("Data.relics")
 
 math.randomseed(1337)
@@ -31,23 +31,12 @@ local function createWorld(options)
     return world
 end
 
-local function drainMapQueue(world, limit)
-    limit = limit or 50
-    local iterations = 0
-
-    while world.mapQueue and not world.mapQueue:isEmpty() do
-        Map_ProcessQueue.execute(world)
-        iterations = iterations + 1
-        assert(iterations <= limit, "Map queue failed to drain")
-    end
-end
-
 -- Test 1: Baseline rest heals 30% of max HP
 do
     local world = createWorld({hp = 40})
     Campfire.nodes.arrival.onEnter(world)
     Campfire.nodes.rest.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.player.currentHp == 64, "Rest should heal 24 HP (30% of 80)")
 
@@ -66,7 +55,7 @@ do
     local world = createWorld({hp = 40, relics = {"CoffeeDripper"}})
     Campfire.nodes.arrival.onEnter(world)
     Campfire.nodes.rest.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.player.currentHp == 40, "Coffee Dripper should prevent resting")
 
@@ -85,7 +74,7 @@ do
     local world = createWorld({hp = 40, relics = {"RegalPillow", "DreamCatcher"}})
     Campfire.nodes.arrival.onEnter(world)
     Campfire.nodes.rest.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.player.currentHp == 79, "Rest should heal 24 + 15 HP with Regal Pillow")
     assert(#world.player.masterDeck == 1, "Dream Catcher should add one card to the deck")
@@ -100,7 +89,7 @@ do
     end
 
     Campfire.nodes.arrival.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.pendingRestSiteEnergy == 2, "Ancient Tea Set should queue +2 energy next combat")
     assert(world.player.currentHp == 46, "Eternal Feather should heal 6 HP for 10-card deck")
@@ -111,7 +100,7 @@ do
     local world = createWorld({relics = {"Girya"}})
     Campfire.nodes.arrival.onEnter(world)
     Campfire.nodes.lift.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.player.permanentStrength == 1, "Girya Lift should add 1 permanent strength")
     assert(world.giryaLiftsUsed == 1, "Girya Lift count should increment")
@@ -124,7 +113,7 @@ do
 
     Campfire.nodes.arrival.onEnter(world)
     Campfire.nodes.dig.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(#world.player.relics == initialRelicCount + 1, "Dig should add a random relic")
 
@@ -136,6 +125,40 @@ do
         end
     end
     assert(foundMessage, "Dig result should be logged")
+end
+
+-- Test 7: Smith upgrades the selected card via map context
+do
+    local world = createWorld()
+    local smithTarget = {
+        id = "TEST_SMITH",
+        name = "Proto Smith Target",
+        cost = 2,
+        upgraded = false,
+        onUpgrade = function(self)
+            self.cost = (self.cost or 2) - 1
+        end
+    }
+
+    table.insert(world.player.masterDeck, smithTarget)
+
+    Campfire.nodes.arrival.onEnter(world)
+    Campfire.nodes.smith.onEnter(world)
+
+    MapEngine.drainMapQueue(world)
+
+    assert(smithTarget.upgraded, "Smith should upgrade the selected card")
+    assert(smithTarget.cost == 1, "onUpgrade callback should run for the smith target")
+    assert(not world.mapEvent or world.mapEvent.tempContext == nil, "Temp context should be cleared after smith completes")
+
+    local loggedUpgrade = false
+    for _, entry in ipairs(world.log) do
+        if entry:find("Upgraded Proto Smith Target") then
+            loggedUpgrade = true
+            break
+        end
+    end
+    assert(loggedUpgrade, "Smith should log the upgrade result")
 end
 
 print("Campfire map event tests passed.")

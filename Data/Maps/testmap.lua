@@ -10,7 +10,8 @@ local TestMap = {
                 type = "combat",
                 difficulty = "normal",
                 floor = 1,
-                connections = {"floor2-1", "floor2-2"}
+                connections = {"floor2-1", "floor2-2"},
+                event = "TheCleric"
             },
 
             ["floor2-1"] = {
@@ -18,28 +19,32 @@ local TestMap = {
                 type = "combat",
                 difficulty = "elite",
                 floor = 2,
-                connections = {"floor3-1", "floor3-2"}
+                connections = {"floor3-1", "floor3-2"},
+                event = "TheCleric"
             },
 
             ["floor2-2"] = {
                 id = "floor2-2",
                 type = "rest",
                 floor = 2,
-                connections = {"floor3-1", "floor3-2"}
+                connections = {"floor3-1", "floor3-2"},
+                event = "Campfire"
             },
 
             ["floor3-1"] = {
                 id = "floor3-1",
                 type = "merchant",
                 floor = 3,
-                connections = {"floor4-1"}
+                connections = {"floor4-1"},
+                event = "Merchant"
             },
 
             ["floor3-2"] = {
                 id = "floor3-2",
                 type = "treasure",
                 floor = 3,
-                connections = {"floor4-1"}
+                connections = {"floor4-1"},
+                event = "TheCleric"
             },
 
             ["floor4-1"] = {
@@ -47,7 +52,8 @@ local TestMap = {
                 type = "combat",
                 difficulty = "boss",
                 floor = 4,
-                connections = {}
+                connections = {},
+                event = "TheCleric"
             }
         }
     }

@@ -71,20 +71,7 @@ function Map_ChooseNextNode.execute(world, targetNodeId)
     end
 
     print("Moved to " .. targetNode.type:upper() .. " on floor " .. targetNode.floor)
-
-    -- Placeholder for node-specific events
-    if targetNode.type == "combat" then
-        local difficulty = targetNode.difficulty or "normal"
-        print("  -> " .. difficulty:upper() .. " combat encounter! (not implemented)")
-    elseif targetNode.type == "rest" then
-        print("  -> Rest site! (not implemented)")
-    elseif targetNode.type == "merchant" then
-        print("  -> Merchant! (not implemented)")
-    elseif targetNode.type == "treasure" then
-        print("  -> Treasure chest! (not implemented)")
-    elseif targetNode.type == "event" then
-        print("  -> Random event! (not implemented)")
-    end
+    MapEngine.triggerNodeEvent(world, targetNode)
 
     return true
 end

@@ -1,6 +1,6 @@
 local World = require("World")
 local MapEvents = require("Data.mapevents")
-local Map_ProcessQueue = require("Pipelines.Map_ProcessQueue")
+local MapEngine = require("MapEngine")
 
 local Merchant = MapEvents.Merchant
 
@@ -28,17 +28,6 @@ local function createWorld(gold)
     return world
 end
 
-local function drainMapQueue(world, limit)
-    limit = limit or 50
-    local iterations = 0
-
-    while world.mapQueue and not world.mapQueue:isEmpty() do
-        Map_ProcessQueue.execute(world)
-        iterations = iterations + 1
-        assert(iterations <= limit, "Map queue failed to drain")
-    end
-end
-
 -- Test 1: Uncommon cards should cost 75 gold
 do
     local world = createWorld(100)
@@ -52,7 +41,7 @@ do
     local result = Merchant.nodes.buy_card_1.onEnter(world)
     assert(result == "shop", "Buying a card should return to the shop")
 
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.player.gold == 25, "Uncommon card purchases should spend 75 gold")
     assert(world.mapEvent.merchant.cards[1] == nil, "Purchased card slot should be cleared")
@@ -70,7 +59,7 @@ do
     }
 
     Merchant.nodes.buy_card_2.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.player.gold == 50, "Rare card purchases should spend 150 gold")
 end
@@ -84,7 +73,7 @@ do
     }
 
     Merchant.nodes.buy_relic_1.onEnter(world)
-    drainMapQueue(world)
+    MapEngine.drainMapQueue(world)
 
     assert(world.player.gold == 50, "Relic purchases should spend the default relic price")
     assert(world.player.relics[#world.player.relics].id == "TestRelic", "Relic should be added to the player's collection")
