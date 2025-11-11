@@ -122,28 +122,38 @@ local function clearContextAndExit(world, result)
     return "exit"
 end
 
-local function createCardOption(slot)
+local function createCardOption(slot, card)
+    local price = card and (card.price or assignPrice(card)) or DEFAULT_CARD_PRICE
+    local name = card and (card.name or card.id) or ("card slot %d"):format(slot)
+
     return {
         id = ("BUY_CARD_%d"):format(slot),
-        label = ("Buy card slot %d (%d gold)"):format(slot, DEFAULT_CARD_PRICE),
+        label = ("%s (%d gold)"):format(name, price),
         description = ("Purchase the %s card on display."):format(CARD_ORDINALS[slot] or tostring(slot)),
         next = ("buy_card_%d"):format(slot)
     }
 end
 
-local function createRelicOption(slot)
+local function createRelicOption(slot, relic)
+    local price = relic and (relic.price or assignPrice(relic)) or DEFAULT_RELIC_PRICE
+    local name = relic and (relic.name or relic.id) or ("relic slot %d"):format(slot)
+
     return {
         id = ("BUY_RELIC_%d"):format(slot),
-        label = ("Buy relic slot %d (%d gold)"):format(slot, DEFAULT_RELIC_PRICE),
+        label = ("%s (%d gold)"):format(name, price),
         description = ("Inspect the %s relic."):format(RELIC_ORDINALS[slot] or tostring(slot)),
         next = ("buy_relic_%d"):format(slot)
     }
 end
 
-local function buildShopOptions()
+local function buildShopOptions(world)
+    local state = ensureState(world)
+    local cards = buildCardStock(world)
+    local relics = buildRelicStock(world)
+
     local options = {}
     for slot = 1, CARD_STOCK_SIZE do
-        table.insert(options, createCardOption(slot))
+        table.insert(options, createCardOption(slot, cards[slot]))
     end
 
     table.insert(options, {
@@ -154,7 +164,7 @@ local function buildShopOptions()
     })
 
     for slot = 1, RELIC_STOCK_SIZE do
-        table.insert(options, createRelicOption(slot))
+        table.insert(options, createRelicOption(slot, relics[slot]))
     end
 
     table.insert(options, {
@@ -242,7 +252,9 @@ Merchant.Merchant = {
             onEnter = function(world)
                 ensureState(world)
             end,
-            options = buildShopOptions()
+            options = function(world)
+                return buildShopOptions(world)
+            end
         },
 
         remove_card = {
