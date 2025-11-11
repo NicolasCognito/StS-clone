@@ -84,10 +84,16 @@ local function applyAutoChoice(world, rewards)
     end
 
     if index and rewards[index] then
-        rewards[1], rewards[index] = rewards[index], rewards[1]
+        if index ~= 1 then
+            rewards[1], rewards[index] = rewards[index], rewards[1]
+        end
+        return 1
     end
+
+    return nil
 end
 
+-- INTERNAL HELPERS
 local function insertDraftRewards(world, rewards)
     local deck = world.player.masterDeck
     for _, card in ipairs(rewards) do

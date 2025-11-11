@@ -1,8 +1,8 @@
 local MapQueue = require("Pipelines.Map_MapQueue")
-local Cards = require("Data.cards")
 local Relics = require("Data.relics")
 local Utils = require("utils")
 local ReusableNodes = require("Data.MapEvents._ReusableNodes")
+local Map_BuildCardPool = require("Pipelines.Map_BuildCardPool")
 
 local function calculateRestHeal(world)
     if not world or not world.player or not world.player.maxHp then
@@ -18,28 +18,17 @@ local function calculateRestHeal(world)
 end
 
 local function buildDreamCatcherPool(world)
-    local pool = {}
-    if not world or not world.player then
-        return pool
-    end
-
-    local playerClass = string.upper(world.player.id or "IRONCLAD")
-
-    for _, card in pairs(Cards) do
-        if type(card) == "table" and card.id then
+    local playerClass = string.upper((world and world.player and world.player.id) or "IRONCLAD")
+    return Map_BuildCardPool.execute(world, {
+        filter = function(_, card)
             local character = card.character or ""
             local rarity = card.rarity or ""
             local isStarter = rarity == "STARTER"
             local isCurse = rarity == "CURSE" or character == "CURSE" or card.type == "CURSE"
-            local matchesClass = (character == "COLORLESS") or (character == playerClass)
-
-            if matchesClass and not isStarter and not isCurse then
-                table.insert(pool, card)
-            end
+            local matchesClass = character == "COLORLESS" or character == playerClass
+            return matchesClass and not isStarter and not isCurse
         end
-    end
-
-    return pool
+    })
 end
 
 local function grantDreamCatcherReward(world)
