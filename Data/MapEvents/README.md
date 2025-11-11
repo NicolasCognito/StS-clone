@@ -5,6 +5,7 @@ Map events unify every map interaction (combat nodes, merchants, question marks,
 - **Metadata** – `id`, `name`, optional tags or requirements (act, min gold, etc.).
 - **Graph definition** – an `entryNode` plus a `nodes` table keyed by node id. Each node decides what text/options to show and/or which map pipelines to trigger.
 - **Exit semantics** – nodes can mark the event complete so the map engine resumes traversal.
+- **Direct editing mandate** – per repeated user direction in this repo, MapEvents are the canonical home for overworld logic. Do **not** extract helper pipelines or utility layers that hide behavior. When mechanics change (and they will, often), edit the node directly so the next engineer can trace the exact history of corrections without spelunking through wrappers. See the section “Direct Editing Philosophy” below for the rationale and concrete examples.
 
 ## Node Structure
 
@@ -34,6 +35,28 @@ Nothing prevents an option from populating extra fields (e.g., `contextRequest` 
 When requesting cards from the permanent deck, pass `contextRequest.environment = "map"` (the ContextProvider defaults to the combat deck otherwise).
 
 If a node needs to actually execute the selection, it can push `MAP_COLLECT_CONTEXT` onto the map queue before any effects, then reference `world.mapEvent.tempContext` (populated by the UI layer) exactly like combat cards reference `world.combat.tempContext`.
+
+Keep event nodes trivial—just like cards, they should push the verbs they need directly without wrapping them in helper functions unless absolutely necessary. The pipelines already provide the abstraction; extra helpers usually just obscure what the node is doing.
+
+## Direct Editing Philosophy
+
+This project has been corrected over and over because contributors tried to “help” by hiding overworld logic behind new helper layers. Every time we do that, understanding rest-site behavior (or any MapEvent) requires chasing multiple files, making bugs harder to spot and slowing down iteration. To prevent yet another round of “why can’t I see what Rest does?”, we have a standing rule:
+
+*All MapEvent behavior belongs in the MapEvent file. Keep it visible, inline, and obvious.*
+
+### What this means in practice
+
+- **No new pipelines for event-specific effects.** Campfire’s Lift/Toke/Dig logic, relic gating, and heal math live right inside `Data/MapEvents/Campfire.lua`. They can still call the shared pipelines (e.g., `MAP_HEAL`, `MAP_REMOVE_CARD`) because those are the verbs, but the decision-making (“if you have Coffee Dripper you can’t Rest”) stays in the node.
+- **Configuration belongs on the data objects, not in helper functions.** Relics such as Eternal Feather or Girya expose their tuning values (`healPerChunk`, `maxLifts`) so the Campfire node can read them directly. We don’t make a “FeatherPipeline” to interpret them.
+- **When requirements change, edit the node.** If Peace Pipe gains a new limit or Shovel starts consuming charges, open the event file and change the `onEnter`/`options` there. Don’t add “PeacePipeManager.lua” just to toggle a flag.
+
+### Why so strict?
+
+- **Debuggability:** When the player reports, “Rest didn’t heal me,” we want to open one file and see every branch. Inline code makes that possible.
+- **Iteration speed:** Rest sites will keep evolving (additional relic hooks, Act 4 keys, future modifiers). Editing the node directly is faster than threading through three helper layers.
+- **Historical trace:** Code reviews keep pointing out that we re-learn this lesson. This README now documents the expectation so the reason is discoverable without rehashing it verbally each time.
+
+**TL;DR:** you may call shared pipelines from MapEvents, but do not invent new ones just to hide logic. Inline it, comment it if needed, and keep the behavior obvious.
 
 ## Execution Flow
 

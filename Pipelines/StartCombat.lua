@@ -27,6 +27,11 @@ function StartCombat.execute(world)
     -- Ensure combat-only status/power tables exist
     world.player.status = world.player.status or {}
     world.player.powers = world.player.powers or {}
+    local permanentStrength = world.player.permanentStrength or 0
+    if permanentStrength ~= 0 then
+        world.player.status.strength = (world.player.status.strength or 0) + permanentStrength
+        table.insert(world.log, string.format("%s benefits from %d permanent Strength.", world.player.name, permanentStrength))
+    end
 
     -- Create combatDeck as a deep copy of masterDeck
     -- This ensures combat-only modifications (generated cards, temporary upgrades)
@@ -45,6 +50,12 @@ function StartCombat.execute(world)
     world.player.block = 0
     world.player.energy = world.player.maxEnergy
     world.player.hp = world.player.currentHp
+    local pendingRestEnergy = world.pendingRestSiteEnergy or 0
+    if pendingRestEnergy > 0 then
+        world.player.energy = world.player.energy + pendingRestEnergy
+        table.insert(world.log, string.format("Ancient Tea Set grants +%d energy this turn.", pendingRestEnergy))
+        world.pendingRestSiteEnergy = 0
+    end
 
     for _, relic in ipairs(world.player.relics or {}) do
         if relic.onCombatStart then

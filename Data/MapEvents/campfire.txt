@@ -1,0 +1,32 @@
+Rest Sites are one of the Map Locations, and are a major part of the strategy on each Act.
+
+By default, rest sites only offer a choice between Rest and Smith. More options can be added by specific Relics. Only one option can be chosen at each rest site.
+Rest: Heal for 30% of your max HP.	
+Rounded down
+
+Smith: Upgrade 1 card of your choice.	
+
+Lift: Permanently gain 1  Strength.	
+Requires  Girya.
+Maximum of 3 uses per run.
+
+Toke: Remove 1 card from your deck.	
+Requires  Peace Pipe.
+
+Dig: Obtain a random Relic.	
+Requires  Shovel.
+
+Recall: Obtain the Ruby Key.	
+Available in normal runs when Act 4 is unlocked.
+Maximum of 1 use per run.
+
+Interactions
+ Ancient Tea Set: Whenever you enter a Rest Site, start the next combat with 2 Energy.
+ Coffee Dripper: You can no longer  Rest at Rest Sites.
+ Dream Catcher: Whenever you  Rest, get a random card reward choice.
+ Eternal Feather: Upon entering a Rest site, heal for 3 HP per 5 cards in your deck, rounded down.
+ Fusion Hammer: You can no longer  Smith at Rest Sites.
+ Girya: Adds the  Lift option to gain a permanent 1  Strength, up to 3 times per run.
+ Peace Pipe: Adds the  Toke option to remove a card of your choice from your deck.
+ Regal Pillow: Increases the heal from  Rest by 15 HP.
+ Shovel: Adds the  Dig option to obtain a random Relic.

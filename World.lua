@@ -30,6 +30,7 @@ function World.createWorld(playerData)
             -- - Permanent transforms/removals (events, relics, etc.)
             -- This deck persists across all combats and represents the player's "true" deck.
             masterDeck = playerData.masterDeck or playerData.cards or {},
+            permanentStrength = playerData.permanentStrength or 0,
 
             -- COMBAT DECK (Temporary, created at combat start)
             -- Deep copy of masterDeck created when combat begins (StartCombat pipeline).
@@ -64,7 +65,11 @@ function World.createWorld(playerData)
         -- Winged Boots state (managed by Map_AcquireRelic/Map_LoseRelic pipelines)
         wingedBootsCharges = playerData.wingedBootsCharges or 0,
         -- Pen Nib counter (increments each Attack played, resets after 10th)
-        penNibCounter = playerData.penNibCounter or 0
+        penNibCounter = playerData.penNibCounter or 0,
+        pendingRestSiteEnergy = playerData.pendingRestSiteEnergy or 0,
+        giryaLiftsUsed = playerData.giryaLiftsUsed or 0,
+        rubyKeyObtained = playerData.rubyKeyObtained or false,
+        act4Unlocked = playerData.act4Unlocked or false
     }
 end
 

@@ -40,7 +40,11 @@ return {
             heal = {
                 onEnter = function(world)
                     MapQueue.push(world, { type = "MAP_SPEND_GOLD", amount = 35 })
-                    MapQueue.push(world, { type = "MAP_HEAL_PERCENT", percent = 0.25 })
+                    local healAmount = 0
+                    if world.player and world.player.maxHp then
+                        healAmount = math.floor(world.player.maxHp * 0.25)
+                    end
+                    MapQueue.push(world, { type = "MAP_HEAL", amount = healAmount, source = "The Cleric" })
                     MapQueue.push(world, { type = "MAP_EVENT_COMPLETE", result = "heal" })
                     return "exit"
                 end

@@ -160,4 +160,16 @@ function Utils.moveCardToDeckTop(deck, card)
     return true
 end
 
+function Utils.log(world, message)
+    if not message then
+        return
+    end
+
+    if world and world.log then
+        table.insert(world.log, message)
+    else
+        print(message)
+    end
+end
+
 return Utils

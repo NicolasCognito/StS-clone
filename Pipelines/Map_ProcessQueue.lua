@@ -7,10 +7,11 @@ local Map_ChooseNextNode = require("Pipelines.Map_ChooseNextNode")
 local Map_AcquireRelic = require("Pipelines.Map_AcquireRelic")
 local Map_LoseRelic = require("Pipelines.Map_LoseRelic")
 local Map_SpendGold = require("Pipelines.Map_SpendGold")
-local Map_HealPercent = require("Pipelines.Map_HealPercent")
+local Map_Heal = require("Pipelines.Map_Heal")
 local Map_RemoveCard = require("Pipelines.Map_RemoveCard")
 local Map_EventComplete = require("Pipelines.Map_EventComplete")
 local Map_ClearContext = require("Pipelines.Map_ClearContext")
+local Map_UpgradeCard = require("Pipelines.Map_UpgradeCard")
 
 local Map_ProcessQueue = {}
 
@@ -24,7 +25,7 @@ local function ensureMapEventState(world)
         }
     end
     return world.mapEvent
-}
+end
 
 local handlers = {
     MAP_CHOOSE_NODE = function(world, event)
@@ -49,8 +50,8 @@ local handlers = {
         return Map_SpendGold.execute(world, event.amount or 0)
     end,
 
-    MAP_HEAL_PERCENT = function(world, event)
-        return Map_HealPercent.execute(world, event.percent or 0)
+    MAP_HEAL = function(world, event)
+        return Map_Heal.execute(world, event)
     end,
 
     MAP_REMOVE_CARD = function(world, event)
@@ -63,6 +64,10 @@ local handlers = {
 
     MAP_CLEAR_CONTEXT = function(world, event)
         return Map_ClearContext.execute(world, event)
+    end,
+
+    MAP_UPGRADE_CARD = function(world, event)
+        return Map_UpgradeCard.execute(world, event)
     end,
 
     MAP_COLLECT_CONTEXT = function(world, event)
