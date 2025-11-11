@@ -32,6 +32,14 @@ function World.createWorld(playerData)
             masterDeck = playerData.masterDeck or playerData.cards or {},
             permanentStrength = playerData.permanentStrength or 0,
 
+            -- MASTER POTIONS (Persistent across combats)
+            -- Simple consumables that can be used during combat. Unlike cards:
+            -- - No masterPotion/combatPotion split - used directly from this table
+            -- - No energy cost
+            -- - Single-use: removed from this table when used
+            -- - No duplication effects (Double Tap, Burst, etc.)
+            masterPotions = playerData.masterPotions or {},
+
             -- COMBAT DECK (Temporary, created at combat start)
             -- Deep copy of masterDeck created when combat begins (StartCombat pipeline).
             -- Modified by temporary effects during combat only:

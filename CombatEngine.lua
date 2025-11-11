@@ -1,6 +1,7 @@
 -- Runs combat encounters against one or more enemies using the pipeline system
 
 local PlayCard = require("Pipelines.PlayCard")
+local UsePotion = require("Pipelines.UsePotion")
 local EndTurn = require("Pipelines.EndTurn")
 local EndRound = require("Pipelines.EndRound")
 local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
@@ -150,6 +151,16 @@ function CombatEngine.displayGameState(world)
             print("  [" .. i .. "] " .. card.name .. " (Cost: " .. cardCost .. ") - " .. card.description)
         end
     end
+
+    print(string.rep("-", 60))
+    print("POTIONS:")
+    if not world.player.masterPotions or #world.player.masterPotions == 0 then
+        print("  (none)")
+    else
+        for i, potion in ipairs(world.player.masterPotions) do
+            print("  [" .. i .. "] " .. potion.name .. " - " .. potion.description)
+        end
+    end
     print(string.rep("=", 60))
 end
 
@@ -280,6 +291,16 @@ function CombatEngine.playGame(world, handlers)
                             notifyDisplayLog(handlers, world, 5)
                         end
                     end
+                end
+            elseif action.type == "use_potion" then
+                local potion = action.potion or (action.potionIndex and world.player.masterPotions[action.potionIndex])
+                if not potion then
+                    if handlers.onInvalidAction then
+                        handlers.onInvalidAction(world, action)
+                    end
+                else
+                    UsePotion.execute(world, world.player, potion)
+                    notifyDisplayLog(handlers, world, 3)
                 end
             elseif action.type == "end" then
                 EndTurn.execute(world, world.player)
