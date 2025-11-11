@@ -10,6 +10,7 @@ return {
         healAmount = 5,
         maxHpGain = 3,
         exhausts = true,
+        feedEffect = true,  -- Tag for Death pipeline to recognize on-kill healing
         description = "Deal 10 damage. If Fatal, heal 5 and raise your Max HP by 3. Exhaust.",
 
         onPlay = function(self, world, player)
