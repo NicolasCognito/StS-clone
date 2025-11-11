@@ -35,7 +35,6 @@ local function promptOptionSelection(_, request)
     for i, option in ipairs(options) do
         print(describeOption(option, i))
     end
-    print("  [0] Cancel")
 
     while true do
         local input = prompt(nil)
@@ -43,10 +42,7 @@ local function promptOptionSelection(_, request)
             return nil
         end
         local choice = tonumber(input)
-        if choice == 0 then
-            print("Selection cancelled.")
-            return nil
-        elseif choice and options[choice] then
+        if choice and options[choice] then
             return options[choice]
         else
             print("Invalid choice. Try again.")

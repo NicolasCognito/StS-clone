@@ -11,8 +11,6 @@ High pririty:
     and hook it right after player gains energy for a turn. 
     Consider making Encounters table, that lists individual enemies, and could be referenced by the map.
 -SHUFFLE/ORDERING: For now deck has consistent ordering. We need to decide how we determine top card of the deck etc., considering Lua quirks.
--MERCHANT: He doesn't show card names, it's obviously incorrect.
--MAP: Sometimes has strange cancel option, investigate what it is.
 
 VERY LOW PRIORITY!!!
 -VAULT: Ensure it cleans CardQueue from everything pending. Consider if it should clear rest of EventQueue as well, if relevant, and where. 
