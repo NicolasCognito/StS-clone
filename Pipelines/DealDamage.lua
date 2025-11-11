@@ -120,12 +120,19 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
 
     -- Queue death event if defender died (FIFO - added to front of queue)
     if defender.hp <= 0 then
+        -- Build tags for death event
+        local deathTags = {}
+        if card and card.feedEffect then
+            table.insert(deathTags, "feed")
+        end
+
         world.queue:push({
             type = "ON_DEATH",
             entity = defender,
             source = attacker,
             damage = damage + blockAbsorbed,
-            card = card
+            card = card,
+            tags = deathTags
         }, "FIRST")
     end
 

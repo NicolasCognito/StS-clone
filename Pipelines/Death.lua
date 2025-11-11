@@ -3,16 +3,19 @@
 --
 -- Event should have:
 -- - entity: the character that died (hp <= 0)
+-- - tags: optional array of tags for on-death effects (e.g., ["feed"])
 --
 -- Handles:
 -- - Logging death
 -- - Setting combat result flags (victory/defeat)
--- - Future: triggering on-death effects, relics, etc.
+-- - Triggering on-death card effects (Feed, etc.)
+-- - Future: triggering on-death effects, relics, powers, etc.
 --
 -- Note: This pipeline does NOT remove enemies from combat.enemies
 -- That will be handled in part 2 of the death system refactor
 
 local Death = {}
+local Utils = require("utils")
 
 function Death.execute(world, event)
     local entity = event.entity
@@ -43,18 +46,18 @@ function Death.execute(world, event)
         -- Mark enemy as dead
         entity.dead = true
 
-        -- Trigger card on-kill effects (e.g., Feed)
-        if card and source and entity ~= source then
-            -- Feed: heal and increase max HP on kill
-            if card.feedEffect then
-                world.queue:push({
-                    type = "ON_HEAL",
-                    target = source,
-                    amount = card.healAmount,
-                    maxHpIncrease = card.maxHpGain,
-                    source = card
-                })
-            end
+        -- Trigger card on-kill effects based on tags
+        local tags = event.tags or {}
+
+        -- Feed: heal and increase max HP on kill
+        if Utils.hasTag(tags, "feed") and card and source and entity ~= source then
+            world.queue:push({
+                type = "ON_HEAL",
+                target = source,
+                amount = card.healAmount,
+                maxHpIncrease = card.maxHpGain,
+                source = card
+            })
         end
     end
 
