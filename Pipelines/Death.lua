@@ -39,6 +39,9 @@ function Death.execute(world, event)
     -- Set player death flag if player died
     if entity == world.player then
         world.combat.playerDied = true
+    else
+        -- Mark enemy as dead
+        entity.dead = true
     end
 
     -- Future: Trigger on-death effects, relics, powers, etc.
