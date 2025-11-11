@@ -164,6 +164,20 @@ function Utils.moveCardToDeckTop(deck, card)
     return true
 end
 
+-- Shuffle a deck using Fisher-Yates algorithm
+-- Modifies the deck in-place
+-- Used when starting combat and when reshuffling discard pile into deck
+function Utils.shuffleDeck(deck)
+    if not deck or #deck <= 1 then
+        return
+    end
+
+    for i = #deck, 2, -1 do
+        local j = math.random(i)
+        deck[i], deck[j] = deck[j], deck[i]
+    end
+end
+
 function Utils.log(world, message)
     if not message then
         return

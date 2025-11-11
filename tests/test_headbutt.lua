@@ -6,6 +6,8 @@ local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
 local ContextProvider = require("Pipelines.ContextProvider")
 
+math.randomseed(1337)
+
 local function copyCard(template)
     return Utils.copyCardTemplate(template)
 end
