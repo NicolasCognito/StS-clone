@@ -21,31 +21,12 @@ return {
             }, "FIRST")
 
             -- Push damage event with lazy-evaluated defender
+            -- Death pipeline will automatically trigger healing if this kills the target
             world.queue:push({
                 type = "ON_DAMAGE",
                 attacker = player,
                 defender = function() return world.combat.stableContext end,
                 card = self
-            })
-
-            -- Push custom effect to check if kill was fatal and trigger healing
-            world.queue:push({
-                type = "ON_CUSTOM_EFFECT",
-                effect = function()
-                    local target = world.combat.stableContext
-
-                    -- Check if the target exists and was killed
-                    if target and target.dead then
-                        -- Use the Heal pipeline for proper healing + max HP increase
-                        world.queue:push({
-                            type = "ON_HEAL",
-                            target = player,
-                            amount = self.healAmount,
-                            maxHpIncrease = self.maxHpGain,
-                            source = self
-                        })
-                    end
-                end
             })
         end,
 

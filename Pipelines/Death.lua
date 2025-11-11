@@ -42,6 +42,20 @@ function Death.execute(world, event)
     else
         -- Mark enemy as dead
         entity.dead = true
+
+        -- Trigger card on-kill effects (e.g., Feed)
+        if card and source and entity ~= source then
+            -- Feed: heal and increase max HP on kill
+            if card.healAmount and card.maxHpGain then
+                world.queue:push({
+                    type = "ON_HEAL",
+                    target = source,
+                    amount = card.healAmount,
+                    maxHpIncrease = card.maxHpGain,
+                    source = card
+                })
+            end
+        end
     end
 
     -- Future: Trigger on-death effects, relics, powers, etc.
