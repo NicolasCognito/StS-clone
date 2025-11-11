@@ -18,6 +18,13 @@ function EnemyTakeTurn.execute(world, enemy, player)
     -- Reset enemy block at start of turn
     enemy.block = 0
 
+    -- Log the enemy's intent
+    if enemy.currentIntent then
+        local intentName = enemy.currentIntent.name or "Unknown"
+        local intentDesc = enemy.currentIntent.description or ""
+        table.insert(world.log, enemy.name .. " executes: " .. intentName .. (intentDesc ~= "" and (" (" .. intentDesc .. ")") or ""))
+    end
+
     -- Execute enemy's intent action (pushes events to queue)
     if enemy.executeIntent then
         enemy:executeIntent(world, player)
