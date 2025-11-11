@@ -204,9 +204,9 @@ function MapEngine.resolveContextRequest(world, options)
     local mapEvent = ensureMapEventState(world)
     local request = world.mapEvent.contextRequest
     if request and request.contextProvider and request.contextProvider.type == "cards" then
+        local ContextProvider = getContextProvider()
         request.selectionBounds = request.selectionBounds or getSelectionBounds(world, request)
         if not request.selectableCards then
-            local ContextProvider = getContextProvider()
             request.selectableCards = ContextProvider.getValidCards(world, world.player, request.contextProvider, request.card)
         end
         request.selectionInfo = request.selectionInfo or ContextProvider.getSelectionInfo(request.contextProvider)
