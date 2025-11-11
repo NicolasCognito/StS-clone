@@ -1,16 +1,11 @@
 -- MAIN GAME LOOP
--- Demonstrates MapEngine + CombatEngine working together
+-- Demonstrates integrated MapEngine + CombatEngine flow
+-- Combat encounters are triggered automatically through map events
 
 local World = require("World")
-local MapEngine = require("MapEngine")
-local CombatEngine = require("CombatEngine")
 local MapCLI = require("MapCLI")
-local CombatCLI = require("CombatCLI")
-local StartCombat = require("Pipelines.StartCombat")
-local EndCombat = require("Pipelines.EndCombat")
 
 local Cards = require("Data.cards")
-local Enemies = require("Data.enemies")
 local Relics = require("Data.relics")
 local Maps = require("Data.maps")
 local Utils = require("utils")
@@ -21,10 +16,6 @@ local Utils = require("utils")
 
 local function copyCard(template)
     return Utils.copyCardTemplate(template)
-end
-
-local function copyEnemy(template)
-    return Utils.copyEnemyTemplate(template)
 end
 
 local function buildStartingDeck()
@@ -57,20 +48,6 @@ local function buildStartingDeck()
     return cards
 end
 
-local function checkVictory(world)
-    local playerAlive = world.player.hp > 0
-    local enemiesDefeated = true
-
-    for _, enemy in ipairs(world.enemies or {}) do
-        if enemy.hp > 0 then
-            enemiesDefeated = false
-            break
-        end
-    end
-
-    return playerAlive and enemiesDefeated
-end
-
 -- ============================================================================
 -- WORLD SETUP
 -- ============================================================================
@@ -87,57 +64,33 @@ local world = World.createWorld({
 })
 
 -- ============================================================================
--- MAIN GAME DEMO
+-- MAIN GAME LOOP
 -- ============================================================================
 
 print("=== SLAY THE SPIRE CLONE ===")
 print("Welcome, " .. world.player.name .. "!")
+print("Navigate the map and fight enemies to progress.")
+print("Combat encounters will start automatically at combat nodes.")
 print()
 
--- PHASE 1: Map Navigation using MapEngine + MapCLI
-print("=== MAP PHASE ===")
-print("Navigate the map and choose your path...")
-print()
-
+-- Run the integrated map + combat loop
+-- MapCLI handles both map navigation and combat encounters seamlessly
 MapCLI.play(world)
-
--- PHASE 2: Combat Demo using CombatEngine + CombatCLI
-print()
-print("=== COMBAT PHASE ===")
-print("Preparing for battle...")
-print()
-
--- Setup combat encounter
-world.enemies = {
-    copyEnemy(Enemies.Goblin),
-    copyEnemy(Enemies.Goblin)
-}
-
--- Initialize combat state via StartCombat pipeline
-StartCombat.execute(world)
-
--- Run combat using CombatEngine through CombatCLI
-CombatCLI.play(world)
-
--- Determine combat result
-local victory = checkVictory(world)
-
--- Clean up combat state via EndCombat pipeline
-EndCombat.execute(world, victory)
 
 -- ============================================================================
 -- POST-GAME SUMMARY
 -- ============================================================================
 
 print()
-print("=== GAME SUMMARY ===")
-print("Result: " .. (victory and "VICTORY!" or "DEFEAT"))
-print("Player HP: " .. world.player.currentHp .. "/" .. world.player.maxHp)
-print("Gold: " .. world.player.gold)
+print("=== GAME OVER ===")
+print("Final Stats:")
+print("  Player HP: " .. world.player.currentHp .. "/" .. world.player.maxHp)
+print("  Gold: " .. world.player.gold)
+print("  Floor Reached: " .. (world.floor or 1))
 print()
 
-if victory then
-    print("You survived the encounter and can continue your journey!")
+if world.player.currentHp > 0 then
+    print("You survived and continue your journey!")
 else
     print("Your journey ends here...")
 end
