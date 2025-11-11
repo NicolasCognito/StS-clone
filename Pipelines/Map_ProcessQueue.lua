@@ -12,6 +12,7 @@ local Map_RemoveCard = require("Pipelines.Map_RemoveCard")
 local Map_EventComplete = require("Pipelines.Map_EventComplete")
 local Map_ClearContext = require("Pipelines.Map_ClearContext")
 local Map_UpgradeCard = require("Pipelines.Map_UpgradeCard")
+local Map_StartCombat = require("Pipelines.Map_StartCombat")
 
 local Map_ProcessQueue = {}
 
@@ -68,6 +69,10 @@ local handlers = {
 
     MAP_UPGRADE_CARD = function(world, event)
         return Map_UpgradeCard.execute(world, event)
+    end,
+
+    MAP_START_COMBAT = function(world, event)
+        return Map_StartCombat.execute(world, event)
     end,
 
     MAP_COLLECT_CONTEXT = function(world, event)

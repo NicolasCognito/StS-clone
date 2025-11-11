@@ -11,7 +11,7 @@ local TestMap = {
                 difficulty = "normal",
                 floor = 1,
                 connections = {"floor2-1", "floor2-2"},
-                event = "TheCleric"
+                event = "SimpleCombat"
             },
 
             ["floor2-1"] = {
@@ -20,7 +20,7 @@ local TestMap = {
                 difficulty = "elite",
                 floor = 2,
                 connections = {"floor3-1", "floor3-2"},
-                event = "TheCleric"
+                event = "SimpleCombat"
             },
 
             ["floor2-2"] = {
@@ -53,7 +53,7 @@ local TestMap = {
                 difficulty = "boss",
                 floor = 4,
                 connections = {},
-                event = "TheCleric"
+                event = "SimpleCombat"
             }
         }
     }

@@ -1,28 +1,27 @@
--- Sets up world state and runs an expanded combat encounter
+-- MAIN GAME LOOP
+-- Demonstrates integrated MapEngine + CombatEngine flow
+-- Combat encounters are triggered automatically through map events
 
 local World = require("World")
-local StartCombat = require("Pipelines.StartCombat")
-local EndCombat = require("Pipelines.EndCombat")
 local MapCLI = require("MapCLI")
-local CombatCLI = require("CombatCLI")
 
 local Cards = require("Data.cards")
-local Enemies = require("Data.enemies")
 local Relics = require("Data.relics")
 local Maps = require("Data.maps")
 local Utils = require("utils")
+
+-- ============================================================================
+-- HELPER FUNCTIONS
+-- ============================================================================
 
 local function copyCard(template)
     return Utils.copyCardTemplate(template)
 end
 
-local function copyEnemy(template)
-    return Utils.copyEnemyTemplate(template)
-end
-
 local function buildStartingDeck()
     local cards = {}
 
+    -- Starting cards
     for _ = 1, 5 do
         table.insert(cards, copyCard(Cards.Strike))
     end
@@ -30,6 +29,7 @@ local function buildStartingDeck()
         table.insert(cards, copyCard(Cards.Defend))
     end
 
+    -- Additional test cards
     table.insert(cards, copyCard(Cards.Bash))
     table.insert(cards, copyCard(Cards.FlameBarrier))
     table.insert(cards, copyCard(Cards.Bloodletting))
@@ -48,6 +48,10 @@ local function buildStartingDeck()
     return cards
 end
 
+-- ============================================================================
+-- WORLD SETUP
+-- ============================================================================
+
 local testMap = Maps.TestMap
 local world = World.createWorld({
     id = "IronClad",
@@ -59,34 +63,34 @@ local world = World.createWorld({
     startNode = testMap and testMap.startNode or nil
 })
 
--- Setup a simple multi-enemy encounter
-world.enemies = {
-    copyEnemy(Enemies.Goblin),
-    copyEnemy(Enemies.Goblin)
-}
+-- ============================================================================
+-- MAIN GAME LOOP
+-- ============================================================================
 
 print("=== SLAY THE SPIRE CLONE ===")
-print("Entering map traversal demo...")
+print("Welcome, " .. world.player.name .. "!")
+print("Navigate the map and fight enemies to progress.")
+print("Combat encounters will start automatically at combat nodes.")
+print()
+
+-- Run the integrated map + combat loop
+-- MapCLI handles both map navigation and combat encounters seamlessly
 MapCLI.play(world)
 
-print("\nMap traversal complete. Press Enter to start the combat demo...")
-io.read()
+-- ============================================================================
+-- POST-GAME SUMMARY
+-- ============================================================================
 
-StartCombat.execute(world)
-CombatCLI.play(world)
+print()
+print("=== GAME OVER ===")
+print("Final Stats:")
+print("  Player HP: " .. world.player.currentHp .. "/" .. world.player.maxHp)
+print("  Gold: " .. world.player.gold)
+print("  Floor Reached: " .. (world.floor or 1))
+print()
 
-local playerAlive = world.player.hp > 0
-local enemiesDefeated = true
-for _, enemy in ipairs(world.enemies or {}) do
-    if enemy.hp > 0 then
-        enemiesDefeated = false
-        break
-    end
+if world.player.currentHp > 0 then
+    print("You survived and continue your journey!")
+else
+    print("Your journey ends here...")
 end
-local victory = playerAlive and enemiesDefeated
-
-EndCombat.execute(world, victory)
-
-print("\n=== AFTER COMBAT ===")
-print("Player HP: " .. world.player.currentHp .. "/" .. world.player.maxHp)
-print("Gold: " .. world.player.gold)
