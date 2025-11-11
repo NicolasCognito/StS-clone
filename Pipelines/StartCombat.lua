@@ -49,6 +49,9 @@ function StartCombat.execute(world)
         card.retainCostReduction = nil
     end
 
+    -- Shuffle the combat deck for random card order
+    Utils.shuffleDeck(world.player.combatDeck)
+
     world.player.block = 0
     world.player.energy = world.player.maxEnergy
     world.player.hp = world.player.currentHp

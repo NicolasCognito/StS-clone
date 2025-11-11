@@ -8,9 +8,8 @@ High pririty:
         Example #2: Cards context collection provided less than minimal expected number of entities (E.g. Dagger Throw hadn't had a card to discard)
 -POTIONS: Very similar to cards, but potions! Don't have masterDeck/combatDeck separation, taken directly from persistent masterPotion table in the world, added there as well.
 -ENEMIES: Ensure each enemy defined in lua script with logic - they should have possible intents as functions, as well as selector function to choose one,
-    and hook it right after player gains energy for a turn. 
+    and hook it right after player gains energy for a turn.
     Consider making Encounters table, that lists individual enemies, and could be referenced by the map.
--SHUFFLE/ORDERING: For now deck has consistent ordering. We need to decide how we determine top card of the deck etc., considering Lua quirks.
 
 VERY LOW PRIORITY!!!
 -VAULT: Ensure it cleans CardQueue from everything pending. Consider if it should clear rest of EventQueue as well, if relevant, and where. 

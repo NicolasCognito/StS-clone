@@ -37,6 +37,8 @@ function DrawCard.execute(world, player, count)
             for _, card in ipairs(discardCards) do
                 card.state = "DECK"
             end
+            -- Shuffle the deck for random card order
+            Utils.shuffleDeck(player.combatDeck)
             table.insert(world.log, "Deck reshuffled")
             deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
         end
