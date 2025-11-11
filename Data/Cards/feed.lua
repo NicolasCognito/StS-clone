@@ -28,7 +28,7 @@ return {
                 card = self
             })
 
-            -- Push custom effect to check if kill was fatal and apply benefits
+            -- Push custom effect to check if kill was fatal and trigger healing
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
@@ -36,23 +36,14 @@ return {
 
                     -- Check if the target exists and was killed
                     if target and target.dead then
-                        -- Heal player
-                        local oldHp = player.hp
-                        player.hp = math.min(player.hp + self.healAmount, player.maxHp)
-                        local actualHealing = player.hp - oldHp
-
-                        -- Increase max HP
-                        player.maxHp = player.maxHp + self.maxHpGain
-
-                        -- Also increase current HP by the max HP gain
-                        player.hp = player.hp + self.maxHpGain
-
-                        -- Log the Feed effect
-                        if actualHealing > 0 then
-                            table.insert(world.log, "Feed! " .. player.name .. " healed " .. actualHealing .. " HP and gained " .. self.maxHpGain .. " Max HP!")
-                        else
-                            table.insert(world.log, "Feed! " .. player.name .. " gained " .. self.maxHpGain .. " Max HP!")
-                        end
+                        -- Use the Heal pipeline for proper healing + max HP increase
+                        world.queue:push({
+                            type = "ON_HEAL",
+                            target = player,
+                            amount = self.healAmount,
+                            maxHpIncrease = self.maxHpGain,
+                            source = self
+                        })
                     end
                 end
             })
