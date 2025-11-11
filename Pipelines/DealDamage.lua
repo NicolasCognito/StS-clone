@@ -118,6 +118,17 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
     end
     table.insert(world.log, logMsg)
 
+    -- Queue death event if defender died (FIFO - added to front of queue)
+    if defender.hp <= 0 then
+        world.queue:push({
+            type = "ON_DEATH",
+            entity = defender,
+            source = attacker,
+            damage = damage + blockAbsorbed,
+            card = card
+        }, "FIRST")
+    end
+
     -- Trigger Thorns counter-damage (if defender has Thorns status)
     -- Thorns triggers on any attack, even if fully blocked
     -- Thorns damage can be blocked (use ignoreBlock tag for HP loss effects like Bloodletting)
