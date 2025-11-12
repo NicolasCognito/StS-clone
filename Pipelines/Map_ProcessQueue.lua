@@ -8,6 +8,7 @@ local Map_AcquireRelic = require("Pipelines.Map_AcquireRelic")
 local Map_LoseRelic = require("Pipelines.Map_LoseRelic")
 local Map_SpendGold = require("Pipelines.Map_SpendGold")
 local Map_Heal = require("Pipelines.Map_Heal")
+local Map_ReceiveDamage = require("Pipelines.Map_ReceiveDamage")
 local Map_RemoveCard = require("Pipelines.Map_RemoveCard")
 local Map_EventComplete = require("Pipelines.Map_EventComplete")
 local Map_ClearContext = require("Pipelines.Map_ClearContext")
@@ -53,6 +54,10 @@ local handlers = {
 
     MAP_HEAL = function(world, event)
         return Map_Heal.execute(world, event)
+    end,
+
+    MAP_RECEIVE_DAMAGE = function(world, event)
+        return Map_ReceiveDamage.execute(world, event)
     end,
 
     MAP_REMOVE_CARD = function(world, event)
