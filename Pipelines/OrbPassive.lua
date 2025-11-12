@@ -36,6 +36,15 @@ function OrbPassive.executeSingle(world, orb)
 
         local target = Utils.randomEnemy(world)
         if target then
+            if target.status and target.status.lock_on and target.status.lock_on > 0 then
+                passiveDamage = math.floor(passiveDamage * 1.5)
+                target.status.lock_on = target.status.lock_on - 1
+                if target.status.lock_on <= 0 then
+                    target.status.lock_on = nil
+                end
+                table.insert(world.log, target.name .. " took enhanced damage from Lock-On")
+            end
+
             world.queue:push({
                 type = "ON_NON_ATTACK_DAMAGE",
                 source = player,

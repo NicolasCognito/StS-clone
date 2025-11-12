@@ -18,6 +18,7 @@ local StatusEffects = {
         description = "Take 50% more damage from attacks (75% with Paper Phrog)",
         minValue = 0,
         maxValue = 999,
+        stackType = "duration",
         debuff = true
     },
 
@@ -27,6 +28,7 @@ local StatusEffects = {
         description = "Deal 25% less damage with attacks",
         minValue = 0,
         maxValue = 999,
+        stackType = "duration",
         debuff = true
     },
 
@@ -36,6 +38,7 @@ local StatusEffects = {
         description = "Gain 25% less block from cards",
         minValue = 0,
         maxValue = 999,
+        stackType = "duration",
         debuff = true
     },
 
@@ -45,6 +48,7 @@ local StatusEffects = {
         description = "Lose HP at the end of turn, then reduce by 1",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = true
     },
 
@@ -54,6 +58,7 @@ local StatusEffects = {
         description = "Deal damage back to attackers",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -63,6 +68,7 @@ local StatusEffects = {
         description = "Damage received is reduced to 1",
         minValue = 0,
         maxValue = 999,
+        stackType = "duration",
         debuff = false
     },
 
@@ -71,7 +77,8 @@ local StatusEffects = {
         name = "Confused",
         description = "Card costs are randomized between 0 and 3",
         minValue = 0,
-        maxValue = 999,
+        maxValue = 1,
+        stackType = "intensity",
         debuff = true
     },
 
@@ -81,6 +88,7 @@ local StatusEffects = {
         description = "Increases attack damage (can be negative)",
         minValue = -999,  -- Can be negative
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -90,6 +98,7 @@ local StatusEffects = {
         description = "Increases block gain (can be negative)",
         minValue = -999,  -- Can be negative
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -99,6 +108,7 @@ local StatusEffects = {
         description = "Increases orb effectiveness (can be negative)",
         minValue = -999,  -- Can be negative
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -108,6 +118,7 @@ local StatusEffects = {
         description = "Negate next debuff",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -117,6 +128,7 @@ local StatusEffects = {
         description = "Gain block at end of turn",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -126,6 +138,7 @@ local StatusEffects = {
         description = "Gain strength at end of turn",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -135,6 +148,7 @@ local StatusEffects = {
         description = "Heal HP at end of turn",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -144,6 +158,7 @@ local StatusEffects = {
         description = "Gain block at end of turn",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -153,6 +168,7 @@ local StatusEffects = {
         description = "Prevent next instance of HP loss",
         minValue = 0,
         maxValue = 999,
+        stackType = "intensity",
         debuff = false
     },
 
@@ -161,7 +177,8 @@ local StatusEffects = {
         name = "Entangled",
         description = "Cannot play attacks",
         minValue = 0,
-        maxValue = 999,
+        maxValue = 1,
+        stackType = "duration",
         debuff = true
     },
 
@@ -171,7 +188,158 @@ local StatusEffects = {
         description = "Block is not removed at start of turn",
         minValue = 0,
         maxValue = 1,  -- Binary effect
+        stackType = "intensity",
         debuff = false
+    },
+
+    no_draw = {
+        id = "no_draw",
+        name = "No Draw",
+        description = "Cannot draw cards this turn",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "duration",
+        debuff = true
+    },
+
+    block_return = {
+        id = "block_return",
+        name = "Block Return",
+        description = "When you deal attack damage, the target gains Block",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "duration",
+        debuff = true
+    },
+
+    shackled = {
+        id = "shackled",
+        name = "Shackled",
+        description = "Gain that much Strength at start of turn, then remove",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "duration",
+        debuff = true
+    },
+
+    slow = {
+        id = "slow",
+        name = "Slow",
+        description = "Take 10% more attack damage per stack this turn",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = true
+    },
+
+    draw_reduction = {
+        id = "draw_reduction",
+        name = "Draw Reduction",
+        description = "Draw fewer cards next draw phase",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "duration",
+        debuff = true
+    },
+
+    no_block = {
+        id = "no_block",
+        name = "No Block",
+        description = "Cannot gain Block",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "duration",
+        debuff = true
+    },
+
+    constricted = {
+        id = "constricted",
+        name = "Constricted",
+        description = "Take damage at end of turn equal to stacks",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = true
+    },
+
+    corpse_explosion = {
+        id = "corpse_explosion",
+        name = "Corpse Explosion",
+        description = "On death, deal stacks times max HP damage to all enemies",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = true
+    },
+
+    choked = {
+        id = "choked",
+        name = "Choked",
+        description = "Whenever you play a card, take damage",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = true
+    },
+
+    bias = {
+        id = "bias",
+        name = "Bias",
+        description = "Lose 1 Focus each turn",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "duration",
+        debuff = true
+    },
+
+    hex = {
+        id = "hex",
+        name = "Hex",
+        description = "Add Dazed to draw pile when playing non-attack cards",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "duration",
+        debuff = true
+    },
+
+    lock_on = {
+        id = "lock_on",
+        name = "Lock-On",
+        description = "Orbs deal 50% more damage to this target",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "duration",
+        debuff = true
+    },
+
+    mark = {
+        id = "mark",
+        name = "Mark",
+        description = "Lose HP when triggered by Pressure Points",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = true
+    },
+
+    fasting = {
+        id = "fasting",
+        name = "Fasting",
+        description = "Lose 1 energy at start of turn per stack",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = true
+    },
+
+    wraith_form = {
+        id = "wraith_form",
+        name = "Wraith Form",
+        description = "Lose 1 Dexterity at end of turn per stack",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "duration",
+        debuff = true
     }
 }
 

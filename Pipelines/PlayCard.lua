@@ -62,6 +62,12 @@ local function prepareCardPlay(world, player, card, options)
         return true
     end
 
+    player.status = player.status or {}
+    if card.type == "ATTACK" and player.status.entangled and player.status.entangled > 0 then
+        table.insert(world.log, player.name .. " is Entangled and cannot play attacks")
+        return false
+    end
+
     local skipEnergyCost = options.skipEnergyCost or false
     local energySpentOverride = options.energySpentOverride
     local playSource = options.playSource

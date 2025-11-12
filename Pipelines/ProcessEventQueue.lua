@@ -126,7 +126,7 @@ function ProcessEventQueue.execute(world)
             ClearContext.execute(world, event)
 
         elseif event.type == "AFTER_CARD_PLAYED" then
-            AfterCardPlayed.execute(world, event.player)
+            AfterCardPlayed.execute(world, event.player or world.player)
 
         elseif event.type == "ON_DEATH" then
             Death.execute(world, event)
