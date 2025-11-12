@@ -8,8 +8,7 @@ High pririty:
 
 VERY LOW PRIORITY!!!
 -VAULT: Ensure it cleans CardQueue from everything pending. Consider if it should clear rest of EventQueue as well, if relevant, and where.
--CONTEXT: Ensure correct behavior of stableContext vs tempContext - stable presists for duplicated copies, temp is recollected each time.
-    I believe it works as intended thanks to a little boilerplate in cards themselves with clear_context calls after collecting wrong context.
+-CONTEXT: DONE - stableContext persists for duplicated copies, tempContext is recollected each time. Works as intended with clear_context calls.
 -ECHO: Ensure that Echo works with a quirk specified in documentation. If Echo copy is NOT played, stack is restored.
 -INSUFFICIENT TEMPCONTEXT (POSSIBLE SOLUTION - NEEDS INVESTIGATION): Handle when tempContext provides less than minimum expected entities (e.g., Dagger Throw with empty hand).
     Investigate current behavior first - cards are tables, might already handle gracefully.
