@@ -595,7 +595,7 @@ ApplyStrength(target, amount, source) {
     })
 }
 
-ProcessEffectQueue() {
+ProcessEventQueue() {
     while (effectQueue.length > 0) {
         const event = effectQueue.shift()
         

@@ -25,7 +25,7 @@
 
 local PlayCard = {}
 
-local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
+local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local GetCost = require("Pipelines.GetCost")
 local Utils = require("utils")
 local DuplicationHelpers = require("Pipelines.PlayCard_DuplicationHelpers")
@@ -215,8 +215,8 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
         })
     end
 
-    -- STEP 8: PROCESS EFFECT QUEUE
-    local queueResult = ProcessEffectQueue.execute(world)
+    -- STEP 8: PROCESS EVENT QUEUE
+    local queueResult = ProcessEventQueue.execute(world)
     if type(queueResult) == "table" and queueResult.needsContext then
         card._pendingContextPhase = phase
         return queueResult
@@ -242,7 +242,7 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
             card = card,
             source = exhaustSource
         })
-        queueResult = ProcessEffectQueue.execute(world)
+        queueResult = ProcessEventQueue.execute(world)
         if type(queueResult) == "table" and queueResult.needsContext then
             card._pendingContextPhase = phase
             return queueResult
@@ -253,7 +253,7 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
             card = card,
             player = player
         })
-        queueResult = ProcessEffectQueue.execute(world)
+        queueResult = ProcessEventQueue.execute(world)
         if type(queueResult) == "table" and queueResult.needsContext then
             card._pendingContextPhase = phase
             return queueResult
@@ -316,7 +316,7 @@ function PlayCard.execute(world, player, card, options)
         end
     end
 
-    local queueResult = ProcessEffectQueue.execute(world)
+    local queueResult = ProcessEventQueue.execute(world)
     if type(queueResult) == "table" and queueResult.needsContext then
         return queueResult
     end

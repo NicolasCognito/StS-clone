@@ -1,6 +1,6 @@
 -- MAP PROCESS QUEUE PIPELINE
 -- Drains the overworld/map queue so MapEvents and other traversal systems can
--- enqueue verbs in a data-driven way, mirroring the combat ProcessEffectQueue.
+-- enqueue verbs in a data-driven way, mirroring the combat ProcessEventQueue.
 
 local Map_MapQueue = require("Pipelines.Map_MapQueue")
 local Map_ChooseNextNode = require("Pipelines.Map_ChooseNextNode")

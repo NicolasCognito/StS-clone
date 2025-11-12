@@ -1,6 +1,6 @@
 -- EVENT QUEUE
 -- Simple queue for game events
--- Verbs push events here, ProcessEffectQueue drains it
+-- Verbs push events here, ProcessEventQueue drains it
 
 local EventQueue = {}
 EventQueue.__index = EventQueue

@@ -13,7 +13,7 @@
 
 local EndTurn = {}
 
-local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
+local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local Utils = require("utils")
 
 function EndTurn.execute(world, player)
@@ -27,7 +27,7 @@ function EndTurn.execute(world, player)
     end
 
     -- Process all queued events from relics
-    ProcessEffectQueue.execute(world)
+    ProcessEventQueue.execute(world)
 
     -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down
     -- in the EndRound pipeline, not here. This is because they are "End of Round"
@@ -62,7 +62,7 @@ function EndTurn.execute(world, player)
     end
 
     -- Process all discard events
-    ProcessEffectQueue.execute(world)
+    ProcessEventQueue.execute(world)
 
     -- Clear temporary turn-based flags from ALL cards
     for _, card in ipairs(player.combatDeck) do
