@@ -46,6 +46,26 @@ function Death.execute(world, event)
         -- Mark enemy as dead
         entity.dead = true
 
+        if entity.status and entity.status.corpse_explosion and entity.status.corpse_explosion > 0 then
+            local stacks = entity.status.corpse_explosion
+            local damageAmount = math.floor((entity.maxHp or 0) * stacks)
+            if damageAmount > 0 and world.enemies then
+                for _, enemy in ipairs(world.enemies) do
+                    if enemy ~= entity and enemy.hp > 0 then
+                        world.queue:push({
+                            type = "ON_NON_ATTACK_DAMAGE",
+                            source = entity,
+                            target = enemy,
+                            amount = damageAmount,
+                            tags = {"ignoreBlock"}
+                        })
+                    end
+                end
+                table.insert(world.log, entity.name .. " explodes for " .. damageAmount .. " damage due to Corpse Explosion")
+            end
+            entity.status.corpse_explosion = nil
+        end
+
         -- Trigger card on-kill effects based on tags
         local tags = event.tags or {}
 

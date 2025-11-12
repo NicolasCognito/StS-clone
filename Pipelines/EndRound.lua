@@ -47,6 +47,41 @@ function EndRound.execute(world, player, enemies)
             table.insert(world.log, player.id .. "'s Blur wore off")
         end
 
+        if player.status.slow and player.status.slow > 0 then
+            player.status.slow = nil
+            table.insert(world.log, player.id .. "'s Slow reset")
+        end
+
+        if player.status.block_return and player.status.block_return > 0 then
+            player.status.block_return = nil
+            table.insert(world.log, player.id .. "'s Block Return wore off")
+        end
+
+        if player.status.draw_reduction and player.status.draw_reduction > 0 then
+            player.status.draw_reduction = nil
+            table.insert(world.log, player.id .. "'s Draw Reduction wore off")
+        end
+
+        if player.status.no_draw and player.status.no_draw > 0 then
+            player.status.no_draw = player.status.no_draw - 1
+            if player.status.no_draw <= 0 then
+                player.status.no_draw = nil
+                table.insert(world.log, player.id .. " can draw again next turn")
+            else
+                table.insert(world.log, player.id .. "'s No Draw decreased to " .. player.status.no_draw)
+            end
+        end
+
+        if player.status.no_block and player.status.no_block > 0 then
+            player.status.no_block = player.status.no_block - 1
+            if player.status.no_block <= 0 then
+                player.status.no_block = nil
+                table.insert(world.log, player.id .. " can gain Block again")
+            else
+                table.insert(world.log, player.id .. "'s No Block decreased to " .. player.status.no_block)
+            end
+        end
+
         -- Intangible (player version - decreases at end of round)
         if player.status.intangible and player.status.intangible > 0 then
             player.status.intangible = player.status.intangible - 1
@@ -74,6 +109,41 @@ function EndRound.execute(world, player, enemies)
                 if enemy.status.frail and enemy.status.frail > 0 then
                     enemy.status.frail = enemy.status.frail - 1
                     table.insert(world.log, enemy.name .. "'s Frail decreased to " .. enemy.status.frail)
+                end
+
+                if enemy.status.slow and enemy.status.slow > 0 then
+                    enemy.status.slow = nil
+                    table.insert(world.log, enemy.name .. "'s Slow reset")
+                end
+
+                if enemy.status.block_return and enemy.status.block_return > 0 then
+                    enemy.status.block_return = nil
+                    table.insert(world.log, enemy.name .. "'s Block Return wore off")
+                end
+
+                if enemy.status.draw_reduction and enemy.status.draw_reduction > 0 then
+                    enemy.status.draw_reduction = nil
+                    table.insert(world.log, enemy.name .. "'s Draw Reduction wore off")
+                end
+
+                if enemy.status.no_draw and enemy.status.no_draw > 0 then
+                    enemy.status.no_draw = enemy.status.no_draw - 1
+                    if enemy.status.no_draw <= 0 then
+                        enemy.status.no_draw = nil
+                        table.insert(world.log, enemy.name .. " can draw again next turn")
+                    else
+                        table.insert(world.log, enemy.name .. "'s No Draw decreased to " .. enemy.status.no_draw)
+                    end
+                end
+
+                if enemy.status.no_block and enemy.status.no_block > 0 then
+                    enemy.status.no_block = enemy.status.no_block - 1
+                    if enemy.status.no_block <= 0 then
+                        enemy.status.no_block = nil
+                        table.insert(world.log, enemy.name .. " can gain Block again")
+                    else
+                        table.insert(world.log, enemy.name .. "'s No Block decreased to " .. enemy.status.no_block)
+                    end
                 end
 
                 -- Intangible (enemy version - decreases at end of round)

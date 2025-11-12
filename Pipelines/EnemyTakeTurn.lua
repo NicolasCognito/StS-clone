@@ -15,6 +15,19 @@ local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 function EnemyTakeTurn.execute(world, enemy, player)
     table.insert(world.log, "--- " .. enemy.name .. "'s Turn ---")
 
+    enemy.status = enemy.status or {}
+    if enemy.status.bias and enemy.status.bias > 0 then
+        local biasLoss = enemy.status.bias
+        enemy.status.focus = (enemy.status.focus or 0) - biasLoss
+        table.insert(world.log, enemy.name .. " lost " .. biasLoss .. " Focus from Bias")
+    end
+
+    if enemy.status.wraith_form and enemy.status.wraith_form > 0 then
+        local dexLoss = enemy.status.wraith_form
+        enemy.status.dexterity = (enemy.status.dexterity or 0) - dexLoss
+        table.insert(world.log, enemy.name .. " lost " .. dexLoss .. " Dexterity from Wraith Form")
+    end
+
     -- Reset enemy block at start of turn
     enemy.block = 0
 

@@ -60,19 +60,39 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
     end
 
     -- Start with base damage (use event damage if provided, otherwise use card.damage)
-    local damage = eventDamage or card.damage or 0
+    local damage = eventDamage or (card and card.damage or 0)
 
-    -- Apply strength multiplier if card has it and attacker has strength
-    if card.strengthMultiplier and attacker.strength then
-        damage = damage + (attacker.strength * card.strengthMultiplier)
+    local attackerStatus = attacker and attacker.status or nil
+    local defenderStatus = defender.status or nil
+
+    local strengthStacks = 0
+    if attackerStatus and attackerStatus.strength then
+        strengthStacks = strengthStacks + attackerStatus.strength
+    elseif attacker and attacker.strength then
+        strengthStacks = strengthStacks + attacker.strength
+    end
+
+    local strengthMultiplier = 1
+    if card and card.strengthMultiplier then
+        strengthMultiplier = card.strengthMultiplier
+    end
+
+    if strengthStacks ~= 0 and (card or eventDamage) then
+        damage = damage + strengthStacks * strengthMultiplier
+    end
+
+    if attackerStatus and attackerStatus.weak and attackerStatus.weak > 0 and damage > 0 then
+        damage = math.floor(damage * 0.75)
     end
 
     -- Apply Vulnerable: 50% more damage (75% with Paper Phrog, rounded down)
-    if defender.status and defender.status.vulnerable and defender.status.vulnerable > 0 then
+    damage = math.max(0, damage)
+
+    if defenderStatus and defenderStatus.vulnerable and defenderStatus.vulnerable > 0 then
         local vulnerableMultiplier = 1.5  -- default 50%
 
         -- Check if attacker has Paper Phrog relic
-        local paperPhrog = Utils.getRelic(attacker, "Paper_Phrog")
+        local paperPhrog = attacker and Utils.getRelic(attacker, "Paper_Phrog") or nil
         if paperPhrog then
             vulnerableMultiplier = paperPhrog.vulnerableMultiplier
         end
@@ -80,8 +100,12 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
         damage = math.floor(damage * vulnerableMultiplier)
     end
 
+    if defenderStatus and defenderStatus.slow and defenderStatus.slow > 0 and damage > 0 then
+        damage = math.floor(damage * (1 + 0.1 * defenderStatus.slow))
+    end
+
     -- Apply Pen Nib: Double damage on 10th attack
-    local penNib = Utils.getRelic(attacker, "Pen_Nib")
+    local penNib = attacker and Utils.getRelic(attacker, "Pen_Nib") or nil
     if penNib and world.penNibCounter >= penNib.triggerCount then
         damage = damage * penNib.damageMultiplier
         table.insert(world.log, "Pen Nib activated! (x" .. penNib.damageMultiplier .. " damage)")
@@ -101,7 +125,7 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
     end
 
     -- Apply Intangible: Reduce damage to 1 if defender has Intangible status
-    if defender.status and defender.status.intangible and defender.status.intangible > 0 then
+    if defenderStatus and defenderStatus.intangible and defenderStatus.intangible > 0 and damage > 0 then
         damage = 1
     end
 
@@ -128,6 +152,8 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
         defender.block = defender.block - blockAbsorbed
         damage = damage - blockAbsorbed
     end
+
+    local damageDealt = damage
 
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
@@ -167,15 +193,35 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
         }, "FIRST")
     end
 
+    local defenderIsEnemy = false
+    if world.enemies then
+        for _, enemy in ipairs(world.enemies) do
+            if enemy == defender then
+                defenderIsEnemy = true
+                break
+            end
+        end
+    end
+
+    if card and card.type == "ATTACK" and attackerStatus and attackerStatus.block_return and attackerStatus.block_return > 0 and damageDealt > 0 and defenderIsEnemy then
+        local blockGain = attackerStatus.block_return
+        world.queue:push({
+            type = "ON_BLOCK",
+            target = defender,
+            amount = blockGain,
+            source = "BlockReturn"
+        })
+    end
+
     -- Trigger Thorns counter-damage (if defender has Thorns status)
     -- Thorns triggers on any attack, even if fully blocked
     -- Thorns damage can be blocked (use ignoreBlock tag for HP loss effects like Bloodletting)
-    if defender.status and defender.status.thorns and defender.status.thorns > 0 then
+    if defenderStatus and defenderStatus.thorns and defenderStatus.thorns > 0 then
         world.queue:push({
             type = "ON_NON_ATTACK_DAMAGE",
             source = defender,
             target = attacker,
-            amount = defender.status.thorns
+            amount = defenderStatus.thorns
             -- No tags - Thorns respects block
         })
     end

@@ -15,6 +15,7 @@ local StartTurn = {}
 
 local DrawCard = require("Pipelines.DrawCard")
 local ChangeStance = require("Pipelines.ChangeStance")
+local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 
 function StartTurn.execute(world, player)
     table.insert(world.log, "--- Start of Player Turn ---")
@@ -30,6 +31,53 @@ function StartTurn.execute(world, player)
     -- Reset turn-based duplication flags
     player.status = player.status or {}
     player.status.necronomiconThisTurn = false  -- Necronomicon can trigger again
+
+    local status = player.status
+    local playerName = player.name or player.id or "Player"
+
+    local queuedStatusEvents = false
+
+    if status.shackled and status.shackled > 0 then
+        world.queue:push({
+            type = "ON_STATUS_GAIN",
+            target = player,
+            effectType = "Strength",
+            amount = status.shackled,
+            source = "Shackled"
+        })
+        status.shackled = nil
+        queuedStatusEvents = true
+    end
+
+    if status.bias and status.bias > 0 then
+        status.focus = (status.focus or 0) - status.bias
+        table.insert(world.log, playerName .. " lost " .. status.bias .. " Focus from Bias")
+    end
+
+    if status.wraith_form and status.wraith_form > 0 then
+        status.dexterity = (status.dexterity or 0) - status.wraith_form
+        table.insert(world.log, playerName .. " lost " .. status.wraith_form .. " Dexterity from Wraith Form")
+    end
+
+    if world.enemies then
+        for _, enemy in ipairs(world.enemies) do
+            if enemy.hp > 0 and enemy.status and enemy.status.shackled and enemy.status.shackled > 0 then
+                world.queue:push({
+                    type = "ON_STATUS_GAIN",
+                    target = enemy,
+                    effectType = "Strength",
+                    amount = enemy.status.shackled,
+                    source = "Shackled"
+                })
+                enemy.status.shackled = nil
+                queuedStatusEvents = true
+            end
+        end
+    end
+
+    if queuedStatusEvents then
+        ProcessEventQueue.execute(world)
+    end
 
     -- Set Echo Form counter from power stacks
     -- Echo Form: first N cards each turn are played twice (N = power stacks)
@@ -52,7 +100,7 @@ function StartTurn.execute(world, player)
     end
     if plasmaCount > 0 then
         player.energy = player.energy + plasmaCount
-        table.insert(world.log, player.name .. " gained " .. plasmaCount .. " energy from " .. plasmaCount .. " Plasma orb(s)")
+        table.insert(world.log, playerName .. " gained " .. plasmaCount .. " energy from " .. plasmaCount .. " Plasma orb(s)")
     end
 
     -- Reset block
@@ -70,8 +118,23 @@ function StartTurn.execute(world, player)
         end
     end
 
+    if status.draw_reduction and status.draw_reduction > 0 then
+        local reduction = status.draw_reduction
+        cardsToDraw = math.max(0, cardsToDraw - reduction)
+        status.draw_reduction = nil
+        table.insert(world.log, playerName .. " draw reduced by " .. reduction .. " (" .. cardsToDraw .. " card(s) this turn)")
+    end
+
     -- Draw cards
     DrawCard.execute(world, player, cardsToDraw)
+
+    if status.fasting and status.fasting > 0 then
+        local penalty = math.min(status.fasting, player.energy)
+        if penalty > 0 then
+            player.energy = player.energy - penalty
+            table.insert(world.log, playerName .. " lost " .. penalty .. " energy to Fasting")
+        end
+    end
 
     -- Enemies select their intents for the upcoming round
     -- This happens right after player gains energy

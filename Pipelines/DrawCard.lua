@@ -23,6 +23,14 @@ function DrawCard.execute(world, player, count)
         return
     end
 
+    player.status = player.status or {}
+    local playerName = player.name or player.id or "Player"
+
+    if player.status.no_draw and player.status.no_draw > 0 then
+        table.insert(world.log, playerName .. " is unable to draw due to No Draw")
+        return
+    end
+
     for i = 1, count do
         local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
 
