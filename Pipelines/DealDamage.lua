@@ -112,6 +112,13 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
         damage = 5
     end
 
+    -- Apply Tungsten Rod: Reduce all incoming damage by 1 (minimum 0)
+    -- Applied after all damage multipliers but before block absorption
+    local tungstenRod = Utils.getRelic(defender, "Tungsten_Rod")
+    if tungstenRod and damage > 0 then
+        damage = math.max(0, damage - tungstenRod.damageReduction)
+    end
+
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block
