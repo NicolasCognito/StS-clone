@@ -53,6 +53,12 @@ end
 
 -- Execute damage against a single target
 function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDamage)
+    -- Safety check: Skip if defender is invalid or already dead
+    if not defender or not defender.hp or defender.hp <= 0 then
+        table.insert(world.log, "Damage skipped - target no longer valid")
+        return
+    end
+
     -- Start with base damage (use event damage if provided, otherwise use card.damage)
     local damage = eventDamage or card.damage or 0
 

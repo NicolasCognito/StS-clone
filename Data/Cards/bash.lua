@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     Bash = {
         id = "Bash",
@@ -9,6 +11,7 @@ return {
         damage = 8,
         vulnerable = 2,
         description = "Deal 8 damage. Apply 2 Vulnerable.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection

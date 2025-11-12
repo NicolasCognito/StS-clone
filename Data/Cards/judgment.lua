@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     Judgment = {
         id = "Judgment",
@@ -9,6 +11,7 @@ return {
         hpThreshold = 30,
         description = "If the enemy has 30 or less HP, set their HP to 0.",
         upgraded = false,
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection (target selection)

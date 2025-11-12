@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     Catalyst = {
         id = "Catalyst",
@@ -8,6 +10,7 @@ return {
         rarity = "UNCOMMON",
         poisonMultiplier = 2,
         description = "Double the target's Poison.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection
