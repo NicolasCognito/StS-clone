@@ -30,4 +30,11 @@ function CardQueue:clear()
     self.entries = {}
 end
 
+-- Push a separator to visually mark the boundary between different card runs
+function CardQueue:pushSeparator()
+    table.insert(self.entries, {
+        type = "SEPARATOR"
+    })
+end
+
 return CardQueue
