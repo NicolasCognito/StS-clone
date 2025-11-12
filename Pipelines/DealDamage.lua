@@ -87,6 +87,19 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
         table.insert(world.log, "Pen Nib activated! (x" .. penNib.damageMultiplier .. " damage)")
     end
 
+    -- Apply Wrath stance: Double damage dealt/taken
+    if attacker.currentStance == "Wrath" then
+        damage = damage * 2
+    end
+    if defender.currentStance == "Wrath" then
+        damage = damage * 2
+    end
+
+    -- Apply Divinity stance: Triple damage dealt
+    if attacker.currentStance == "Divinity" then
+        damage = damage * 3
+    end
+
     -- Apply Intangible: Reduce damage to 1 if defender has Intangible status
     if defender.status and defender.status.intangible and defender.status.intangible > 0 then
         damage = 1

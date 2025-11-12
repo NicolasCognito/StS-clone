@@ -14,9 +14,15 @@
 local StartTurn = {}
 
 local DrawCard = require("Pipelines.DrawCard")
+local ChangeStance = require("Pipelines.ChangeStance")
 
 function StartTurn.execute(world, player)
     table.insert(world.log, "--- Start of Player Turn ---")
+
+    -- Exit Divinity stance if player is in it (Divinity only lasts one turn)
+    if player.currentStance == "Divinity" then
+        ChangeStance.execute(world, {newStance = nil})
+    end
 
     -- Clear turn-based player flags
     player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
