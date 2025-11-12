@@ -150,6 +150,12 @@ local function enqueueCardEntries(world, player, card, options)
         return prepared
     end
 
+    -- Push a separator if there are already entries in the queue
+    -- This helps visualize when one card's duplication cycle ends and another begins
+    if not queue:isEmpty() then
+        queue:pushSeparator()
+    end
+
     local replayPlan = DuplicationHelpers.buildReplayPlan(world, player, card)
     local totalEntries = 1 + #replayPlan
 

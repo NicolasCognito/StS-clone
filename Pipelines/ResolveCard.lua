@@ -15,6 +15,23 @@ function ResolveCard.execute(world)
         return nil
     end
 
+    -- Handle separator entries
+    if entry.type == "SEPARATOR" then
+        table.insert(world.log, "--- New Card ---")
+
+        -- Clear context when transitioning between different cards
+        if world.combat then
+            world.combat.stableContext = nil
+            world.combat.tempContext = nil
+        end
+
+        -- Continue to next entry if queue isn't empty
+        if not world.cardQueue:isEmpty() then
+            return ResolveCard.execute(world)
+        end
+        return nil
+    end
+
     return PlayCard.resolveQueuedEntry(world, entry)
 end
 
