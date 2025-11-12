@@ -42,7 +42,7 @@ local ClearContext = require("Pipelines.ClearContext")
 local ApplyCaps = require("Pipelines.ApplyCaps")
 local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
 local Death = require("Pipelines.Death")
-local QueueOver = require("Pipelines.EffectQueueOver")
+local QueueOver = require("Pipelines.EventQueueOver")
 function ProcessEffectQueue.execute(world)
     while not world.queue:isEmpty() do
         local event = world.queue:next()
