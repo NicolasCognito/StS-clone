@@ -37,8 +37,9 @@ return {
         end,
 
         onUpgrade = function(self)
-            self.block = 10
-            self.description = "Gain 10 Block. Scry 3."
+            self.block = 9
+            self.scryAmount = 5
+            self.description = "Gain 9 Block. Scry 5."
         end
     }
 }

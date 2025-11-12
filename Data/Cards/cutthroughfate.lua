@@ -4,11 +4,12 @@ return {
         name = "Cut Through Fate",
         cost = 1,
         type = "ATTACK",
-        character = "SILENT",
-        rarity = "UNCOMMON",
+        character = "WATCHER",
+        rarity = "COMMON",
         damage = 7,
-        scryAmount = 3,
-        description = "Deal 7 damage. Scry 3.",
+        scryAmount = 2,
+        cardsToDraw = 1,
+        description = "Deal 7 damage. Scry 2. Draw 1 card.",
 
         onPlay = function(self, world, player)
             -- Request enemy context for damage
@@ -26,7 +27,7 @@ return {
                 card = self
             })
 
-            -- Request scry context (show top 3 cards)
+            -- Request scry context (show top 2 cards)
             world.queue:push({
                 type = "COLLECT_CONTEXT",
                 card = self,
@@ -42,12 +43,19 @@ return {
             world.queue:push({
                 type = "ON_SCRY"
             })
+
+            -- Draw 1 card
+            world.queue:push({
+                type = "ON_DRAW",
+                player = player,
+                count = self.cardsToDraw
+            })
         end,
 
         onUpgrade = function(self)
-            self.damage = 10
-            self.scryAmount = 5
-            self.description = "Deal 10 damage. Scry 5."
+            self.damage = 9
+            self.scryAmount = 3
+            self.description = "Deal 9 damage. Scry 3. Draw 1 card."
         end
     }
 }
