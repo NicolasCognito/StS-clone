@@ -60,8 +60,8 @@ function World.createWorld(playerData)
             powers = nil,
 
             -- Stance system
-            -- currentStance represents the player's active stance (e.g., Calm, Wrath, Divinity)
-            -- Each stance can have onEnter and onExit callbacks
+            -- currentStance is a string: "Calm", "Wrath", "Divinity", or nil for neutral
+            -- All stance logic lives in ChangeStance pipeline (no callbacks)
             currentStance = nil
         },
 

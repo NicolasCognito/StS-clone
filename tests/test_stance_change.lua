@@ -2,15 +2,15 @@
 --
 -- This test verifies:
 -- 1. Player can enter a stance from no stance
--- 2. onEnter callback is executed when entering a stance
--- 3. onExit callback is executed when exiting a stance
+-- 2. Stance-specific effects execute on enter (e.g., Divinity gives energy)
+-- 3. Stance-specific effects execute on exit (e.g., Calm gives energy)
 -- 4. Player can change from one stance to another
 -- 5. Both exit and enter flows are managed correctly
 
 local World = require("World")
 local ChangeStance = require("Pipelines.ChangeStance")
 
-print("=== Test 1: Enter stance from no stance ===")
+print("=== Test 1: Enter Wrath stance from no stance ===")
 
 local world1 = World.createWorld({
     id = "Watcher",
@@ -24,30 +24,18 @@ local world1 = World.createWorld({
 -- Initialize combat log
 world1.log = {}
 
--- Create a test stance with enter callback
-local enterCallbackCalled = false
-local wrathStance = {
-    name = "Wrath",
-    onEnter = function(world, player)
-        enterCallbackCalled = true
-        -- In real implementation, Wrath might modify damage dealt/taken
-    end
-}
-
 -- Verify player starts with no stance
 assert(world1.player.currentStance == nil, "Player should start with no stance")
 
 -- Change to Wrath stance
-ChangeStance.execute(world1, {newStance = wrathStance})
+ChangeStance.execute(world1, {newStance = "Wrath"})
 
--- Verify stance was set and callback was called
-assert(world1.player.currentStance == wrathStance, "Player should now be in Wrath stance")
-assert(enterCallbackCalled == true, "onEnter callback should have been called")
-assert(#world1.log == 2, "Should have 2 log entries (enter + stance set)")
+-- Verify stance was set
+assert(world1.player.currentStance == "Wrath", "Player should now be in Wrath stance")
+assert(#world1.log == 1, "Should have 1 log entry (enter)")
 print("✓ Player entered Wrath stance successfully")
-print("✓ onEnter callback was executed")
 
-print("\n=== Test 2: Exit stance to no stance ===")
+print("\n=== Test 2: Exit Calm stance and gain energy ===")
 
 local world2 = World.createWorld({
     id = "Watcher",
@@ -59,31 +47,21 @@ local world2 = World.createWorld({
 })
 
 world2.log = {}
+world2.player.energy = 1
 
--- Create a stance with exit callback
-local exitCallbackCalled = false
-local calmStance = {
-    name = "Calm",
-    onExit = function(world, player)
-        exitCallbackCalled = true
-        -- In real implementation, Calm might give energy when exiting
-    end
-}
+-- Set initial stance to Calm
+world2.player.currentStance = "Calm"
 
--- Set initial stance
-world2.player.currentStance = calmStance
-
--- Exit stance (change to nil)
+-- Exit Calm stance (change to nil)
 ChangeStance.execute(world2, {newStance = nil})
 
--- Verify stance was cleared and callback was called
+-- Verify stance was cleared and energy was gained
 assert(world2.player.currentStance == nil, "Player should have no stance")
-assert(exitCallbackCalled == true, "onExit callback should have been called")
-assert(#world2.log == 2, "Should have 2 log entries (exit + no new stance message)")
-print("✓ Player exited Calm stance successfully")
-print("✓ onExit callback was executed")
+assert(world2.player.energy == 3, "Player should have gained 2 energy from Calm exit (1 + 2 = 3), got: " .. world2.player.energy)
+assert(#world2.log == 2, "Should have 2 log entries (exit + neutral message)")
+print("✓ Player exited Calm stance and gained 2 energy")
 
-print("\n=== Test 3: Change from one stance to another ===")
+print("\n=== Test 3: Enter Divinity stance and gain energy ===")
 
 local world3 = World.createWorld({
     id = "Watcher",
@@ -95,48 +73,17 @@ local world3 = World.createWorld({
 })
 
 world3.log = {}
+world3.player.energy = 0
 
--- Create two stances with both enter and exit callbacks
-local oldExitCalled = false
-local newEnterCalled = false
+-- Enter Divinity stance
+ChangeStance.execute(world3, {newStance = "Divinity"})
 
-local divinityStance = {
-    name = "Divinity",
-    onEnter = function(world, player)
-        -- Divinity gives triple energy
-    end,
-    onExit = function(world, player)
-        oldExitCalled = true
-        -- Divinity ends
-    end
-}
+-- Verify stance was set and energy was gained
+assert(world3.player.currentStance == "Divinity", "Player should be in Divinity stance")
+assert(world3.player.energy == 3, "Player should have gained 3 energy from Divinity enter, got: " .. world3.player.energy)
+print("✓ Player entered Divinity stance and gained 3 energy")
 
-local neutralStance = {
-    name = "Neutral",
-    onEnter = function(world, player)
-        newEnterCalled = true
-        -- Neutral is default stance
-    end,
-    onExit = function(world, player)
-        -- Nothing special
-    end
-}
-
--- Set initial stance
-world3.player.currentStance = divinityStance
-
--- Change to new stance
-ChangeStance.execute(world3, {newStance = neutralStance})
-
--- Verify both callbacks were called in correct order
-assert(world3.player.currentStance == neutralStance, "Player should be in Neutral stance")
-assert(oldExitCalled == true, "Old stance onExit should have been called")
-assert(newEnterCalled == true, "New stance onEnter should have been called")
-assert(#world3.log == 3, "Should have 3 log entries (exit + enter + stance set)")
-print("✓ Player changed from Divinity to Neutral stance")
-print("✓ Both onExit and onEnter callbacks were executed in correct order")
-
-print("\n=== Test 4: Stance without callbacks ===")
+print("\n=== Test 4: Change from Calm to Wrath ===")
 
 local world4 = World.createWorld({
     id = "Watcher",
@@ -148,29 +95,20 @@ local world4 = World.createWorld({
 })
 
 world4.log = {}
+world4.player.energy = 1
+world4.player.currentStance = "Calm"
 
--- Create stances without callbacks
-local simpleStance1 = {
-    name = "SimpleStance1"
-    -- No onEnter or onExit
-}
+-- Change from Calm to Wrath
+ChangeStance.execute(world4, {newStance = "Wrath"})
 
-local simpleStance2 = {
-    name = "SimpleStance2"
-    -- No onEnter or onExit
-}
+-- Verify stance changed and Calm exit effect applied
+assert(world4.player.currentStance == "Wrath", "Player should be in Wrath stance")
+assert(world4.player.energy == 3, "Player should have gained 2 energy from Calm exit, got: " .. world4.player.energy)
+assert(#world4.log == 2, "Should have 2 log entries (Calm exit + Wrath enter)")
+print("✓ Player changed from Calm to Wrath")
+print("✓ Exit and enter effects both executed")
 
--- Change to first stance
-ChangeStance.execute(world4, {newStance = simpleStance1})
-assert(world4.player.currentStance == simpleStance1, "Should be in SimpleStance1")
-print("✓ Entered stance without onEnter callback")
-
--- Change to second stance
-ChangeStance.execute(world4, {newStance = simpleStance2})
-assert(world4.player.currentStance == simpleStance2, "Should be in SimpleStance2")
-print("✓ Changed stance when neither has callbacks")
-
-print("\n=== Test 5: Verify callback execution order ===")
+print("\n=== Test 5: Change from Wrath to Divinity ===")
 
 local world5 = World.createWorld({
     id = "Watcher",
@@ -182,31 +120,40 @@ local world5 = World.createWorld({
 })
 
 world5.log = {}
+world5.player.energy = 0
+world5.player.currentStance = "Wrath"
 
-local executionOrder = {}
+-- Change from Wrath to Divinity
+ChangeStance.execute(world5, {newStance = "Divinity"})
 
-local orderStance1 = {
-    name = "OrderTest1",
-    onExit = function(world, player)
-        table.insert(executionOrder, "exit1")
-    end
-}
+-- Verify stance changed and Divinity enter effect applied
+assert(world5.player.currentStance == "Divinity", "Player should be in Divinity stance")
+assert(world5.player.energy == 3, "Player should have gained 3 energy from Divinity enter, got: " .. world5.player.energy)
+assert(#world5.log == 2, "Should have 2 log entries (Wrath exit + Divinity enter)")
+print("✓ Player changed from Wrath to Divinity")
+print("✓ Wrath exit had no effect, Divinity enter gave energy")
 
-local orderStance2 = {
-    name = "OrderTest2",
-    onEnter = function(world, player)
-        table.insert(executionOrder, "enter2")
-    end
-}
+print("\n=== Test 6: Exit Divinity has no special effect ===")
 
-world5.player.currentStance = orderStance1
+local world6 = World.createWorld({
+    id = "Watcher",
+    maxHp = 72,
+    hp = 72,
+    maxEnergy = 3,
+    deck = {},
+    relics = {}
+})
 
--- Change stance and verify order
-ChangeStance.execute(world5, {newStance = orderStance2})
+world6.log = {}
+world6.player.energy = 0
+world6.player.currentStance = "Divinity"
 
-assert(#executionOrder == 2, "Should have 2 callbacks executed")
-assert(executionOrder[1] == "exit1", "Exit should be called first")
-assert(executionOrder[2] == "enter2", "Enter should be called second")
-print("✓ Callbacks executed in correct order: exit then enter")
+-- Exit Divinity
+ChangeStance.execute(world6, {newStance = nil})
+
+-- Verify Divinity exit had no energy effect
+assert(world6.player.currentStance == nil, "Player should have no stance")
+assert(world6.player.energy == 0, "Divinity exit should not give energy, got: " .. world6.player.energy)
+print("✓ Divinity exit had no special effect")
 
 print("\n=== All Stance Change Tests Passed! ===")
