@@ -21,6 +21,7 @@
 -- - ON_CUSTOM_EFFECT: routes to CustomEffect
 -- - AFTER_CARD_PLAYED: routes to AfterCardPlayed
 -- - ON_DEATH: routes to Death
+-- - ON_SCRY: routes to Scry
 --
 -- ApplyCaps is called directly after stat-modifying effects (no event needed)
 -- Simple linear processing (no recursion)
@@ -44,6 +45,7 @@ local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
 local Death = require("Pipelines.Death")
 local ChannelOrb = require("Pipelines.ChannelOrb")
 local EvokeOrb = require("Pipelines.EvokeOrb")
+local Scry = require("Pipelines.Scry")
 local QueueOver = require("Pipelines.EventQueueOver")
 function ProcessEventQueue.execute(world)
     while not world.queue:isEmpty() do
@@ -134,6 +136,9 @@ function ProcessEventQueue.execute(world)
 
         elseif event.type == "ON_EVOKE_ORB" then
             EvokeOrb.execute(world, event)
+
+        elseif event.type == "ON_SCRY" then
+            Scry.execute(world, event)
 
         else
             table.insert(world.log, "Unknown event type: " .. event.type)

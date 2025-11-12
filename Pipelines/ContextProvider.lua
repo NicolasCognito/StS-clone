@@ -17,7 +17,8 @@
 --        source = "combat" or "master",  -- which deck to select from (default: "combat")
 --        environment = "combat" (default) or "map" (overworld selection)
 --        count = {min = 1, max = 1} or function(world, player, card) -> {min, max},
---        filter = function(world, player, card, candidateCard) -> boolean
+--        filter = function(world, player, card, candidateCard) -> boolean,
+--        scry = N  -- OPTIONAL: Show top N cards from deck (for Scry mechanic)
 --    }
 --    Returns: array of selected cards
 --
@@ -131,6 +132,16 @@ function ContextProvider.getValidCards(world, player, contextProvider, card)
     -- Only card selection contexts return cards
     if not contextProvider or contextProvider.type ~= "cards" then
         return {}
+    end
+
+    -- SPECIAL CASE: Scry - return top N cards from deck
+    if contextProvider.scry then
+        local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
+        local topN = {}
+        for i = 1, math.min(contextProvider.scry, #deckCards) do
+            table.insert(topN, deckCards[i])
+        end
+        return topN
     end
 
     -- STEP 1: Determine which deck to select from
