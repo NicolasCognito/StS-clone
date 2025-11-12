@@ -73,6 +73,11 @@ function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
     -- Apply remaining damage to HP
     target.hp = target.hp - damage
 
+    -- Allow enemies to change intent on damage (e.g., Slime Boss splitting)
+    if target.ChangeIntentOnDamage and damage > 0 then
+        target.ChangeIntentOnDamage(target, world, source)
+    end
+
     -- Track HP loss for Blood for Blood (only if player lost HP)
     if target == world.player and damage > 0 then
         world.combat.timesHpLost = world.combat.timesHpLost + 1

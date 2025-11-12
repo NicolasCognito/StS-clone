@@ -78,6 +78,25 @@ local Encounters = {
         end
     },
 
+    ["slime_boss"] = {
+        easy = function()
+            return {
+                copyEnemy(Enemies.SlimeBoss)
+            }
+        end,
+        normal = function()
+            return {
+                copyEnemy(Enemies.SlimeBoss)
+            }
+        end,
+        elite = function()
+            return {
+                copyEnemy(Enemies.SlimeBoss),
+                copyEnemy(Enemies.AcidSlime)
+            }
+        end
+    },
+
     ["cultist_solo"] = {
         easy = function()
             return {

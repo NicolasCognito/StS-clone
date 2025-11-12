@@ -112,6 +112,11 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
 
+    -- Allow enemies to change intent on damage (e.g., Slime Boss splitting)
+    if defender.ChangeIntentOnDamage and damage > 0 then
+        defender.ChangeIntentOnDamage(defender, world, attacker)
+    end
+
     -- Track HP loss for Blood for Blood (only if player lost HP)
     if defender == world.player and damage > 0 then
         world.combat.timesHpLost = world.combat.timesHpLost + 1
