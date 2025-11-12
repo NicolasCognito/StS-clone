@@ -134,5 +134,73 @@ return {
                 })
             end
         end
+    },
+
+    SlimeBoss = {
+        id = "SlimeBoss",
+        name = "Slime Boss",
+        hp = 60,
+        maxHp = 60,
+        block = 0,
+        damage = 12,
+        description = "A powerful slime that splits when damaged.",
+        isSplitting = false,  -- Flag to prevent recursive splitting
+
+        -- Intent functions
+        intents = {
+            slam = function(self, world, player)
+                world.queue:push({
+                    type = "ON_DAMAGE",
+                    attacker = self,
+                    defender = player,
+                    card = self
+                })
+            end,
+
+            prepare = function(self, world, player)
+                world.queue:push({
+                    type = "APPLY_BLOCK",
+                    target = self,
+                    amount = 15
+                })
+            end
+        },
+
+        -- Selector function
+        selectIntent = function(self, world, player)
+            -- Simple AI: alternates between slam and prepare
+            if not self.turnCount then
+                self.turnCount = 0
+            end
+            self.turnCount = self.turnCount + 1
+
+            if self.turnCount % 2 == 0 then
+                self.currentIntent = {
+                    name = "Prepare",
+                    description = "Gain 15 block",
+                    execute = self.intents.prepare
+                }
+            else
+                self.currentIntent = {
+                    name = "Slam",
+                    description = "Deal " .. self.damage .. " damage",
+                    execute = self.intents.slam
+                }
+            end
+        end,
+
+        executeIntent = function(self, world, player)
+            if self.currentIntent and self.currentIntent.execute then
+                self.currentIntent.execute(self, world, player)
+            else
+                -- Fallback to simple attack
+                world.queue:push({
+                    type = "ON_DAMAGE",
+                    attacker = self,
+                    defender = player,
+                    card = self
+                })
+            end
+        end
     }
 }
