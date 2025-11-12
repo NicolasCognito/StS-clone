@@ -57,7 +57,12 @@ function World.createWorld(playerData)
 
             -- Combat-only state (status effects, powers)
             status = nil,
-            powers = nil
+            powers = nil,
+
+            -- Stance system
+            -- currentStance represents the player's active stance (e.g., Calm, Wrath, Divinity)
+            -- Each stance can have onEnter and onExit callbacks
+            currentStance = nil
         },
 
         -- Current encounter enemies (array or nil outside combat)
