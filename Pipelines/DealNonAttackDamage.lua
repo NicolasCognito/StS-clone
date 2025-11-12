@@ -60,6 +60,13 @@ function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
         return
     end
 
+    -- Apply Tungsten Rod: Reduce all incoming damage by 1 (minimum 0)
+    -- Applied before block absorption
+    local tungstenRod = Utils.getRelic(target, "Tungsten_Rod")
+    if tungstenRod and damage > 0 then
+        damage = math.max(0, damage - tungstenRod.damageReduction)
+    end
+
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block
