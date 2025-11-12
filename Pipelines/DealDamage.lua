@@ -112,20 +112,9 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
 
-    -- Slime Boss splitting mechanic: Split when taking any damage
-    if defender.id == "SlimeBoss" and not defender.isSplitting and damage > 0 then
-        defender.isSplitting = true
-
-        -- Spawn 2 SpikeSlimes
-        local Enemies = require("Data.Enemies.slime")
-        for i = 1, 2 do
-            local newSlime = Utils.copyEnemyTemplate(Enemies.SpikeSlime)
-            table.insert(world.enemies, newSlime)
-        end
-
-        -- Mark boss as dead to trigger removal
-        defender.hp = 0
-        table.insert(world.log, defender.name .. " splits into 2 slimes!")
+    -- Allow enemies to change intent on damage (e.g., Slime Boss splitting)
+    if defender.ChangeIntentOnDamage and damage > 0 then
+        defender.ChangeIntentOnDamage(defender, world, attacker)
     end
 
     -- Track HP loss for Blood for Blood (only if player lost HP)

@@ -1,8 +1,8 @@
 -- Test for Slime Boss Splitting Mechanic
 --
 -- This test verifies:
--- 1. Slime Boss splits when taking damage
--- 2. Boss spawns 2 SpikeSlimes
+-- 1. Slime Boss changes intent to Split when HP drops below half
+-- 2. Boss spawns 2 SpikeSlimes when executing Split intent
 -- 3. Boss is marked as dead after splitting
 
 local World = require("World")
@@ -12,6 +12,8 @@ local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
 local StartTurn = require("Pipelines.StartTurn")
+local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
+local EndTurn = require("Pipelines.EndTurn")
 
 local function copyCard(template)
     return Utils.copyCardTemplate(template)
@@ -21,12 +23,14 @@ local function copyEnemy(template)
     return Utils.copyEnemyTemplate(template)
 end
 
-print("=== Test 1: Slime Boss splits when taking damage ===")
+print("=== Test 1: Slime Boss changes intent when damaged below half HP ===")
 
 -- Setup world with player and Slime Boss
 local deck1 = {
-    copyCard(Cards.Strike),  -- Use Strike to deal damage
-    copyCard(Cards.Defend),
+    copyCard(Cards.Strike),
+    copyCard(Cards.Strike),
+    copyCard(Cards.Strike),
+    copyCard(Cards.Strike),
     copyCard(Cards.Defend)
 }
 
@@ -44,27 +48,55 @@ world1.enemies = {boss}
 
 StartCombat.execute(world1, world1.player, world1.enemies)
 
--- Count enemies before attack
-local enemyCountBefore = #world1.enemies
-print("Enemies before attack: " .. enemyCountBefore)
-assert(enemyCountBefore == 1, "Should have 1 enemy before attack")
+print("Boss HP: " .. boss.hp .. "/" .. boss.maxHp)
+print("Half HP threshold: " .. boss.maxHp / 2)
 
 -- Start turn and draw cards
 StartTurn.execute(world1, world1.player)
 
--- Play Strike card to damage the boss
-local strikeCard = nil
+-- Attack the boss multiple times to get it below half HP
+-- Strike deals 6 damage, boss has 60 HP, need to deal > 30 damage
+local strikesPlayed = 0
 for _, card in ipairs(world1.player.hand) do
-    if card.id == "Strike" then
-        strikeCard = card
-        break
+    if card.id == "Strike" and strikesPlayed < 6 then
+        PlayCard.execute(world1, world1.player, card, boss)
+
+        -- Process all queued events after each card
+        while not world1.queue:isEmpty() do
+            local event = world1.queue:pop()
+            local pipeline = require("Pipelines." .. Utils.eventTypeToPipelineName(event.type))
+            pipeline.execute(world1, event)
+        end
+
+        strikesPlayed = strikesPlayed + 1
+        print("After Strike " .. strikesPlayed .. ": Boss HP = " .. boss.hp)
+
+        -- Check if intent changed to split
+        if boss.hp <= boss.maxHp / 2 then
+            break
+        end
     end
 end
 
-assert(strikeCard ~= nil, "Should have Strike card in hand")
+-- Verify boss changed intent to split
+assert(boss.hasSplit == true, "Boss should have hasSplit flag set")
+assert(boss.currentIntent.name == "Split", "Boss should have Split intent, got: " .. (boss.currentIntent.name or "nil"))
+print("✓ Boss changed intent to Split when HP dropped below half")
 
--- Attack the boss
-PlayCard.execute(world1, world1.player, strikeCard, boss)
+-- End player turn and let boss execute
+EndTurn.execute(world1, world1.player)
+
+-- Count enemies before boss acts
+local enemiesBefore = 0
+for _, enemy in ipairs(world1.enemies) do
+    if enemy.hp > 0 then
+        enemiesBefore = enemiesBefore + 1
+    end
+end
+print("Alive enemies before boss turn: " .. enemiesBefore)
+
+-- Boss executes split intent
+EnemyTakeTurn.execute(world1, boss, world1.player)
 
 -- Process all queued events
 while not world1.queue:isEmpty() do
@@ -73,18 +105,11 @@ while not world1.queue:isEmpty() do
     pipeline.execute(world1, event)
 end
 
--- Verify boss split
-local aliveEnemies = {}
-for _, enemy in ipairs(world1.enemies) do
-    if enemy.hp > 0 then
-        table.insert(aliveEnemies, enemy)
-    end
-end
-
+-- Count slimes after split
 local slimeCount = 0
 local bossAlive = false
-for _, enemy in ipairs(aliveEnemies) do
-    if enemy.id == "SpikeSlime" then
+for _, enemy in ipairs(world1.enemies) do
+    if enemy.id == "SpikeSlime" and enemy.hp > 0 then
         slimeCount = slimeCount + 1
     end
     if enemy.id == "SlimeBoss" and enemy.hp > 0 then
@@ -92,7 +117,6 @@ for _, enemy in ipairs(aliveEnemies) do
     end
 end
 
-print("Enemies after attack: " .. #aliveEnemies)
 print("SpikeSlimes spawned: " .. slimeCount)
 print("Boss still alive: " .. tostring(bossAlive))
 
@@ -102,11 +126,12 @@ print("✓ Slime Boss successfully split into 2 SpikeSlimes")
 
 print("\n=== Test 2: Slime Boss only splits once ===")
 
--- Setup another test to verify boss doesn't split multiple times
+-- Setup another test to verify hasSplit flag prevents multiple splits
 local deck2 = {
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
-    copyCard(Cards.Defend)
+    copyCard(Cards.Strike),
+    copyCard(Cards.Strike)
 }
 
 local world2 = World.createWorld({
@@ -124,37 +149,20 @@ world2.enemies = {boss2}
 StartCombat.execute(world2, world2.player, world2.enemies)
 StartTurn.execute(world2, world2.player)
 
--- Attack boss once
-local strike1 = nil
-for _, card in ipairs(world2.player.hand) do
-    if card.id == "Strike" then
-        strike1 = card
-        break
+-- Damage boss below half HP
+for i = 1, 3 do
+    local strike = world2.player.hand[i]
+    if strike and strike.id == "Strike" then
+        PlayCard.execute(world2, world2.player, strike, boss2)
+        while not world2.queue:isEmpty() do
+            local event = world2.queue:pop()
+            local pipeline = require("Pipelines." .. Utils.eventTypeToPipelineName(event.type))
+            pipeline.execute(world2, event)
+        end
     end
 end
 
-PlayCard.execute(world2, world2.player, strike1, boss2)
-
--- Process all events
-while not world2.queue:isEmpty() do
-    local event = world2.queue:pop()
-    local pipeline = require("Pipelines." .. Utils.eventTypeToPipelineName(event.type))
-    pipeline.execute(world2, event)
-end
-
--- Count slimes after first attack
-local slimesAfterFirstAttack = 0
-for _, enemy in ipairs(world2.enemies) do
-    if enemy.id == "SpikeSlime" and enemy.hp > 0 then
-        slimesAfterFirstAttack = slimesAfterFirstAttack + 1
-    end
-end
-
-print("SpikeSlimes after first attack: " .. slimesAfterFirstAttack)
-assert(slimesAfterFirstAttack == 2, "Should have 2 slimes after first attack")
-
--- Verify the isSplitting flag is set
-assert(boss2.isSplitting == true, "Boss should have isSplitting flag set")
-print("✓ Boss has isSplitting flag set to prevent multiple splits")
+assert(boss2.hasSplit == true, "Boss should have hasSplit flag set after damage")
+print("✓ Boss has hasSplit flag set to prevent multiple intent changes")
 
 print("\n=== All Slime Boss Splitting Tests Passed! ===")

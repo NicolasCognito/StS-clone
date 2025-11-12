@@ -144,7 +144,6 @@ return {
         block = 0,
         damage = 12,
         description = "A powerful slime that splits when damaged.",
-        isSplitting = false,  -- Flag to prevent recursive splitting
 
         -- Intent functions
         intents = {
@@ -163,11 +162,44 @@ return {
                     target = self,
                     amount = 15
                 })
+            end,
+
+            split = function(self, world, player)
+                -- Spawn 2 SpikeSlimes
+                local Utils = require("utils")
+                local Enemies = require("Data.Enemies.slime")
+                for i = 1, 2 do
+                    local newSlime = Utils.copyEnemyTemplate(Enemies.SpikeSlime)
+                    table.insert(world.enemies, newSlime)
+                end
+
+                -- Mark boss as dead
+                self.hp = 0
+                table.insert(world.log, self.name .. " splits into 2 slimes!")
             end
         },
 
+        -- Called when taking damage - checks if should change intent to split
+        ChangeIntentOnDamage = function(self, world, source)
+            -- Split if HP drops to half or below
+            if self.hp <= self.maxHp / 2 and not self.hasSplit then
+                self.hasSplit = true
+                self.currentIntent = {
+                    name = "Split",
+                    description = "Split into 2 slimes",
+                    execute = self.intents.split
+                }
+                -- Execute split immediately on next turn
+            end
+        end,
+
         -- Selector function
         selectIntent = function(self, world, player)
+            -- If already marked to split, keep the split intent
+            if self.hasSplit then
+                return
+            end
+
             -- Simple AI: alternates between slam and prepare
             if not self.turnCount then
                 self.turnCount = 0
