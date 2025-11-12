@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     Feed = {
         id = "Feed",
@@ -12,6 +14,7 @@ return {
         exhausts = true,
         feedEffect = true,  -- Tag for Death pipeline to recognize on-kill healing
         description = "Deal 10 damage. If Fatal, heal 5 and raise your Max HP by 3. Exhaust.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection

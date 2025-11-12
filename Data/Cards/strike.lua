@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     Strike = {
         id = "Strike",
@@ -8,6 +10,7 @@ return {
         rarity = "STARTER",
         damage = 6,
         description = "Deal 6 damage.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection

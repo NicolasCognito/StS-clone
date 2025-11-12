@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     HeavyBlade = {
         id = "Heavy_Blade",
@@ -9,6 +11,7 @@ return {
         damage = 14,
         strengthMultiplier = 3,
         description = "Deal 14 damage. Strength affects this card 3 times.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection

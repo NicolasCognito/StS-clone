@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     DaggerThrow = {
         id = "DaggerThrow",
@@ -8,6 +10,7 @@ return {
         rarity = "COMMON",
         damage = 9,
         description = "Deal 9 damage. Draw 1 card. Discard 1 card.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request enemy context

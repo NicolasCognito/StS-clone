@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     BloodForBlood = {
         id = "Blood_for_Blood",
@@ -9,6 +11,7 @@ return {
         damage = 18,
         costReductionPerHpLoss = 1,  -- Reduces cost by 1 for each time player lost HP
         description = "Deal 18 damage. Costs 1 less for each time you lose HP this combat.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection

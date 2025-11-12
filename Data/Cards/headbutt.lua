@@ -1,4 +1,5 @@
 local Utils = require("utils")
+local ContextValidators = require("Utils.ContextValidators")
 
 return {
     Headbutt = {
@@ -10,6 +11,7 @@ return {
         rarity = "COMMON",
         damage = 9,
         description = "Deal 9 damage. Put a card from your discard pile on top of your draw pile.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request enemy context

@@ -1,3 +1,5 @@
+local ContextValidators = require("Utils.ContextValidators")
+
 return {
     Skewer = {
         id = "Skewer",
@@ -8,6 +10,7 @@ return {
         rarity = "UNCOMMON",
         damage = 7,
         description = "Deal 7 damage X times.",
+        stableContextValidator = ContextValidators.specificEnemyAlive,
 
         onPlay = function(self, world, player)
             -- Request context collection

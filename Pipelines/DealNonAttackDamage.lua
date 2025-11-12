@@ -54,6 +54,12 @@ end
 
 -- Execute non-attack damage against a single target
 function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
+    -- Safety check: Skip if target is invalid or already dead
+    if not target or not target.hp or target.hp <= 0 then
+        table.insert(world.log, "Non-attack damage skipped - target no longer valid")
+        return
+    end
+
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block

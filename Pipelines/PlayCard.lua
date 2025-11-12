@@ -284,6 +284,34 @@ local function resolveEntry(world, entry)
         card._effectInitialized = nil
     end
 
+    -- STABLE CONTEXT VALIDATION
+    -- Check if stable context is still valid before executing card
+    if card.stableContextValidator then
+        local isValid = card.stableContextValidator(world, world.combat.stableContext, card)
+
+        if not isValid then
+            -- Give card a chance to fix invalid context
+            if card.onStableContextInvalidated then
+                card:onStableContextInvalidated(world)
+            end
+
+            -- Re-validate after giving card a chance to fix
+            isValid = card.stableContextValidator(world, world.combat.stableContext, card)
+
+            if not isValid then
+                -- Still invalid - cancel card execution
+                table.insert(world.log, card.name .. " canceled - target no longer valid")
+
+                -- Clean up if this was the last entry
+                if entry.isLast then
+                    finalizeCardPlay(world, card)
+                end
+
+                return true  -- Return success to continue processing queue
+            end
+        end
+    end
+
     if entry.replaySource and not entry.replayLogged then
         table.insert(world.log, entry.replaySource .. " triggers!")
         entry.replayLogged = true
