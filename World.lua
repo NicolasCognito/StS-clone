@@ -57,7 +57,12 @@ function World.createWorld(playerData)
 
             -- Combat-only state (status effects, powers)
             status = nil,
-            powers = nil
+            powers = nil,
+
+            -- Stance system
+            -- currentStance is a string: "Calm", "Wrath", "Divinity", or nil for neutral
+            -- All stance logic lives in ChangeStance pipeline (no callbacks)
+            currentStance = nil
         },
 
         -- Current encounter enemies (array or nil outside combat)
