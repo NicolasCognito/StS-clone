@@ -102,6 +102,37 @@ function Utils.getRelic(player, relicId)
     return nil
 end
 
+-- Get a random living enemy
+-- Returns a random enemy with hp > 0, or nil if no living enemies
+-- Used for Lightning orb targeting
+function Utils.randomEnemy(world)
+    local alive = {}
+    for _, enemy in ipairs(world.enemies or {}) do
+        if enemy.hp > 0 then
+            table.insert(alive, enemy)
+        end
+    end
+    if #alive == 0 then
+        return nil
+    end
+    return alive[math.random(#alive)]
+end
+
+-- Get the lowest HP living enemy
+-- Returns the enemy with lowest HP > 0, or nil if no living enemies
+-- Used for Dark orb targeting
+function Utils.lowestHpEnemy(world)
+    local lowest = nil
+    for _, enemy in ipairs(world.enemies or {}) do
+        if enemy.hp > 0 then
+            if not lowest or enemy.hp < lowest.hp then
+                lowest = enemy
+            end
+        end
+    end
+    return lowest
+end
+
 -- Check if a tag exists in a tags array
 -- Used for checking effect tags like "ignoreBlock", "costsZeroThisTurn", etc.
 function Utils.hasTag(tags, tagName)

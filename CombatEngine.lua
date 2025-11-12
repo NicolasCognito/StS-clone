@@ -140,6 +140,24 @@ function CombatEngine.displayGameState(world)
         print("RELICS: " .. table.concat(relicNames, ", "))
     end
 
+    -- Display orbs
+    if world.player.orbs and #world.player.orbs > 0 then
+        local orbDisplay = {}
+        for i, orb in ipairs(world.player.orbs) do
+            local orbInfo = orb.id
+            if orb.accumulatedDamage then
+                orbInfo = orbInfo .. "(" .. orb.accumulatedDamage .. ")"
+            end
+            table.insert(orbDisplay, orbInfo)
+        end
+        print("ORBS [" .. #world.player.orbs .. "/" .. world.player.maxOrbs .. "]: " .. table.concat(orbDisplay, " | "))
+    end
+
+    -- Display Focus
+    if world.player.status and world.player.status.focus and world.player.status.focus ~= 0 then
+        print("FOCUS: " .. world.player.status.focus)
+    end
+
     print(string.rep("-", 60))
     print("HAND:")
     local hand = CombatEngine.getCardsByState(world.player, "HAND")

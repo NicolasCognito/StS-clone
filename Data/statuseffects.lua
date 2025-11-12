@@ -93,6 +93,15 @@ local StatusEffects = {
         debuff = false
     },
 
+    focus = {
+        id = "focus",
+        name = "Focus",
+        description = "Increases orb effectiveness (can be negative)",
+        minValue = -999,  -- Can be negative
+        maxValue = 999,
+        debuff = false
+    },
+
     artifact = {
         id = "artifact",
         name = "Artifact",

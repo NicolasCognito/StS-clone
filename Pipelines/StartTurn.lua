@@ -43,6 +43,18 @@ function StartTurn.execute(world, player)
         player.status.echoFormThisTurn = echoFormStacks
     end
 
+    -- Plasma orbs: Gain 1 energy per Plasma orb at start of turn
+    local plasmaCount = 0
+    for _, orb in ipairs(player.orbs) do
+        if orb.id == "Plasma" then
+            plasmaCount = plasmaCount + 1
+        end
+    end
+    if plasmaCount > 0 then
+        player.energy = player.energy + plasmaCount
+        table.insert(world.log, player.name .. " gained " .. plasmaCount .. " energy from " .. plasmaCount .. " Plasma orb(s)")
+    end
+
     -- Reset block
     player.block = 0
 
