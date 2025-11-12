@@ -173,8 +173,14 @@ return {
                     table.insert(world.enemies, newSlime)
                 end
 
-                -- Mark boss as dead
-                self.hp = 0
+                -- Remove boss from enemies array
+                for i, enemy in ipairs(world.enemies) do
+                    if enemy == self then
+                        table.remove(world.enemies, i)
+                        break
+                    end
+                end
+
                 table.insert(world.log, self.name .. " splits into 2 slimes!")
             end
         },

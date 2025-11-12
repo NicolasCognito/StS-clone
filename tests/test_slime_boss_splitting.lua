@@ -107,21 +107,21 @@ end
 
 -- Count slimes after split
 local slimeCount = 0
-local bossAlive = false
+local bossStillPresent = false
 for _, enemy in ipairs(world1.enemies) do
-    if enemy.id == "SpikeSlime" and enemy.hp > 0 then
+    if enemy.id == "SpikeSlime" then
         slimeCount = slimeCount + 1
     end
-    if enemy.id == "SlimeBoss" and enemy.hp > 0 then
-        bossAlive = true
+    if enemy.id == "SlimeBoss" then
+        bossStillPresent = true
     end
 end
 
 print("SpikeSlimes spawned: " .. slimeCount)
-print("Boss still alive: " .. tostring(bossAlive))
+print("Boss still present: " .. tostring(bossStillPresent))
 
 assert(slimeCount == 2, "Should have spawned 2 SpikeSlimes, got: " .. slimeCount)
-assert(not bossAlive, "Boss should be dead after splitting")
+assert(not bossStillPresent, "Boss should be removed after splitting")
 print("✓ Slime Boss successfully split into 2 SpikeSlimes")
 
 print("\n=== Test 2: Slime Boss only splits once ===")
