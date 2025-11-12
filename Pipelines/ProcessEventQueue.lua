@@ -42,6 +42,8 @@ local ClearContext = require("Pipelines.ClearContext")
 local ApplyCaps = require("Pipelines.ApplyCaps")
 local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
 local Death = require("Pipelines.Death")
+local ChannelOrb = require("Pipelines.ChannelOrb")
+local EvokeOrb = require("Pipelines.EvokeOrb")
 local QueueOver = require("Pipelines.EventQueueOver")
 function ProcessEventQueue.execute(world)
     while not world.queue:isEmpty() do
@@ -126,6 +128,12 @@ function ProcessEventQueue.execute(world)
 
         elseif event.type == "ON_DEATH" then
             Death.execute(world, event)
+
+        elseif event.type == "ON_CHANNEL_ORB" then
+            ChannelOrb.execute(world, event)
+
+        elseif event.type == "ON_EVOKE_ORB" then
+            EvokeOrb.execute(world, event)
 
         else
             table.insert(world.log, "Unknown event type: " .. event.type)

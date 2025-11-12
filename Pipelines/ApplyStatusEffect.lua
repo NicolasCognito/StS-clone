@@ -70,6 +70,10 @@ function ApplyStatusEffect.executeSingle(world, target, effectType, amount, sour
         target.status.strength = (target.status.strength or 0) + amount
         table.insert(world.log, target.name .. " gained " .. amount .. " strength")
 
+    elseif effectType == "Focus" then
+        target.status.focus = (target.status.focus or 0) + amount
+        table.insert(world.log, target.name .. " gained " .. amount .. " focus")
+
     elseif effectType == "Thorns" then
         target.status.thorns = (target.status.thorns or 0) + amount
         table.insert(world.log, target.name .. " gained " .. amount .. " thorns")

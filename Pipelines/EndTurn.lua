@@ -14,6 +14,7 @@
 local EndTurn = {}
 
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
+local OrbPassive = require("Pipelines.OrbPassive")
 local Utils = require("utils")
 
 function EndTurn.execute(world, player)
@@ -27,6 +28,12 @@ function EndTurn.execute(world, player)
     end
 
     -- Process all queued events from relics
+    ProcessEventQueue.execute(world)
+
+    -- Trigger orb passive effects (Lightning damage, Frost block, Dark accumulation)
+    OrbPassive.execute(world)
+
+    -- Process all queued events from orb passives
     ProcessEventQueue.execute(world)
 
     -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down

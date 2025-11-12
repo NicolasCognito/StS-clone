@@ -62,7 +62,14 @@ function World.createWorld(playerData)
             -- Stance system
             -- currentStance is a string: "Calm", "Wrath", "Divinity", or nil for neutral
             -- All stance logic lives in ChangeStance pipeline (no callbacks)
-            currentStance = nil
+            currentStance = nil,
+
+            -- Orb system (Defect mechanic)
+            -- orbs is an array of orb instances: [{id = "Lightning", baseDamage = 8, ...}, ...]
+            -- Index 1 = leftmost orb (evoked first when slots are full)
+            -- All orb logic lives in ChannelOrb/EvokeOrb/OrbPassive pipelines
+            orbs = playerData.orbs or {},
+            maxOrbs = playerData.maxOrbs or 3  -- Default 3 orb slots for Defect
         },
 
         -- Current encounter enemies (array or nil outside combat)
