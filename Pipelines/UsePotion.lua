@@ -17,7 +17,7 @@
 
 local UsePotion = {}
 
-local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
+local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 
 local function ensureCombatContext(world)
     world.combat = world.combat or {}
@@ -50,7 +50,7 @@ function UsePotion.execute(world, player, potion)
 
     -- STEP 3: PROCESS EFFECT QUEUE
     ensureCombatContext(world)
-    local queueResult = ProcessEffectQueue.execute(world)
+    local queueResult = ProcessEventQueue.execute(world)
     if type(queueResult) == "table" and queueResult.needsContext then
         -- Potions don't support context collection for now
         -- If we need this in the future, we can add it

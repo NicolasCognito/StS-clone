@@ -64,7 +64,7 @@ Strike = {
 
 4. **Queue-Based Event System**
    - Cards push events, they don't execute effects
-   - All effects are processed through ProcessEffectQueue
+   - All effects are processed through ProcessEventQueue
    - This routes to ONE pipeline per effect type
    - Interactions happen in ONE place (DealDamage, ApplyBlock, etc.)
 
@@ -74,7 +74,7 @@ Strike = {
 Card.onPlay()
     ↓ (pushes)
 Queue.push({ type: ON_DAMAGE, ... })
-    ↓ (ProcessEffectQueue drains)
+    ↓ (ProcessEventQueue drains)
 DealDamage.execute(event)  ← ONE PLACE for all damage logic
     ↓ (hardcoded effects)
 Apply strength multiplier
@@ -364,7 +364,7 @@ world.queue:push({
     tags = {"costsZeroThisTurn"}
 })
 
--- ProcessEffectQueue routes to pipeline
+-- ProcessEventQueue routes to pipeline
 elseif event.type == "ON_ACQUIRE_CARD" then
     AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
 ```

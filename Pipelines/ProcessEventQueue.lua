@@ -1,4 +1,4 @@
--- PROCESS EFFECT QUEUE PIPELINE
+-- PROCESS EVENT QUEUE PIPELINE
 -- Routes and processes all queued events until queue is empty
 --
 -- Events are created by:
@@ -25,7 +25,7 @@
 -- ApplyCaps is called directly after stat-modifying effects (no event needed)
 -- Simple linear processing (no recursion)
 
-local ProcessEffectQueue = {}
+local ProcessEventQueue = {}
 
 local DealDamage = require("Pipelines.DealDamage")
 local DealNonAttackDamage = require("Pipelines.DealNonAttackDamage")
@@ -42,8 +42,8 @@ local ClearContext = require("Pipelines.ClearContext")
 local ApplyCaps = require("Pipelines.ApplyCaps")
 local AfterCardPlayed = require("Pipelines.AfterCardPlayed")
 local Death = require("Pipelines.Death")
-local QueueOver = require("Pipelines.EffectQueueOver")
-function ProcessEffectQueue.execute(world)
+local QueueOver = require("Pipelines.EventQueueOver")
+function ProcessEventQueue.execute(world)
     while not world.queue:isEmpty() do
         local event = world.queue:next()
 
@@ -139,4 +139,4 @@ function ProcessEffectQueue.execute(world)
     end
 end
 
-return ProcessEffectQueue
+return ProcessEventQueue

@@ -8,7 +8,7 @@
 -- - Uses StatusEffects data for cap definitions
 -- - Applies to ALL characters (player and all enemies)
 --
--- Called directly by ProcessEffectQueue after each stat-modifying effect:
+-- Called directly by ProcessEventQueue after each stat-modifying effect:
 -- - After DealDamage
 -- - After DealNonAttackDamage
 -- - After ApplyBlock

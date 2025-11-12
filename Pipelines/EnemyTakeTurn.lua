@@ -10,7 +10,7 @@
 
 local EnemyTakeTurn = {}
 
-local ProcessEffectQueue = require("Pipelines.ProcessEffectQueue")
+local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 
 function EnemyTakeTurn.execute(world, enemy, player)
     table.insert(world.log, "--- " .. enemy.name .. "'s Turn ---")
@@ -31,7 +31,7 @@ function EnemyTakeTurn.execute(world, enemy, player)
     end
 
     -- Process all queued events
-    ProcessEffectQueue.execute(world)
+    ProcessEventQueue.execute(world)
 
     -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down
     -- in the EndRound pipeline, not here. This is because they are "End of Round"

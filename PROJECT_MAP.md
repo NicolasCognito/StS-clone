@@ -18,7 +18,7 @@ StS-clone/
 ├── CombatEngine.lua          # Main game loop, handles player input and turn flow
 ├── Pipelines/                # All game logic lives here
 │   ├── PlayCard.lua          # Card playing orchestration
-│   ├── ProcessEffectQueue.lua # Routes events to appropriate handlers
+│   ├── ProcessEventQueue.lua # Routes events to appropriate handlers
 │   ├── StartTurn.lua         # Player turn initialization
 │   ├── EndTurn.lua           # Player turn cleanup
 │   ├── EnemyTakeTurn.lua     # Enemy turn execution
@@ -123,7 +123,7 @@ Card.onPlay()
   ↓
 Push event to world.queue
   ↓
-ProcessEffectQueue.execute()
+ProcessEventQueue.execute()
   ↓
 Route to appropriate pipeline:
   - ON_DAMAGE → DealDamage.lua
@@ -177,7 +177,7 @@ world.queue:push({
 | Pipeline | Purpose | Key Mechanics |
 |----------|---------|---------------|
 | `PlayCard.lua` | Orchestrates card playing | Cost payment, duplications (Double Tap, Burst), Necronomicon |
-| `ProcessEffectQueue.lua` | Routes events to handlers | Central event dispatcher |
+| `ProcessEventQueue.lua` | Routes events to handlers | Central event dispatcher |
 | `DealDamage.lua` | Damage calculation | Strength, weak, vulnerable, block, thorns |
 | `ApplyBlock.lua` | Block calculation | Dexterity, frail |
 | `StartTurn.lua` | Turn initialization | Reset block, draw cards, Echo Form counter |
@@ -358,7 +358,7 @@ end
 |------|---------|----------------|
 | `CombatEngine.lua` | Game loop, turn cycle | Adding special mechanics that hijack turn flow (like Vault) |
 | `Pipelines/PlayCard.lua` | Card playing | Adding new duplication mechanics or card-play hooks |
-| `Pipelines/ProcessEffectQueue.lua` | Event routing | Adding new event types |
+| `Pipelines/ProcessEventQueue.lua` | Event routing | Adding new event types |
 | `Pipelines/DealDamage.lua` | Damage calculation | Adding effects that modify damage (powers, relics) |
 | `Pipelines/ApplyBlock.lua` | Block calculation | Adding effects that modify block |
 | `Pipelines/GetCost.lua` | Cost calculation | Adding effects that modify card costs |
