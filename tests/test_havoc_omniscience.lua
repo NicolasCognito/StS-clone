@@ -40,6 +40,9 @@ local function createWorldWithDeck(deck)
         copyEnemy(Enemies.Goblin)
     }
 
+    -- Enable NoShuffle for deterministic test
+    world.NoShuffle = true
+
     StartCombat.execute(world)
     return world
 end

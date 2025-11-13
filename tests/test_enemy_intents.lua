@@ -37,17 +37,17 @@ local world1 = World.createWorld({
     maxHp = 80,
     hp = 80,
     maxEnergy = 3,
-    deck = deck1,
+    cards = deck1,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
 local enemy1 = copyEnemy(Enemies.Goblin)
 world1.enemies = {enemy1}
 
-StartCombat.execute(world1, world1.player, world1.enemies)
+StartCombat.execute(world1)
 
--- Start turn should trigger intent selection
-StartTurn.execute(world1, world1.player)
+-- StartCombat already calls StartTurn, which triggers intent selection
+-- No need to call StartTurn again
 
 -- Check that intent was selected
 assert(enemy1.currentIntent ~= nil, "Goblin should have selected an intent")
@@ -73,18 +73,22 @@ local world2 = World.createWorld({
     maxHp = 80,
     hp = 80,
     maxEnergy = 3,
-    deck = deck2,
+    cards = deck2,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
 local slime = copyEnemy(Enemies.AcidSlime)
 world2.enemies = {slime}
 
-StartCombat.execute(world2, world2.player, world2.enemies)
+StartCombat.execute(world2)
 
 -- Test that slime has different intents over multiple turns
+-- First intent is selected during StartCombat
 local intentsUsed = {}
-for turn = 1, 5 do
+intentsUsed[slime.currentIntent.name] = true
+print("Turn 1: Slime selected " .. slime.currentIntent.name)
+
+for turn = 2, 5 do
     StartTurn.execute(world2, world2.player)
 
     assert(slime.currentIntent ~= nil, "Slime should have selected an intent on turn " .. turn)
@@ -111,17 +115,16 @@ local world3 = World.createWorld({
     maxHp = 80,
     hp = 80,
     maxEnergy = 3,
-    deck = deck3,
+    cards = deck3,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
 local cultist = copyEnemy(Enemies.Cultist)
 world3.enemies = {cultist}
 
-StartCombat.execute(world3, world3.player, world3.enemies)
+StartCombat.execute(world3)
 
--- First turn: should ritual
-StartTurn.execute(world3, world3.player)
+-- First turn: should ritual (intent selected during StartCombat -> StartTurn)
 assert(cultist.currentIntent ~= nil, "Cultist should have selected an intent")
 assert(cultist.currentIntent.name == "Ritual", "Cultist should ritual on first turn, got: " .. (cultist.currentIntent.name or "nil"))
 print("✓ Cultist performs ritual on first turn")

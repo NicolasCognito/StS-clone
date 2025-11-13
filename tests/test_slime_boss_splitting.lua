@@ -14,6 +14,7 @@ local PlayCard = require("Pipelines.PlayCard")
 local StartTurn = require("Pipelines.StartTurn")
 local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
 local EndTurn = require("Pipelines.EndTurn")
+local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 
 local function copyCard(template)
     return Utils.copyCardTemplate(template)
@@ -31,6 +32,7 @@ local deck1 = {
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
+    copyCard(Cards.Strike),  -- Need 5 Strikes to get boss below half HP (60 → 30)
     copyCard(Cards.Defend)
 }
 
@@ -38,35 +40,53 @@ local world1 = World.createWorld({
     id = "Ironclad",
     maxHp = 80,
     hp = 80,
-    maxEnergy = 3,
-    deck = deck1,
+    maxEnergy = 6,  -- Need at least 5 energy to play 5 Strikes to get boss below half HP
+    cards = deck1,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
 local boss = copyEnemy(Enemies.SlimeBoss)
 world1.enemies = {boss}
 
-StartCombat.execute(world1, world1.player, world1.enemies)
+-- Enable NoShuffle for deterministic card draw
+world1.NoShuffle = true
+
+StartCombat.execute(world1)
 
 print("Boss HP: " .. boss.hp .. "/" .. boss.maxHp)
 print("Half HP threshold: " .. boss.maxHp / 2)
 
--- Start turn and draw cards
-StartTurn.execute(world1, world1.player)
+-- StartCombat already calls StartTurn and draws cards
 
 -- Attack the boss multiple times to get it below half HP
 -- Strike deals 6 damage, boss has 60 HP, need to deal > 30 damage
 local strikesPlayed = 0
-for _, card in ipairs(world1.player.hand) do
+local handCards = Utils.getCardsByState(world1.player.combatDeck, "HAND")
+for _, card in ipairs(handCards) do
     if card.id == "Strike" and strikesPlayed < 6 then
-        PlayCard.execute(world1, world1.player, card, boss)
+        -- Play card and provide context if needed
+        while true do
+            local result = PlayCard.execute(world1, world1.player, card)
+            if result == true then
+                break  -- Card finished playing
+            end
+
+            -- Handle context request (Strike needs enemy target)
+            if type(result) == "table" and result.needsContext then
+                local request = world1.combat.contextRequest
+                if request.contextProvider.type == "enemy" then
+                    -- Provide boss as target
+                    world1.combat.stableContext = boss
+                    world1.combat.contextRequest = nil
+                end
+            elseif result == false then
+                -- Card couldn't be played (e.g., not enough energy)
+                break
+            end
+        end
 
         -- Process all queued events after each card
-        while not world1.queue:isEmpty() do
-            local event = world1.queue:pop()
-            local pipeline = require("Pipelines." .. Utils.eventTypeToPipelineName(event.type))
-            pipeline.execute(world1, event)
-        end
+        ProcessEventQueue.execute(world1)
 
         strikesPlayed = strikesPlayed + 1
         print("After Strike " .. strikesPlayed .. ": Boss HP = " .. boss.hp)
@@ -98,12 +118,7 @@ print("Alive enemies before boss turn: " .. enemiesBefore)
 -- Boss executes split intent
 EnemyTakeTurn.execute(world1, boss, world1.player)
 
--- Process all queued events
-while not world1.queue:isEmpty() do
-    local event = world1.queue:pop()
-    local pipeline = require("Pipelines." .. Utils.eventTypeToPipelineName(event.type))
-    pipeline.execute(world1, event)
-end
+-- EnemyTakeTurn already processes the event queue, no need to do it again
 
 -- Count slimes after split
 local slimeCount = 0
@@ -131,6 +146,7 @@ local deck2 = {
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
+    copyCard(Cards.Strike),
     copyCard(Cards.Strike)
 }
 
@@ -138,27 +154,42 @@ local world2 = World.createWorld({
     id = "Ironclad",
     maxHp = 80,
     hp = 80,
-    maxEnergy = 3,
-    deck = deck2,
+    maxEnergy = 6,  -- Need enough energy to damage boss below half HP
+    cards = deck2,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
 local boss2 = copyEnemy(Enemies.SlimeBoss)
 world2.enemies = {boss2}
 
-StartCombat.execute(world2, world2.player, world2.enemies)
-StartTurn.execute(world2, world2.player)
+StartCombat.execute(world2)
+-- StartCombat already calls StartTurn, no need to call it again
 
--- Damage boss below half HP
-for i = 1, 3 do
-    local strike = world2.player.hand[i]
+-- Damage boss below half HP (need 5 Strikes: 60 → 30)
+local handCards2 = Utils.getCardsByState(world2.player.combatDeck, "HAND")
+for i = 1, 5 do
+    local strike = handCards2[i]
     if strike and strike.id == "Strike" then
-        PlayCard.execute(world2, world2.player, strike, boss2)
-        while not world2.queue:isEmpty() do
-            local event = world2.queue:pop()
-            local pipeline = require("Pipelines." .. Utils.eventTypeToPipelineName(event.type))
-            pipeline.execute(world2, event)
+        -- Play card and provide context if needed
+        while true do
+            local result = PlayCard.execute(world2, world2.player, strike)
+            if result == true then
+                break
+            end
+
+            -- Handle context request (Strike needs enemy target)
+            if type(result) == "table" and result.needsContext then
+                local request = world2.combat.contextRequest
+                if request.contextProvider.type == "enemy" then
+                    world2.combat.stableContext = boss2
+                    world2.combat.contextRequest = nil
+                end
+            elseif result == false then
+                -- Card couldn't be played (e.g., not enough energy)
+                break
+            end
         end
+        ProcessEventQueue.execute(world2)
     end
 end
 

@@ -9,7 +9,7 @@ return {
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                source = self
+                card = self  -- ApplyBlock reads block from event.card.block
             })
         end
     }

@@ -109,9 +109,17 @@ do
     local player = world.player
     local enemy = world.enemies[1]
 
+    -- Give enemy enough HP to survive 3 Strikes (6 damage each = 18 total)
+    enemy.hp = 20
+    enemy.maxHp = 20
+
     -- Set up Double Tap + Echo Form
     player.status = player.status or {}
     player.status.doubleTap = 1
+
+    -- Set up Echo Form power (required for duplication system)
+    player.powers = player.powers or {}
+    table.insert(player.powers, {id = "EchoForm", stacks = 1})
     player.status.echoFormThisTurn = 1
 
     local strikeCard = findCardById(player.combatDeck, "Strike")
@@ -126,6 +134,7 @@ do
     assert(countLogEntries(world.log, "IronClad dealt 6 damage to Goblin") == 3, "Strike should deal damage 3 times")
     assert((player.status.doubleTap or 0) == 0, "Double Tap should be consumed")
     assert((player.status.echoFormThisTurn or 0) == 0, "Echo Form should be consumed")
+    assert(enemy.hp == 2, "Enemy should have 2 HP left (20 - 18 from 3 Strikes)")
 
     print("  ✓ Double Tap + Echo Form stacking works correctly (3 total plays)")
 end
@@ -155,6 +164,10 @@ do
     local player = world.player
     local enemy = world.enemies[1]
 
+    -- Give enemy enough HP to survive 2 Heavy Blades (14 damage each = 28 total)
+    enemy.hp = 30
+    enemy.maxHp = 30
+
     StartTurn.execute(world, player)
 
     -- Play Heavy Blade (cost 2) - should trigger Necronomicon
@@ -162,6 +175,7 @@ do
     playCardWithAutoContext(world, player, heavyBladeCard)
 
     assert(countLogEntries(world.log, "Necronomicon triggers!") == 1, "Necronomicon should trigger for Heavy Blade")
+    assert(enemy.hp == 2, "Enemy should have 2 HP left (30 - 28 from 2 Heavy Blades)")
     assert(player.status.necronomiconThisTurn == true, "Necronomicon flag should be set")
 
     -- Play Strike (cost 1) - should NOT trigger Necronomicon (cost < 2)
@@ -243,6 +257,10 @@ do
     local player = world.player
     local enemy = world.enemies[1]
 
+    -- Give enemy enough HP to survive 4 Strikes (6 damage each = 24 total)
+    enemy.hp = 30
+    enemy.maxHp = 30
+
     -- Set up all three sources
     player.status = player.status or {}
     player.status.duplicationPotion = 1  -- Priority 1
@@ -264,6 +282,7 @@ do
     assert((player.status.duplicationPotion or 0) == 0, "Duplication Potion consumed")
     assert((player.status.doubleTap or 0) == 0, "Double Tap consumed")
     assert((player.status.echoFormThisTurn or 0) == 0, "Echo Form consumed")
+    assert(enemy.hp == 6, "Enemy should have 6 HP left (30 - 24 from 4 Strikes)")
 
     print("  ✓ Priority order: Duplication Potion > Double Tap > Echo Form")
 end
@@ -387,9 +406,19 @@ do
     })
 
     world.enemies = { copyEnemy(Enemies.Goblin) }
+
+    -- Enable NoShuffle for deterministic card order
+    world.NoShuffle = true
+
     StartCombat.execute(world)
 
     local player = world.player
+    local enemy = world.enemies[1]
+
+    -- Give enemy enough HP to survive 2 Dagger Throws (9 damage each = 18 total)
+    enemy.hp = 20
+    enemy.maxHp = 20
+
     player.status = player.status or {}
     player.status.duplicationPotion = 1
 
@@ -403,6 +432,9 @@ do
     assert((player.status.duplicationPotion or 0) == 0, "Duplication Potion stack should be consumed")
     assert(discardA.state == "DISCARD_PILE", "First selected card should be discarded during initial play")
     assert(discardB.state == "DISCARD_PILE", "Second selected card should be discarded during duplicated play")
+    assert(enemy.hp == 2, "Enemy should have 2 HP left (20 - 18 from 2 Dagger Throws)")
+
+    print("  ✓ Context is correctly re-collected for duplicated plays")
 end
 print()
 
@@ -426,6 +458,12 @@ do
     StartCombat.execute(world)
 
     local player = world.player
+    local enemy = world.enemies[1]
+
+    -- Give enemy enough HP to survive 3 Strikes (6 damage each = 18 total)
+    enemy.hp = 20
+    enemy.maxHp = 20
+
     player.status = player.status or {}
     player.status.doubleTap = 1
 
@@ -439,6 +477,9 @@ do
     assert(forcedIndex and doubleIndex and forcedIndex < doubleIndex, "Forced replay should resolve before Double Tap")
     assert(countLogEntries(world.log, "IronClad dealt 6 damage to Goblin") == 3, "Strike should hit three times (normal + forced + Double Tap)")
     assert((player.status.doubleTap or 0) == 0, "Double Tap stack should be consumed")
+    assert(enemy.hp == 2, "Enemy should have 2 HP left (20 - 18 from 3 Strikes)")
+
+    print("  ✓ Forced replays resolve before other duplication sources")
 end
 print()
 

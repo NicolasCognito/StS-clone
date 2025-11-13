@@ -198,8 +198,14 @@ end
 -- Shuffle a deck using Fisher-Yates algorithm
 -- Modifies the deck in-place
 -- Used when starting combat and when reshuffling discard pile into deck
-function Utils.shuffleDeck(deck)
+-- world: optional world parameter for testing - if world.NoShuffle is true, skips shuffling
+function Utils.shuffleDeck(deck, world)
     if not deck or #deck <= 1 then
+        return
+    end
+
+    -- Testing flag: skip shuffling for deterministic tests
+    if world and world.NoShuffle then
         return
     end
 

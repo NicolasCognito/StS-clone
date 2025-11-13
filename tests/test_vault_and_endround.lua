@@ -74,27 +74,27 @@ enemy1.status.frail = 1
 enemy1.status.intangible = 2
 
 print("Before EndRound:")
-print("  Player: vulnerable=" .. player1.status.vulnerable .. " weak=" .. player1.status.weak .. " frail=" .. player1.status.frail .. " blur=" .. player1.status.blur .. " intangible=" .. player1.status.intangible)
-print("  Enemy: vulnerable=" .. enemy1.status.vulnerable .. " weak=" .. enemy1.status.weak .. " frail=" .. enemy1.status.frail .. " intangible=" .. enemy1.status.intangible)
+print("  Player: vulnerable=" .. (player1.status.vulnerable or 0) .. " weak=" .. (player1.status.weak or 0) .. " frail=" .. (player1.status.frail or 0) .. " blur=" .. (player1.status.blur or 0) .. " intangible=" .. (player1.status.intangible or 0))
+print("  Enemy: vulnerable=" .. (enemy1.status.vulnerable or 0) .. " weak=" .. (enemy1.status.weak or 0) .. " frail=" .. (enemy1.status.frail or 0) .. " intangible=" .. (enemy1.status.intangible or 0))
 
 -- Execute EndRound
 EndRound.execute(world1, player1, world1.enemies)
 
 print("After EndRound:")
-print("  Player: vulnerable=" .. player1.status.vulnerable .. " weak=" .. player1.status.weak .. " frail=" .. player1.status.frail .. " blur=" .. player1.status.blur .. " intangible=" .. player1.status.intangible)
-print("  Enemy: vulnerable=" .. enemy1.status.vulnerable .. " weak=" .. enemy1.status.weak .. " frail=" .. enemy1.status.frail .. " intangible=" .. enemy1.status.intangible)
+print("  Player: vulnerable=" .. (player1.status.vulnerable or 0) .. " weak=" .. (player1.status.weak or 0) .. " frail=" .. (player1.status.frail or 0) .. " blur=" .. (player1.status.blur or 0) .. " intangible=" .. (player1.status.intangible or 0))
+print("  Enemy: vulnerable=" .. (enemy1.status.vulnerable or 0) .. " weak=" .. (enemy1.status.weak or 0) .. " frail=" .. (enemy1.status.frail or 0) .. " intangible=" .. (enemy1.status.intangible or 0))
 
 -- Verify status effects decreased by 1 (or 0 for blur)
-assert(player1.status.vulnerable == 2, "Player vulnerable should decrease by 1")
-assert(player1.status.weak == 1, "Player weak should decrease by 1")
-assert(player1.status.frail == 0, "Player frail should decrease by 1")
-assert(player1.status.blur == 0, "Player blur should wear off")
-assert(player1.status.intangible == 1, "Player intangible should decrease by 1")
+assert((player1.status.vulnerable or 0) == 2, "Player vulnerable should decrease by 1")
+assert((player1.status.weak or 0) == 1, "Player weak should decrease by 1")
+assert((player1.status.frail or 0) == 0, "Player frail should decrease by 1")
+assert((player1.status.blur or 0) == 0, "Player blur should wear off")
+assert((player1.status.intangible or 0) == 1, "Player intangible should decrease by 1")
 
-assert(enemy1.status.vulnerable == 2, "Enemy vulnerable should decrease by 1")
-assert(enemy1.status.weak == 1, "Enemy weak should decrease by 1")
-assert(enemy1.status.frail == 0, "Enemy frail should decrease by 1")
-assert(enemy1.status.intangible == 1, "Enemy intangible should decrease by 1")
+assert((enemy1.status.vulnerable or 0) == 2, "Enemy vulnerable should decrease by 1")
+assert((enemy1.status.weak or 0) == 1, "Enemy weak should decrease by 1")
+assert((enemy1.status.frail or 0) == 0, "Enemy frail should decrease by 1")
+assert((enemy1.status.intangible or 0) == 1, "Enemy intangible should decrease by 1")
 
 print("✓ Test 1 passed: EndRound correctly ticks down status effects\n")
 
@@ -125,6 +125,9 @@ world2.enemies = {
     copyEnemy(Enemies.Goblin)
 }
 
+-- Enable NoShuffle so Vault (first card) is guaranteed to be in initial draw
+world2.NoShuffle = true
+
 StartCombat.execute(world2)
 
 local player2 = world2.player
@@ -146,8 +149,8 @@ for _, card in ipairs(player2.combatDeck) do
 end
 
 print("Before Vault:")
-print("  Player: vulnerable=" .. player2.status.vulnerable .. " weak=" .. player2.status.weak)
-print("  Enemy: vulnerable=" .. enemy2.status.vulnerable .. " weak=" .. enemy2.status.weak .. " block=" .. enemy2.block)
+print("  Player: vulnerable=" .. (player2.status.vulnerable or 0) .. " weak=" .. (player2.status.weak or 0))
+print("  Enemy: vulnerable=" .. (enemy2.status.vulnerable or 0) .. " weak=" .. (enemy2.status.weak or 0) .. " block=" .. enemy2.block)
 print("  Hand size: " .. initialHandSize)
 
 -- Play Vault
@@ -166,8 +169,8 @@ EndTurn.execute(world2, player2)
 StartTurn.execute(world2, player2)
 
 print("After Vault:")
-print("  Player: vulnerable=" .. player2.status.vulnerable .. " weak=" .. player2.status.weak)
-print("  Enemy: vulnerable=" .. enemy2.status.vulnerable .. " weak=" .. enemy2.status.weak .. " block=" .. enemy2.block)
+print("  Player: vulnerable=" .. (player2.status.vulnerable or 0) .. " weak=" .. (player2.status.weak or 0))
+print("  Enemy: vulnerable=" .. (enemy2.status.vulnerable or 0) .. " weak=" .. (enemy2.status.weak or 0) .. " block=" .. enemy2.block)
 
 -- Get new hand size
 local newHandSize = 0
@@ -179,10 +182,10 @@ end
 print("  Hand size: " .. newHandSize)
 
 -- Verify status effects did NOT decrease (EndRound was skipped)
-assert(player2.status.vulnerable == 3, "Player vulnerable should NOT decrease (EndRound skipped)")
-assert(player2.status.weak == 2, "Player weak should NOT decrease (EndRound skipped)")
-assert(enemy2.status.vulnerable == 3, "Enemy vulnerable should NOT decrease (EndRound skipped)")
-assert(enemy2.status.weak == 2, "Enemy weak should NOT decrease (EndRound skipped)")
+assert((player2.status.vulnerable or 0) == 3, "Player vulnerable should NOT decrease (EndRound skipped)")
+assert((player2.status.weak or 0) == 2, "Player weak should NOT decrease (EndRound skipped)")
+assert((enemy2.status.vulnerable or 0) == 3, "Enemy vulnerable should NOT decrease (EndRound skipped)")
+assert((enemy2.status.weak or 0) == 2, "Enemy weak should NOT decrease (EndRound skipped)")
 
 -- Verify enemy block did NOT reset (enemy turn skipped)
 assert(enemy2.block == 5, "Enemy block should NOT reset (enemy turn skipped)")
@@ -230,8 +233,8 @@ enemy3.status.weak = 2
 enemy3.block = 5
 
 print("Before normal turn end:")
-print("  Player: vulnerable=" .. player3.status.vulnerable .. " weak=" .. player3.status.weak)
-print("  Enemy: vulnerable=" .. enemy3.status.vulnerable .. " weak=" .. enemy3.status.weak .. " block=" .. enemy3.block)
+print("  Player: vulnerable=" .. (player3.status.vulnerable or 0) .. " weak=" .. (player3.status.weak or 0))
+print("  Enemy: vulnerable=" .. (enemy3.status.vulnerable or 0) .. " weak=" .. (enemy3.status.weak or 0) .. " block=" .. enemy3.block)
 
 -- Simulate normal turn end
 EndTurn.execute(world3, player3)
@@ -240,14 +243,14 @@ EndRound.execute(world3, player3, world3.enemies)
 StartTurn.execute(world3, player3)
 
 print("After normal turn end:")
-print("  Player: vulnerable=" .. player3.status.vulnerable .. " weak=" .. player3.status.weak)
-print("  Enemy: vulnerable=" .. enemy3.status.vulnerable .. " weak=" .. enemy3.status.weak .. " block=" .. enemy3.block)
+print("  Player: vulnerable=" .. (player3.status.vulnerable or 0) .. " weak=" .. (player3.status.weak or 0))
+print("  Enemy: vulnerable=" .. (enemy3.status.vulnerable or 0) .. " weak=" .. (enemy3.status.weak or 0) .. " block=" .. enemy3.block)
 
 -- Verify status effects DID decrease (EndRound was called)
-assert(player3.status.vulnerable == 2, "Player vulnerable should decrease by 1")
-assert(player3.status.weak == 1, "Player weak should decrease by 1")
-assert(enemy3.status.vulnerable == 2, "Enemy vulnerable should decrease by 1")
-assert(enemy3.status.weak == 1, "Enemy weak should decrease by 1")
+assert((player3.status.vulnerable or 0) == 2, "Player vulnerable should decrease by 1")
+assert((player3.status.weak or 0) == 1, "Player weak should decrease by 1")
+assert((enemy3.status.vulnerable or 0) == 2, "Enemy vulnerable should decrease by 1")
+assert((enemy3.status.weak or 0) == 1, "Enemy weak should decrease by 1")
 
 -- Verify enemy block DID reset (enemy turn executed)
 assert(enemy3.block == 0, "Enemy block should reset to 0")
