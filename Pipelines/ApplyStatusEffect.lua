@@ -9,12 +9,51 @@
 -- - tags: (optional) array of tags like "aoe"
 --
 -- Handles:
+-- - Artifact blocking (debuffs and negative stat changes)
 -- - Applying status effects to character(s)
 -- - AOE status application when target = "all"
 -- - Status-specific rules (caps, interactions, etc.)
 -- - Combat logging
+--
+-- Uses data-driven approach from statuseffects.lua
+-- Special behaviors are curated in SpecialBehaviors list
+--
+-- ARCHITECTURAL NOTE: This pattern separates special logic from default behavior.
+-- SpecialBehaviors list contains effects needing custom handling (e.g., "Strength Down").
+-- All other effects route through statuseffects.lua lookup with generic application.
+-- If order-sensitive interactions emerge, move them to SpecialBehaviors (curated list).
 
 local ApplyStatusEffect = {}
+
+local StatusEffects = require("Data.statuseffects")
+
+-- Curated list of special behaviors requiring explicit logic
+local SpecialBehaviors = {"Strength Down", "Dexterity Down", "Focus Down"}
+
+-- Check if effect is blocked by Artifact
+local function isBlockedByArtifact(target, effectType, amount)
+    if not target.status or not target.status.artifact or target.status.artifact <= 0 then
+        return false
+    end
+
+    -- Block debuffs
+    local statusDef = StatusEffects[effectType:lower():gsub(" ", "_")]
+    if statusDef and statusDef.debuff then
+        return true
+    end
+
+    -- Block negative stat changes
+    if effectType == "Strength Down" or effectType == "Dexterity Down" or effectType == "Focus Down" then
+        return true
+    end
+
+    -- Also block if it's a stat decrease (negative amount to positive stat)
+    if (effectType == "Strength" or effectType == "Dexterity" or effectType == "Focus") and amount < 0 then
+        return true
+    end
+
+    return false
+end
 
 function ApplyStatusEffect.execute(world, event)
     local target = event.target
@@ -55,6 +94,13 @@ function ApplyStatusEffect.executeSingle(world, target, effectType, amount, sour
 
     local displayName = target.name or target.id or "Target"
 
+    -- Check Artifact blocking
+    if isBlockedByArtifact(target, effectType, amount) then
+        target.status.artifact = target.status.artifact - 1
+        table.insert(world.log, displayName .. "'s Artifact blocked " .. effectType)
+        return
+    end
+
     local function addStatus(key, delta)
         target.status[key] = (target.status[key] or 0) + delta
         return target.status[key]
@@ -68,116 +114,48 @@ function ApplyStatusEffect.executeSingle(world, target, effectType, amount, sour
         return target.status[key]
     end
 
-    if effectType == "Poison" then
-        local total = addStatus("poison", amount)
-        table.insert(world.log, displayName .. " gained " .. amount .. " poison (" .. total .. ")")
+    -- SPECIAL BEHAVIORS (curated list)
 
-    elseif effectType == "Vulnerable" then
-        local total = addStatus("vulnerable", amount)
-        table.insert(world.log, displayName .. " gained " .. amount .. " vulnerable (" .. total .. ")")
-
-    elseif effectType == "Weak" then
-        local total = addStatus("weak", amount)
-        table.insert(world.log, displayName .. " gained " .. amount .. " weak (" .. total .. ")")
-
-    elseif effectType == "Frail" then
-        local total = addStatus("frail", amount)
-        table.insert(world.log, displayName .. " gained " .. amount .. " frail (" .. total .. ")")
-
-    elseif effectType == "Strength" then
-        local total = addStatus("strength", amount)
-        table.insert(world.log, displayName .. " strength changed by " .. amount .. " (" .. total .. ")")
-
-    elseif effectType == "Strength Down" then
+    if effectType == "Strength Down" then
         local total = addStatus("strength", -amount)
         table.insert(world.log, displayName .. " lost " .. amount .. " strength (" .. total .. ")")
-
-    elseif effectType == "Dexterity" then
-        local total = addStatus("dexterity", amount)
-        table.insert(world.log, displayName .. " dexterity changed by " .. amount .. " (" .. total .. ")")
 
     elseif effectType == "Dexterity Down" then
         local total = addStatus("dexterity", -amount)
         table.insert(world.log, displayName .. " lost " .. amount .. " dexterity (" .. total .. ")")
 
-    elseif effectType == "Focus" then
-        local total = addStatus("focus", amount)
-        table.insert(world.log, displayName .. " focus changed by " .. amount .. " (" .. total .. ")")
-
     elseif effectType == "Focus Down" then
         local total = addStatus("focus", -amount)
         table.insert(world.log, displayName .. " lost " .. amount .. " focus (" .. total .. ")")
 
-    elseif effectType == "Thorns" then
-        local total = addStatus("thorns", amount)
-        table.insert(world.log, displayName .. " gained " .. amount .. " thorns (" .. total .. ")")
-
-    elseif effectType == "Confused" then
-        local total = setMaxStatus("confused", amount)
-        table.insert(world.log, displayName .. " became Confused (" .. total .. ")")
-
-    elseif effectType == "No Draw" then
-        local total = setMaxStatus("no_draw", amount)
-        table.insert(world.log, displayName .. " cannot draw cards (" .. total .. ")")
-
-    elseif effectType == "Block Return" then
-        local total = addStatus("block_return", amount)
-        table.insert(world.log, displayName .. " was afflicted with Block Return (" .. total .. ")")
-
-    elseif effectType == "Shackled" then
-        local total = addStatus("shackled", amount)
-        table.insert(world.log, displayName .. " became Shackled (" .. total .. ")")
-
-    elseif effectType == "Slow" then
-        local total = addStatus("slow", amount)
-        table.insert(world.log, displayName .. "'s Slow increased to " .. total)
-
-    elseif effectType == "Draw Reduction" then
-        local total = addStatus("draw_reduction", amount)
-        table.insert(world.log, displayName .. "'s draws reduced (" .. total .. ")")
-
-    elseif effectType == "No Block" then
-        local total = setMaxStatus("no_block", amount)
-        table.insert(world.log, displayName .. " cannot gain block (" .. total .. ")")
-
-    elseif effectType == "Constricted" then
-        local total = addStatus("constricted", amount)
-        table.insert(world.log, displayName .. " is constricted (" .. total .. ")")
-
-    elseif effectType == "Corpse Explosion" then
-        local total = setMaxStatus("corpse_explosion", amount)
-        table.insert(world.log, displayName .. " is primed to explode (" .. total .. ")")
-
-    elseif effectType == "Choked" then
-        local total = setMaxStatus("choked", amount)
-        table.insert(world.log, displayName .. " is Choked (" .. total .. ")")
-
-    elseif effectType == "Bias" then
-        local total = addStatus("bias", amount)
-        table.insert(world.log, displayName .. " is affected by Bias (" .. total .. ")")
-
-    elseif effectType == "Hex" then
-        local total = setMaxStatus("hex", amount)
-        table.insert(world.log, displayName .. " is Hexed (" .. total .. ")")
-
-    elseif effectType == "Lock-On" then
-        local total = addStatus("lock_on", amount)
-        table.insert(world.log, displayName .. " is targeted by Lock-On (" .. total .. ")")
-
-    elseif effectType == "Mark" then
-        local total = addStatus("mark", amount)
-        table.insert(world.log, displayName .. " gained " .. amount .. " Mark (" .. total .. ")")
-
-    elseif effectType == "Fasting" then
-        local total = addStatus("fasting", amount)
-        table.insert(world.log, displayName .. " is weakened by Fasting (" .. total .. ")")
-
-    elseif effectType == "Wraith Form" then
-        local total = addStatus("wraith_form", amount)
-        table.insert(world.log, displayName .. " is in Wraith Form (" .. total .. ")")
-
     else
-        table.insert(world.log, "Unknown status effect: " .. tostring(effectType))
+        -- DEFAULT ROUTE: Look up in statuseffects.lua
+        local statusKey = effectType:lower():gsub(" ", "_")
+        local statusDef = StatusEffects[statusKey]
+
+        if statusDef then
+            -- Determine application mode from definition or infer from old behavior
+            local applicationMode = statusDef.applicationMode or "add"
+
+            -- Infer from known max-based statuses if not specified
+            if not statusDef.applicationMode then
+                if statusKey == "confused" or statusKey == "no_draw" or statusKey == "no_block" or
+                   statusKey == "corpse_explosion" or statusKey == "choked" or statusKey == "hex" then
+                    applicationMode = "max"
+                end
+            end
+
+            local total
+            if applicationMode == "max" then
+                total = setMaxStatus(statusKey, amount)
+            else
+                total = addStatus(statusKey, amount)
+            end
+
+            table.insert(world.log, displayName .. " gained " .. amount .. " " .. statusDef.name .. " (" .. total .. ")")
+        else
+            table.insert(world.log, "Unknown status effect: " .. tostring(effectType))
+        end
     end
 end
 
