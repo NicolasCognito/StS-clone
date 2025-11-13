@@ -44,7 +44,7 @@ The torture comes from:
 Each game action gets **one explicit pipeline function**. All logic for that verb lives in one place.
 
 ```
-DealDamage(attacker, defender, baseDamage, card)
+DealAttackDamage(attacker, defender, baseDamage, card)
 ApplyStatusEffect(target, effectType, amount, card) 
 //note: separate status effects application could deserve to be put in different verbs, based on your design
 PickItem(player, item)
@@ -58,7 +58,7 @@ CastSpell(caster, spell, target)
 No polymorphism. No strategy patterns. Just **if-statements checking flags and IDs**.
 
 ```javascript
-DealDamage(attacker, defender, card) {
+DealAttackDamage(attacker, defender, card) {
     damage = card.baseDamage
     
     // Hardcode Strength directly
@@ -383,7 +383,7 @@ The cost of duplication is near-zero. The benefit of **isolation and clarity** i
 **For advanced mods**:
 - The central pipeline is **ONE file to read and understand**
 - vs. traditional architecture where logic is scattered across 50 class files
-- Much easier to see: "I need to add my mechanic here in DealDamage() between Vulnerable and Intangible"
+- Much easier to see: "I need to add my mechanic here in DealAttackDamage() between Vulnerable and Intangible"
 
 **The "proper" OOP approach claims extensibility but**:
 - Requires understanding complex inheritance hierarchies
@@ -523,7 +523,7 @@ At the top of each pipeline, list special behaviors:
 
 ```javascript
 /**
- * DealDamage Pipeline
+ * DealAttackDamage Pipeline
  * 
  * Special card behaviors:
  * - Heavy Blade: Strength multiplied 3x
@@ -536,7 +536,7 @@ At the top of each pipeline, list special behaviors:
  * - Intangible (defender)
  * - Block (defender)
  */
-function DealDamage(attacker, defender, card) {
+function DealAttackDamage(attacker, defender, card) {
     let damage = card.baseDamage
     damage += attacker.strength * (card.strengthMultiplier ?? 1)
 

@@ -23,9 +23,9 @@ return {
 
         onPlay = function(self, world, player)
             -- Deal damage to ALL enemies
-            -- DealDamage pipeline handles the "all" keyword
+            -- DealAttackDamage pipeline handles the "all" keyword
             world.queue:push({
-                type = "ON_DAMAGE",
+                type = "ON_ATTACK_DAMAGE",
                 attacker = player,
                 defender = "all",  -- Hits all enemies
                 card = self

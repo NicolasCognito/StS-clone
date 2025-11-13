@@ -5,6 +5,6 @@ return {
         rarity = "UNCOMMON",
         description = "Whenever you would lose HP, lose 1 less.",
         damageReduction = 1  -- Reduce all incoming damage by this amount
-        -- Passive relic - effect is hardcoded in DealDamage and DealNonAttackDamage pipelines
+        -- Passive relic - effect is hardcoded in DealAttackDamage and DealNonAttackDamage pipelines
     }
 }

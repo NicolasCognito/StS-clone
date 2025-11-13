@@ -1,5 +1,5 @@
 High pririty:
--DEATH: Make death pipeline, FIFO from both DealDamage if less than 0, remove Death handling from CombatEngine. Consider if we want to remove killed enemies from Combat.
+-DEATH: Make death pipeline, FIFO from both DealAttackDamage if less than 0, remove Death handling from CombatEngine. Consider if we want to remove killed enemies from Combat.
 -MISSING CONTEXT (stableContext): DONE - Validation system implemented with ContextValidators
 -POTIONS: Very similar to cards, but potions! Don't have masterDeck/combatDeck separation, taken directly from persistent masterPotion table in the world, added there as well.
 -ENEMIES: Ensure each enemy defined in lua script with logic - they should have possible intents as functions, as well as selector function to choose one,

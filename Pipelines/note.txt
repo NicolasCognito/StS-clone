@@ -19,7 +19,7 @@ Instead:
 
 EXPECT:
 -------
-- DealDamage to grow from 10 lines to 50+ as we add interactions
+- DealAttackDamage to grow from 10 lines to 50+ as we add interactions
 - ApplyBlock to gain special cases as we add relics
 - PlayCard to be radically modified as card mechanics evolve
 - Status effects to be hardcoded directly into their handler functions

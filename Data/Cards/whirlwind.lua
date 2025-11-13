@@ -13,7 +13,7 @@ return {
             -- Deal damage X times (where X = energySpent)
             for i = 1, self.energySpent do
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = player,
                     defender = "all",  -- AOE wrapper
                     card = self

@@ -18,7 +18,7 @@ return {
         onPlay = function(self, world, player, context)
             -- Deal damage to all enemies
             world.queue:push({
-                type = "ON_DAMAGE",
+                type = "ON_ATTACK_DAMAGE",
                 attacker = player,
                 defender = "all",  -- AOE damage
                 card = self

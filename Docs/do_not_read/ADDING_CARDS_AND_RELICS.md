@@ -64,7 +64,7 @@ Cards should **declare intent** by pushing events. Don't implement damage/block 
 onPlay = function(self, world, player, target)
     -- Deal damage
     world.queue:push({
-        type = "ON_DAMAGE",
+        type = "ON_ATTACK_DAMAGE",
         attacker = player,
         defender = target,
         card = self
@@ -92,7 +92,7 @@ end
 
 | Event Type | Purpose | Required Fields |
 |------------|---------|----------------|
-| `ON_DAMAGE` | Attack damage (affected by Strength/Vulnerable) | `attacker`, `defender`, `card` |
+| `ON_ATTACK_DAMAGE` | Attack damage (affected by Strength/Vulnerable) | `attacker`, `defender`, `card` |
 | `ON_NON_ATTACK_DAMAGE` | Non-attack damage (NOT affected by Strength/Vulnerable) | `source`, `target`, `amount`, optional `tags` |
 | `ON_BLOCK` | Gain block | `target`, `card` |
 | `ON_HEAL` | Heal HP | `target`, `amount` or `relic` |
@@ -195,11 +195,11 @@ PaperPhrog = {
     rarity = "UNCOMMON",
     description = "Enemies with Vulnerable take 75% more damage rather than 50%.",
     -- No delta functions needed!
-    -- Effect is hardcoded in DealDamage pipeline
+    -- Effect is hardcoded in DealAttackDamage pipeline
 }
 ```
 
-Then add hardcoded check in the relevant pipeline (e.g., `Pipelines/DealDamage.lua`):
+Then add hardcoded check in the relevant pipeline (e.g., `Pipelines/DealAttackDamage.lua`):
 
 ```lua
 -- Check if attacker has Paper Phrog relic
@@ -252,7 +252,7 @@ RedSkull = {
 }
 ```
 
-Add check in `DealDamage.lua`:
+Add check in `DealAttackDamage.lua`:
 
 ```lua
 -- Calculate effective strength (base + conditional bonuses)
@@ -326,7 +326,7 @@ Strike = {
 
     onPlay = function(self, world, player, target)
         world.queue:push({
-            type = "ON_DAMAGE",
+            type = "ON_ATTACK_DAMAGE",
             attacker = player,
             defender = target,
             card = self
@@ -349,7 +349,7 @@ Bash = {
 
     onPlay = function(self, world, player, target)
         world.queue:push({
-            type = "ON_DAMAGE",
+            type = "ON_ATTACK_DAMAGE",
             attacker = player,
             defender = target,
             card = self
@@ -434,13 +434,13 @@ HeavyBlade = {
     cost = 2,
     type = "ATTACK",
     damage = 14,
-    strengthMultiplier = 3,  -- Special flag checked in DealDamage pipeline
+    strengthMultiplier = 3,  -- Special flag checked in DealAttackDamage pipeline
     Targeted = 1,
     description = "Deal 14 damage. Strength affects this card 3 times.",
 
     onPlay = function(self, world, player, target)
         world.queue:push({
-            type = "ON_DAMAGE",
+            type = "ON_ATTACK_DAMAGE",
             attacker = player,
             defender = target,
             card = self
@@ -533,6 +533,6 @@ RunicPyramid = {
 3. **Hardcode special cases** - Don't abstract, just add if-statements in pipelines
 4. **Use tags for variations** - Use `tags` array for special behaviors like ignoreBlock
 5. **Delta functions for simple effects** - Energy gain, card draw, etc. can be direct
-6. **One place per mechanic** - All Vulnerable logic in DealDamage, all block logic in ApplyBlock
+6. **One place per mechanic** - All Vulnerable logic in DealAttackDamage, all block logic in ApplyBlock
 
 **The architecture is simple by design.** If you find yourself creating abstract base classes or complex inheritance hierarchies, you're doing it wrong. Just add the logic where it belongs and move on.

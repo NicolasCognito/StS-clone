@@ -23,7 +23,7 @@ return {
 
             -- Push events with lazy-evaluated fields
             world.queue:push({
-                type = "ON_DAMAGE",
+                type = "ON_ATTACK_DAMAGE",
                 attacker = player,
                 defender = function() return world.combat.stableContext end,
                 card = self

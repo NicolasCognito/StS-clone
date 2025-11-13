@@ -12,7 +12,7 @@ return {
         intents = {
             tackle = function(self, world, player)
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
@@ -22,7 +22,7 @@ return {
             corrosiveSpit = function(self, world, player)
                 -- Deal damage and apply Weak
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
@@ -82,7 +82,7 @@ return {
             else
                 -- Fallback to simple attack
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
@@ -104,7 +104,7 @@ return {
         intents = {
             tackle = function(self, world, player)
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
@@ -127,7 +127,7 @@ return {
             else
                 -- Fallback to simple attack
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
@@ -149,7 +149,7 @@ return {
         intents = {
             slam = function(self, world, player)
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
@@ -233,7 +233,7 @@ return {
             else
                 -- Fallback to simple attack
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self

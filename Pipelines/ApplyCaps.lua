@@ -9,7 +9,7 @@
 -- - Applies to ALL characters (player and all enemies)
 --
 -- Called directly by ProcessEventQueue after each stat-modifying effect:
--- - After DealDamage
+-- - After DealAttackDamage
 -- - After DealNonAttackDamage
 -- - After ApplyBlock
 -- - After ApplyStatusEffect

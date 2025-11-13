@@ -5,7 +5,7 @@
 The [Centralized Pipeline Architecture Philosophy](./centralized-pipeline-architecture.md) advocates for:
 - **Pure data** for 95% of entities
 - **Hardcoded logic** in centralized pipelines
-- **One place per verb** - DealDamage, ApplyBlock, PlayCard, etc.
+- **One place per verb** - DealAttackDamage, ApplyBlock, PlayCard, etc.
 
 ## Our Implementation: Pragmatic Balance
 
@@ -17,7 +17,7 @@ Instead of pure data:
 ```lua
 -- Pure data (philosophy ideal)
 Strike = { id = "Strike", damage = 6, cost = 1 }
--- PlayCard needs to interpret: "has damage? call DealDamage"
+-- PlayCard needs to interpret: "has damage? call DealAttackDamage"
 ```
 
 We use delta functions:
@@ -30,7 +30,7 @@ Strike = {
 
     onPlay = function(self, world, player, target)
         world.queue:push({
-            type = "ON_DAMAGE",
+            type = "ON_ATTACK_DAMAGE",
             attacker = player,
             defender = target,
             card = self
@@ -51,7 +51,7 @@ Strike = {
    - You can see exactly what each card does in one place
 
 2. **Centralized Pipeline Logic Remains**
-   - DealDamage pipeline is still ONE place for all damage interactions
+   - DealAttackDamage pipeline is still ONE place for all damage interactions
    - ApplyBlock pipeline is still ONE place for all block logic
    - Pipelines handle ALL the complexity: vulnerabilities, weak, strength, block absorption, etc.
    - Cards just "say what they want to do" via events
@@ -66,16 +66,16 @@ Strike = {
    - Cards push events, they don't execute effects
    - All effects are processed through ProcessEventQueue
    - This routes to ONE pipeline per effect type
-   - Interactions happen in ONE place (DealDamage, ApplyBlock, etc.)
+   - Interactions happen in ONE place (DealAttackDamage, ApplyBlock, etc.)
 
 ### The Flow (Still Centralized)
 
 ```
 Card.onPlay()
     ↓ (pushes)
-Queue.push({ type: ON_DAMAGE, ... })
+Queue.push({ type: ON_ATTACK_DAMAGE, ... })
     ↓ (ProcessEventQueue drains)
-DealDamage.execute(event)  ← ONE PLACE for all damage logic
+DealAttackDamage.execute(event)  ← ONE PLACE for all damage logic
     ↓ (hardcoded effects)
 Apply strength multiplier
 Apply block absorption
@@ -102,15 +102,15 @@ They don't contain game logic. They don't calculate damage. They don't apply eff
 When we add Strength status effect:
 
 **Card says**: "I want to deal damage"
-**DealDamage pipeline adds**: Strength multiplier logic
+**DealAttackDamage pipeline adds**: Strength multiplier logic
 
 **Bad approach (Abstract classes)**: Change 50 card classes to pass strength info
-**Our approach**: DealDamage reads `card.strengthMultiplier` - done in one place
+**Our approach**: DealAttackDamage reads `card.strengthMultiplier` - done in one place
 
 When we add Vulnerable:
 
 **Card says**: "I want to deal damage"
-**DealDamage pipeline adds**: Vulnerable multiplier logic
+**DealAttackDamage pipeline adds**: Vulnerable multiplier logic
 
 Same pattern. Card behavior stays dumb. Pipeline stays ONE place.
 
@@ -216,7 +216,7 @@ world.queue:push({ type = "ON_EXHAUST", card = card, source = "Corruption" })
 
 ### 3. Tags Pattern for Variations
 
-Following `DealDamage` with `tags = {"ignoreBlock"}`:
+Following `DealAttackDamage` with `tags = {"ignoreBlock"}`:
 
 ```lua
 -- AcquireCard pipeline with tags
@@ -405,7 +405,7 @@ The architecture has evolved from basic pipelines to a robust system:
 
 1. **Single source of truth** - `player.cards[]` with state, not separate arrays
 2. **One pipeline per mechanic** - GetCost, AcquireCard, ApplyPower, StartTurn, Exhaust
-3. **Tags pattern** - Consistent across pipelines (DealDamage, AcquireCard, Exhaust)
+3. **Tags pattern** - Consistent across pipelines (DealAttackDamage, AcquireCard, Exhaust)
 4. **On-demand properties** - Add when needed, clear globally
 5. **Priority systems** - Pipelines handle precedence (GetCost priority order)
 6. **Preserve reference data** - Temporary overrides, not mutations

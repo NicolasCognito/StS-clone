@@ -51,7 +51,7 @@ function ChangeStance.execute(world, event)
 
     elseif newStance == "Wrath" then
         -- Wrath enter: No immediate effect, but damage dealt/taken is doubled
-        -- (This will be checked in DealDamage pipeline)
+        -- (This will be checked in DealAttackDamage pipeline)
         table.insert(world.log, player.name .. " entered Wrath")
 
     elseif newStance == "Divinity" then

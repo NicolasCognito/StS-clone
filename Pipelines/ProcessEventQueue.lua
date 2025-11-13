@@ -20,7 +20,7 @@
 
 local ProcessEventQueue = {}
 
-local DealDamage = require("Pipelines.DealDamage")
+local DealAttackDamage = require("Pipelines.DealAttackDamage")
 local DealNonAttackDamage = require("Pipelines.DealNonAttackDamage")
 local ApplyBlock = require("Pipelines.ApplyBlock")
 local Heal = require("Pipelines.Heal")
@@ -43,7 +43,7 @@ local QueueOver = require("Pipelines.EventQueueOver")
 -- Curated list of event types requiring special handling
 local SpecialBehaviors = {
     "COLLECT_CONTEXT",
-    "ON_DAMAGE",
+    "ON_ATTACK_DAMAGE",
     "ON_NON_ATTACK_DAMAGE",
     "ON_BLOCK",
     "ON_HEAL",
@@ -123,8 +123,8 @@ function ProcessEventQueue.execute(world)
             end
             -- Context exists - event consumed, continue to next event
 
-        elseif event.type == "ON_DAMAGE" then
-            DealDamage.execute(world, event)
+        elseif event.type == "ON_ATTACK_DAMAGE" then
+            DealAttackDamage.execute(world, event)
             ApplyCaps.execute(world)
 
         elseif event.type == "ON_NON_ATTACK_DAMAGE" then

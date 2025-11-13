@@ -24,7 +24,7 @@ return {
             darkStrike = function(self, world, player)
                 -- Attack with bonus damage from ritual stacks
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
@@ -58,7 +58,7 @@ return {
             else
                 -- Fallback to simple attack
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
