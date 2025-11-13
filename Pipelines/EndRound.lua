@@ -24,7 +24,7 @@ local EndRound = {}
 local StatusEffects = require("Data.statuseffects")
 
 -- Curated list of special behaviors requiring explicit logic
-local SpecialBehaviors = {"BLOCK"}
+local SpecialBehaviors = {"BLOCK", "INTANGIBLE"}
 
 local function processRoundEndForCombatant(world, combatant, displayName)
     -- SPECIAL BEHAVIORS (curated list)
