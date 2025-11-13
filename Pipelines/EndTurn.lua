@@ -66,10 +66,41 @@ function EndTurn.execute(world, player)
     -- Handle Retain mechanics and discard hand
     local hasEstablishment = Utils.hasPower(player, "Establishment")
 
+    -- Well-Laid Plans: Let player choose cards to retain
+    if player.status and player.status.well_laid_plans and player.status.well_laid_plans > 0 then
+        local retainCount = player.status.well_laid_plans
+
+        world.queue:push({
+            type = "COLLECT_CONTEXT",
+            contextProvider = {
+                type = "cards",
+                stability = "temp",
+                source = "combat",
+                count = {min = 0, max = retainCount},
+                filter = function(_, _, _, card)
+                    return card.state == "HAND" and not card.ethereal and not card.retain
+                end
+            }
+        }, "FIRST")
+
+        world.queue:push({
+            type = "ON_CUSTOM_EFFECT",
+            effect = function()
+                local selectedCards = world.combat.tempContext or {}
+                for _, card in ipairs(selectedCards) do
+                    card.retainThisTurn = true
+                    table.insert(world.log, card.name .. " will be retained (Well-Laid Plans)")
+                end
+            end
+        })
+
+        ProcessEventQueue.execute(world)
+    end
+
     for _, card in ipairs(player.combatDeck) do
         if card.state == "HAND" then
-            -- Check if card has Retain keyword
-            if card.retain then
+            -- Check if card has Retain keyword (permanent or temporary)
+            if card.retain or card.retainThisTurn then
                 -- Don't discard, but trigger retain effects
                 card.timesRetained = (card.timesRetained or 0) + 1
 
