@@ -19,9 +19,8 @@ function StartCombat.execute(world)
     world.cardQueue = CardQueue.new()
     world.log = {}
 
-    -- Ensure combat-only status/power tables exist
+    -- Ensure combat-only status table exists
     world.player.status = world.player.status or {}
-    world.player.powers = world.player.powers or {}
     local permanentStrength = world.player.permanentStrength or 0
     if permanentStrength ~= 0 then
         world.player.status.strength = (world.player.status.strength or 0) + permanentStrength
@@ -66,6 +65,36 @@ function StartCombat.execute(world)
             table.insert(world.log, world.player.name .. " is Confused!")
         end
     end
+
+    -- Orb-related relic effects at combat start
+    if Utils.hasRelic(world.player, "CrackedCore") then
+        world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
+    end
+
+    if Utils.hasRelic(world.player, "NuclearBattery") then
+        world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Plasma"})
+    end
+
+    if Utils.hasRelic(world.player, "SymbioticVirus") then
+        world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Dark"})
+    end
+
+    if Utils.hasRelic(world.player, "DataDisk") then
+        world.queue:push({
+            type = "ON_STATUS_GAIN",
+            target = world.player,
+            status = "focus",
+            amount = 1
+        })
+    end
+
+    if Utils.hasRelic(world.player, "RunicCapacitor") then
+        world.player.maxOrbs = world.player.maxOrbs + 3
+        table.insert(world.log, world.player.name .. " starts with 3 additional orb slots")
+    end
+
+    -- Initialize HP tracking for Emotion Chip
+    world.combat.hpAtTurnStart = world.player.hp
 
     StartTurn.execute(world, world.player)
 end

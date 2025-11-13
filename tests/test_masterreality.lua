@@ -24,13 +24,8 @@ local world = World.createWorld({
 world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 StartCombat.execute(world)
 
--- Apply Master Reality power
-world.player.powers = world.player.powers or {}
-table.insert(world.player.powers, {
-    id = "MasterReality",
-    name = "Master Reality",
-    stacks = 1
-})
+-- Apply Master Reality status effect
+world.player.status.master_reality = 1
 
 -- Acquire a Strike (should be auto-upgraded)
 local acquiredCard = AcquireCard.execute(world, world.player, Cards.Strike, nil, "combat")
@@ -65,13 +60,8 @@ world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 
 StartCombat.execute(world)
 
--- Apply Master Reality power
-world.player.powers = world.player.powers or {}
-table.insert(world.player.powers, {
-    id = "MasterReality",
-    name = "Master Reality",
-    stacks = 1
-})
+-- Apply Master Reality status effect
+world.player.status.master_reality = 1
 
 -- Play Nightmare on Strike
 world.combat.stableContext = strike
@@ -109,13 +99,8 @@ world = World.createWorld({
 world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 StartCombat.execute(world)
 
--- Apply Master Reality power
-world.player.powers = world.player.powers or {}
-table.insert(world.player.powers, {
-    id = "MasterReality",
-    name = "Master Reality",
-    stacks = 1
-})
+-- Apply Master Reality status effect
+world.player.status.master_reality = 1
 
 -- Acquire an already-upgraded Strike
 local upgradedStrike = Utils.deepCopyCard(Cards.Strike)
@@ -142,13 +127,8 @@ world = World.createWorld({
 world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 StartCombat.execute(world)
 
--- Apply Master Reality power
-world.player.powers = world.player.powers or {}
-table.insert(world.player.powers, {
-    id = "MasterReality",
-    name = "Master Reality",
-    stacks = 1
-})
+-- Apply Master Reality status effect
+world.player.status.master_reality = 1
 
 -- Create a card without onUpgrade function
 local noUpgradeCard = {

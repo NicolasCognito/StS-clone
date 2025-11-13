@@ -12,7 +12,6 @@ function EndCombat.execute(world, victory)
 
     world.player.block = 0
     world.player.status = nil
-    world.player.powers = nil
 
     world.enemies = nil
 

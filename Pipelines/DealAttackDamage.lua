@@ -166,6 +166,15 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
     -- Track HP loss for Blood for Blood (only if player lost HP)
     if defender == world.player and damage > 0 then
         world.combat.timesHpLost = world.combat.timesHpLost + 1
+
+        -- Static Discharge: Channel Lightning when player takes attack damage
+        if world.player.status and world.player.status.static_discharge and world.player.status.static_discharge > 0 then
+            local channelCount = world.player.status.static_discharge
+            for i = 1, channelCount do
+                world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
+            end
+            table.insert(world.log, "Static Discharge triggered! Channeling " .. channelCount .. " Lightning")
+        end
     end
 
     -- Log
