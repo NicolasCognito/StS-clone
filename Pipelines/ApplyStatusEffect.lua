@@ -17,6 +17,11 @@
 --
 -- Uses data-driven approach from statuseffects.lua
 -- Special behaviors are curated in SpecialBehaviors list
+--
+-- ARCHITECTURAL NOTE: This pattern separates special logic from default behavior.
+-- SpecialBehaviors list contains effects needing custom handling (e.g., "Strength Down").
+-- All other effects route through statuseffects.lua lookup with generic application.
+-- If order-sensitive interactions emerge, move them to SpecialBehaviors (curated list).
 
 local ApplyStatusEffect = {}
 

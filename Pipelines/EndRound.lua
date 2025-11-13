@@ -11,6 +11,13 @@
 --
 -- Uses data-driven approach from statuseffects.lua (goesDownOnRoundEnd, roundEndMode)
 -- Special behaviors are curated in SpecialBehaviors list
+--
+-- ARCHITECTURAL NOTE: This pattern trades ordering control for maintainability.
+-- Using pairs() to iterate StatusEffects means execution order is non-deterministic.
+-- We could restore ordering by:
+--   1. Maintaining an explicit ordered list of status keys to process
+--   2. Moving order-sensitive cases to SpecialBehaviors (above/below default route)
+-- In this specific case, status tick-down order doesn't affect game state, so no issue.
 
 local EndRound = {}
 

@@ -9,6 +9,14 @@
 -- Uses curated list for complex routing (context collection, ApplyCaps calls)
 -- Uses default route table for simple pipeline dispatching
 -- Simple linear processing (no recursion)
+--
+-- ARCHITECTURAL NOTE: This pattern separates complex routing from simple dispatch.
+-- SpecialBehaviors (if-else chain) handles events needing extra logic (ApplyCaps, etc).
+-- DefaultRoutes (table lookup) handles straightforward event->pipeline mapping.
+-- Execution order within each category:
+--   - SpecialBehaviors: controlled by if-else chain order (deterministic)
+--   - DefaultRoutes: order doesn't matter (single event processed at a time)
+-- If event ordering becomes critical, move to SpecialBehaviors or introduce priority queue.
 
 local ProcessEventQueue = {}
 
