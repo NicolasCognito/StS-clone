@@ -32,11 +32,6 @@ local DuplicationHelpers = require("Pipelines.PlayCard_DuplicationHelpers")
 local ClearContext = require("Pipelines.ClearContext")
 local ContextProvider = require("Pipelines.ContextProvider")
 
-local function ensureCombatContext(world)
-    world.combat = world.combat or {}
-    return world.combat
-end
-
 local function enterProcessingState(card)
     if card.state ~= "PROCESSING" then
         if card._previousState == nil then
@@ -129,7 +124,7 @@ local function prepareCardPlay(world, player, card, options)
 
     card.energyPaid = true
     card._previousLastPlayedCard = world.lastPlayedCard  -- Save for restoration if card is canceled
-    ensureCombatContext(world).deferStableContextClear = true
+    world.combat.deferStableContextClear = true
     enterProcessingState(card)
     return true
 end
@@ -142,7 +137,7 @@ local function finalizeCardPlay(world, card)
     card._runActive = nil
     card._pendingEntries = nil
     card._previousState = nil
-    ensureCombatContext(world).deferStableContextClear = false
+    world.combat.deferStableContextClear = false
     ClearContext.execute(world)
 end
 

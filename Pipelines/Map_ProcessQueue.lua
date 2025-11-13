@@ -2,6 +2,7 @@
 -- Drains the overworld/map queue so MapEvents and other traversal systems can
 -- enqueue verbs in a data-driven way, mirroring the combat ProcessEventQueue.
 
+local World = require("World")
 local Map_MapQueue = require("Pipelines.Map_MapQueue")
 local Map_ChooseNextNode = require("Pipelines.Map_ChooseNextNode")
 local Map_AcquireRelic = require("Pipelines.Map_AcquireRelic")
@@ -16,18 +17,6 @@ local Map_UpgradeCard = require("Pipelines.Map_UpgradeCard")
 local Map_StartCombat = require("Pipelines.Map_StartCombat")
 
 local Map_ProcessQueue = {}
-
-local function ensureMapEventState(world)
-    if not world.mapEvent then
-        world.mapEvent = {
-            stableContext = nil,
-            tempContext = nil,
-            contextRequest = nil,
-            deferStableContextClear = false
-        }
-    end
-    return world.mapEvent
-end
 
 local handlers = {
     MAP_CHOOSE_NODE = function(world, event)
@@ -81,15 +70,18 @@ local handlers = {
     end,
 
     MAP_COLLECT_CONTEXT = function(world, event)
-        local mapEvent = ensureMapEventState(world)
+        if not world.mapEvent then
+            world.mapEvent = World.initMapEventState()
+        end
+
         local contextProvider = event.contextProvider
         local stability = event.stability or (contextProvider and contextProvider.stability) or "temp"
-        local contextExists = (stability == "stable" and mapEvent.stableContext ~= nil) or
-                              (stability == "temp" and mapEvent.tempContext ~= nil)
+        local contextExists = (stability == "stable" and world.mapEvent.stableContext ~= nil) or
+                              (stability == "temp" and world.mapEvent.tempContext ~= nil)
 
         if not contextExists then
             Map_MapQueue.push(world, event, "FIRST")
-            mapEvent.contextRequest = {
+            world.mapEvent.contextRequest = {
                 contextProvider = contextProvider,
                 stability = stability
             }
@@ -98,13 +90,16 @@ local handlers = {
     end,
 
     MAP_REQUEST_SELECTION = function(world, event)
-        local mapEvent = ensureMapEventState(world)
-        if mapEvent.contextRequest then
+        if not world.mapEvent then
+            world.mapEvent = World.initMapEventState()
+        end
+
+        if world.mapEvent.contextRequest then
             Map_MapQueue.push(world, event, "FIRST")
             return {needsContext = true}
         end
 
-        mapEvent.contextRequest = {
+        world.mapEvent.contextRequest = {
             mode = event.mode or "options",
             options = event.options,
             nodes = event.nodes,
