@@ -14,24 +14,16 @@ return {
         onPlay = function(self, world, player)
             local damagePerFrost = self.upgraded and 3 or 2
             local frostCount = world.combat.frostChanneledThisCombat or 0
-            local totalDamage = damagePerFrost * frostCount
 
-            -- Deal AOE damage (override card's damage)
+            -- Set damage based on Frost count
+            self.damage = damagePerFrost * frostCount
+
+            -- Deal AOE damage
             world.queue:push({
-                type = "ON_CUSTOM_EFFECT",
-                effect = function()
-                    local originalDamage = self.damage
-                    self.damage = totalDamage
-
-                    world.queue:push({
-                        type = "ON_ATTACK_DAMAGE",
-                        attacker = player,
-                        defender = "all",
-                        card = self
-                    })
-
-                    self.damage = originalDamage
-                end
+                type = "ON_ATTACK_DAMAGE",
+                attacker = player,
+                defender = "all",
+                card = self
             })
         end,
 

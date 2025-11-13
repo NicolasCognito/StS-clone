@@ -17,11 +17,12 @@ return {
                 evokes = evokes + 1
             end
 
-            -- Evoke leftmost orb X times
-            for i = 1, evokes do
+            -- Evoke leftmost orb X times (using count parameter)
+            if evokes > 0 then
                 world.queue:push({
                     type = "ON_EVOKE_ORB",
-                    index = 1  -- Always leftmost
+                    index = 1,     -- Leftmost
+                    count = evokes -- Trigger X times before removing
                 })
             end
         end,

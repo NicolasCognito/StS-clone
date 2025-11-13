@@ -17,7 +17,9 @@ return {
         onPlay = function(self, world, player)
             local damagePerOrb = self.upgraded and 6 or 4
             local orbCount = #player.orbs
-            local totalDamage = damagePerOrb * orbCount
+
+            -- Set damage based on orb count
+            self.damage = damagePerOrb * orbCount
 
             -- Request target
             world.queue:push({
@@ -29,22 +31,12 @@ return {
                 }
             }, "FIRST")
 
-            -- Deal damage (override card's damage for this play)
+            -- Deal damage
             world.queue:push({
-                type = "ON_CUSTOM_EFFECT",
-                effect = function()
-                    local originalDamage = self.damage
-                    self.damage = totalDamage
-
-                    world.queue:push({
-                        type = "ON_ATTACK_DAMAGE",
-                        attacker = player,
-                        defender = function() return world.combat.stableContext end,
-                        card = self
-                    })
-
-                    self.damage = originalDamage
-                end
+                type = "ON_ATTACK_DAMAGE",
+                attacker = player,
+                defender = function() return world.combat.stableContext end,
+                card = self
             })
         end,
 

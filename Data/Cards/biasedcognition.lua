@@ -27,7 +27,7 @@ return {
                 type = "ON_STATUS_GAIN",
                 target = player,
                 status = "bias",
-                amount = 999  -- Permanent duration
+                amount = 1  -- Intensity: 1 bias = lose 1 Focus per turn
             })
         end,
 

@@ -3,13 +3,14 @@
 --
 -- Event should have:
 -- - index: Index of orb to evoke (1 = leftmost) OR "all" to evoke all orbs
+-- - count: (optional) Number of times to trigger the evoke effect before removing (default: 1)
 --
 -- Handles:
 -- - Lightning evoke: Deal damage to random enemy (scales with Focus)
 -- - Frost evoke: Gain block (scales with Focus)
 -- - Dark evoke: Deal accumulated damage to lowest HP enemy
 -- - Plasma evoke: Gain energy (does NOT scale with Focus)
--- - Remove orb from player.orbs array
+-- - Remove orb from player.orbs array AFTER triggering count times
 -- - Combat logging
 --
 -- Evoked damage/block is calculated here using current Focus status
@@ -21,8 +22,9 @@ local Utils = require("utils")
 function EvokeOrb.execute(world, event)
     local player = world.player
     local index = event.index
+    local count = event.count or 1  -- Default to 1 evoke
 
-    -- Handle "all" evokes (e.g., Meteor Strike card)
+    -- Handle "all" evokes (count doesn't apply to "all")
     if index == "all" then
         -- Evoke all orbs left to right
         for i = 1, #player.orbs do
@@ -32,13 +34,18 @@ function EvokeOrb.execute(world, event)
         return
     end
 
-    -- Single evoke
+    -- Single orb, potentially multiple triggers
     local orb = player.orbs[index]
     if not orb then
         return  -- No orb to evoke
     end
 
-    EvokeOrb.executeSingle(world, orb)
+    -- Trigger evoke effect 'count' times
+    for i = 1, count do
+        EvokeOrb.executeSingle(world, orb)
+    end
+
+    -- Remove orb AFTER all evoke triggers
     table.remove(player.orbs, index)
 end
 

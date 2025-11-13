@@ -12,9 +12,16 @@ return {
         description = "Evoke your next Orb, then Channel that same Orb.",
 
         onPlay = function(self, world, player)
-            -- Save the orb type before evoking
+            -- Save the orb type AND state before evoking
             if #player.orbs > 0 then
-                local orbType = player.orbs[1].id  -- Leftmost orb
+                local orb = player.orbs[1]  -- Leftmost orb
+                local orbType = orb.id
+
+                -- Save Dark orb accumulated damage
+                local orbState = nil
+                if orbType == "Dark" and orb.accumulatedDamage then
+                    orbState = {accumulatedDamage = orb.accumulatedDamage}
+                end
 
                 -- Evoke it
                 world.queue:push({
@@ -22,10 +29,11 @@ return {
                     index = 1
                 })
 
-                -- Channel the same type again
+                -- Channel the same type again (preserving state for Dark orbs)
                 world.queue:push({
                     type = "ON_CHANNEL_ORB",
-                    orbType = orbType
+                    orbType = orbType,
+                    orbState = orbState
                 })
             end
         end,

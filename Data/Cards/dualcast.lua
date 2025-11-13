@@ -13,12 +13,11 @@ return {
 
         onPlay = function(self, world, player)
             -- Evoke leftmost orb twice
-            for i = 1, 2 do
-                world.queue:push({
-                    type = "ON_EVOKE_ORB",
-                    index = 1  -- Always leftmost
-                })
-            end
+            world.queue:push({
+                type = "ON_EVOKE_ORB",
+                index = 1,  -- Leftmost
+                count = 2   -- Trigger twice before removing
+            })
         end,
 
         onUpgrade = function(self)
