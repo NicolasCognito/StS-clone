@@ -6,24 +6,8 @@
 -- - Enemies' executeIntent functions
 -- - Relics' onEndCombat functions
 --
--- Event types:
--- - COLLECT_CONTEXT: requests context collection (pauses queue processing)
--- - ON_DAMAGE: routes to DealDamage, then ApplyCaps
--- - ON_NON_ATTACK_DAMAGE: routes to DealNonAttackDamage, then ApplyCaps
--- - ON_BLOCK: routes to ApplyBlock, then ApplyCaps
--- - ON_HEAL: routes to Heal, then ApplyCaps
--- - ON_STATUS_GAIN: routes to ApplyStatusEffect, then ApplyCaps
--- - ON_DRAW: routes to DrawCard
--- - ON_DISCARD: routes to Discard
--- - ON_ACQUIRE_CARD: routes to AcquireCard
--- - ON_APPLY_POWER: routes to ApplyPower
--- - ON_EXHAUST: routes to Exhaust
--- - ON_CUSTOM_EFFECT: routes to CustomEffect
--- - AFTER_CARD_PLAYED: routes to AfterCardPlayed
--- - ON_DEATH: routes to Death
--- - ON_SCRY: routes to Scry
---
--- ApplyCaps is called directly after stat-modifying effects (no event needed)
+-- Uses curated list for complex routing (context collection, ApplyCaps calls)
+-- Uses default route table for simple pipeline dispatching
 -- Simple linear processing (no recursion)
 
 local ProcessEventQueue = {}
@@ -47,6 +31,56 @@ local ChannelOrb = require("Pipelines.ChannelOrb")
 local EvokeOrb = require("Pipelines.EvokeOrb")
 local Scry = require("Pipelines.Scry")
 local QueueOver = require("Pipelines.EventQueueOver")
+
+-- Curated list of event types requiring special handling
+local SpecialBehaviors = {
+    "COLLECT_CONTEXT",
+    "ON_DAMAGE",
+    "ON_NON_ATTACK_DAMAGE",
+    "ON_BLOCK",
+    "ON_HEAL",
+    "ON_STATUS_GAIN"
+}
+
+-- Default route table: simple event type -> pipeline mapping
+local DefaultRoutes = {
+    ON_DRAW = function(world, event)
+        DrawCard.execute(world, event.player, event.count)
+    end,
+    ON_DISCARD = function(world, event)
+        Discard.execute(world, event)
+    end,
+    ON_ACQUIRE_CARD = function(world, event)
+        AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
+    end,
+    ON_APPLY_POWER = function(world, event)
+        ApplyPower.execute(world, event)
+    end,
+    ON_EXHAUST = function(world, event)
+        Exhaust.execute(world, event)
+    end,
+    ON_CUSTOM_EFFECT = function(world, event)
+        CustomEffect.execute(world, event)
+    end,
+    CLEAR_CONTEXT = function(world, event)
+        ClearContext.execute(world, event)
+    end,
+    AFTER_CARD_PLAYED = function(world, event)
+        AfterCardPlayed.execute(world, event.player or world.player)
+    end,
+    ON_DEATH = function(world, event)
+        Death.execute(world, event)
+    end,
+    ON_CHANNEL_ORB = function(world, event)
+        ChannelOrb.execute(world, event)
+    end,
+    ON_EVOKE_ORB = function(world, event)
+        EvokeOrb.execute(world, event)
+    end,
+    ON_SCRY = function(world, event)
+        Scry.execute(world, event)
+    end
+}
 function ProcessEventQueue.execute(world)
     while not world.queue:isEmpty() do
         local event = world.queue:next()
@@ -58,6 +92,8 @@ function ProcessEventQueue.execute(world)
                 event[key] = value()  -- Replace function with its result
             end
         end
+
+        -- SPECIAL BEHAVIORS (curated list)
 
         if event.type == "COLLECT_CONTEXT" then
             -- Check if context already exists (for stable context reuse)
@@ -81,67 +117,32 @@ function ProcessEventQueue.execute(world)
 
         elseif event.type == "ON_DAMAGE" then
             DealDamage.execute(world, event)
-            -- Apply caps to all characters after damage
             ApplyCaps.execute(world)
 
         elseif event.type == "ON_NON_ATTACK_DAMAGE" then
             DealNonAttackDamage.execute(world, event)
-            -- Apply caps to all characters after damage
             ApplyCaps.execute(world)
 
         elseif event.type == "ON_BLOCK" then
             ApplyBlock.execute(world, event)
-            -- Apply caps to all characters after block gain
             ApplyCaps.execute(world)
 
         elseif event.type == "ON_HEAL" then
             Heal.execute(world, event)
-            -- Apply caps to all characters after healing
             ApplyCaps.execute(world)
 
         elseif event.type == "ON_STATUS_GAIN" then
             ApplyStatusEffect.execute(world, event)
-            -- Apply caps to all characters after status gain
             ApplyCaps.execute(world)
 
-        elseif event.type == "ON_DRAW" then
-            DrawCard.execute(world, event.player, event.count)
-
-        elseif event.type == "ON_DISCARD" then
-            Discard.execute(world, event)
-
-        elseif event.type == "ON_ACQUIRE_CARD" then
-            AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
-
-        elseif event.type == "ON_APPLY_POWER" then
-            ApplyPower.execute(world, event)
-
-        elseif event.type == "ON_EXHAUST" then
-            Exhaust.execute(world, event)
-
-        elseif event.type == "ON_CUSTOM_EFFECT" then
-            CustomEffect.execute(world, event)
-
-        elseif event.type == "CLEAR_CONTEXT" then
-            ClearContext.execute(world, event)
-
-        elseif event.type == "AFTER_CARD_PLAYED" then
-            AfterCardPlayed.execute(world, event.player or world.player)
-
-        elseif event.type == "ON_DEATH" then
-            Death.execute(world, event)
-
-        elseif event.type == "ON_CHANNEL_ORB" then
-            ChannelOrb.execute(world, event)
-
-        elseif event.type == "ON_EVOKE_ORB" then
-            EvokeOrb.execute(world, event)
-
-        elseif event.type == "ON_SCRY" then
-            Scry.execute(world, event)
-
         else
-            table.insert(world.log, "Unknown event type: " .. event.type)
+            -- DEFAULT ROUTE: Use routing table
+            local routeHandler = DefaultRoutes[event.type]
+            if routeHandler then
+                routeHandler(world, event)
+            else
+                table.insert(world.log, "Unknown event type: " .. event.type)
+            end
         end
     end
 

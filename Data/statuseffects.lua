@@ -19,7 +19,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     },
 
     weak = {
@@ -29,7 +31,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     },
 
     frail = {
@@ -39,7 +43,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     },
 
     poison = {
@@ -69,7 +75,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "duration",
-        debuff = false
+        debuff = false,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     },
 
     confused = {
@@ -189,7 +197,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 1,  -- Binary effect
         stackType = "intensity",
-        debuff = false
+        debuff = false,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "WoreOff"
     },
 
     no_draw = {
@@ -199,7 +209,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 1,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     },
 
     block_return = {
@@ -209,7 +221,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "WoreOff"
     },
 
     shackled = {
@@ -229,7 +243,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "intensity",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "WoreOff"
     },
 
     draw_reduction = {
@@ -239,7 +255,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "WoreOff"
     },
 
     no_block = {
@@ -249,7 +267,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 1,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     },
 
     constricted = {
@@ -340,6 +360,16 @@ local StatusEffects = {
         maxValue = 999,
         stackType = "duration",
         debuff = true
+    },
+
+    barricade = {
+        id = "barricade",
+        name = "Barricade",
+        description = "Block is not removed at end of round",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "intensity",
+        debuff = false
     }
 }
 
