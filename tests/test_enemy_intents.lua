@@ -37,7 +37,7 @@ local world1 = World.createWorld({
     maxHp = 80,
     hp = 80,
     maxEnergy = 3,
-    deck = deck1,
+    cards = deck1,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
@@ -73,7 +73,7 @@ local world2 = World.createWorld({
     maxHp = 80,
     hp = 80,
     maxEnergy = 3,
-    deck = deck2,
+    cards = deck2,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
@@ -115,7 +115,7 @@ local world3 = World.createWorld({
     maxHp = 80,
     hp = 80,
     maxEnergy = 3,
-    deck = deck3,
+    cards = deck3,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 

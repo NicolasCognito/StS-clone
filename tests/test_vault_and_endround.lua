@@ -125,6 +125,9 @@ world2.enemies = {
     copyEnemy(Enemies.Goblin)
 }
 
+-- Enable NoShuffle so Vault (first card) is guaranteed to be in initial draw
+world2.NoShuffle = true
+
 StartCombat.execute(world2)
 
 local player2 = world2.player
