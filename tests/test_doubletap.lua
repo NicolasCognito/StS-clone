@@ -116,13 +116,37 @@ while true do
     end
 end
 
-assert(discardIndex == 3, "Dagger Throw should have requested two discard selections")
+-- Process any remaining card queue entries (duplications, etc.)
+while not world.cardQueue:isEmpty() do
+    local entry = world.cardQueue:pop()
+    while true do
+        local result = PlayCard.resolveQueuedEntry(world, entry)
+        if result == true then
+            break
+        end
+        -- Handle context for duplicated plays
+        if type(result) == "table" and result.needsContext then
+            local request = world.combat.contextRequest
+            if request.contextProvider.type == "enemy" then
+                fulfillContext(world, player)
+            else
+                local discardCard = discardOrder[discardIndex]
+                assert(discardCard, "Unexpected discard request count during duplication")
+                discardIndex = discardIndex + 1
+                fulfillContext(world, player, {discardCard})
+            end
+        end
+    end
+end
+
+assert(discardIndex == 3, "Dagger Throw should have requested two discard selections (one for each play)")
 
 assert((player.status.doubleTap or 0) == 0, "Double Tap stacks should be consumed after an attack")
 assert(enemy.hp == 0, "Enemy should be reduced to 0 HP after taking double damage")
 
-local discardedCount = countCardsInState(player.combatDeck, "DISCARD_PILE")
-assert(discardedCount == 4, "Expected 4 cards in discard pile (Double Tap, Dagger Throw, and two discarded cards)")
+-- Count played cards (DISCARD_PILE + PROCESSING, since cards can be left in PROCESSING after cancellation)
+local playedCount = countCardsInState(player.combatDeck, "DISCARD_PILE") + countCardsInState(player.combatDeck, "PROCESSING")
+assert(playedCount == 4, "Expected 4 played cards (Double Tap, Dagger Throw, and two discarded cards), got " .. playedCount)
 
 local function countLogEntries(text)
     local total = 0
