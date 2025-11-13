@@ -42,12 +42,11 @@ return {
                         if target and target.hp > 0 then
                             local weakStacks = self.weakStacks or 1
                             world.queue:push({
-                                type = "ON_APPLY_STATUS_EFFECT",
+                                type = "ON_STATUS_GAIN",
                                 target = target,
-                                statusEffect = "weak",
-                                stacks = weakStacks
+                                effectType = "Weak",
+                                amount = weakStacks
                             })
-                            table.insert(world.log, "Sash Whip applies " .. weakStacks .. " Weak (last card was an Attack)")
                         end
                     end
                 end

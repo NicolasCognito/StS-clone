@@ -90,7 +90,6 @@ local DefaultRoutes = {
     end
 }
 function ProcessEventQueue.execute(world)
-    print("DEBUG: ProcessEventQueue.execute() called")
     while not world.queue:isEmpty() do
         local event = world.queue:next()
 

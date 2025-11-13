@@ -11,7 +11,7 @@ function ContextValidators.specificEnemyAlive(world, context, card)
     if context == nil then
         return true  -- nil is valid, allows card to collect new context
     end
-    return context.currentHealth and context.currentHealth > 0
+    return context.hp and context.hp > 0
 end
 
 -- Validates that at least one enemy is alive in combat
@@ -24,8 +24,8 @@ function ContextValidators.anyEnemyAlive(world, context, card)
     end
 
     -- Check if at least one enemy is alive in combat
-    for _, enemy in ipairs(world.combat.enemies) do
-        if enemy.currentHealth > 0 then
+    for _, enemy in ipairs(world.enemies) do
+        if enemy.hp and enemy.hp > 0 then
             return true
         end
     end

@@ -42,12 +42,11 @@ return {
                         if target and target.hp > 0 then
                             local vulnerableStacks = self.vulnerableStacks or 1
                             world.queue:push({
-                                type = "ON_APPLY_STATUS_EFFECT",
+                                type = "ON_STATUS_GAIN",
                                 target = target,
-                                statusEffect = "vulnerable",
-                                stacks = vulnerableStacks
+                                effectType = "Vulnerable",
+                                amount = vulnerableStacks
                             })
-                            table.insert(world.log, "Crush Joints applies " .. vulnerableStacks .. " Vulnerable (last card was a Skill)")
                         end
                     end
                 end
