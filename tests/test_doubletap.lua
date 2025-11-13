@@ -74,6 +74,9 @@ world.enemies = {
     copyEnemy(Enemies.Goblin)
 }
 
+-- Enable NoShuffle for deterministic test
+world.NoShuffle = true
+
 StartCombat.execute(world)
 
 local player = world.player

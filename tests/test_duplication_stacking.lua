@@ -112,6 +112,10 @@ do
     -- Set up Double Tap + Echo Form
     player.status = player.status or {}
     player.status.doubleTap = 1
+
+    -- Set up Echo Form power (required for duplication system)
+    player.powers = player.powers or {}
+    table.insert(player.powers, {id = "EchoForm", stacks = 1})
     player.status.echoFormThisTurn = 1
 
     local strikeCard = findCardById(player.combatDeck, "Strike")

@@ -57,7 +57,8 @@ StartTurn.execute(world1, world1.player)
 -- Attack the boss multiple times to get it below half HP
 -- Strike deals 6 damage, boss has 60 HP, need to deal > 30 damage
 local strikesPlayed = 0
-for _, card in ipairs(world1.player.hand) do
+local handCards = Utils.getCardsByState(world1.player.combatDeck, "HAND")
+for _, card in ipairs(handCards) do
     if card.id == "Strike" and strikesPlayed < 6 then
         PlayCard.execute(world1, world1.player, card, boss)
 
@@ -150,8 +151,9 @@ StartCombat.execute(world2, world2.player, world2.enemies)
 StartTurn.execute(world2, world2.player)
 
 -- Damage boss below half HP
+local handCards2 = Utils.getCardsByState(world2.player.combatDeck, "HAND")
 for i = 1, 3 do
-    local strike = world2.player.hand[i]
+    local strike = handCards2[i]
     if strike and strike.id == "Strike" then
         PlayCard.execute(world2, world2.player, strike, boss2)
         while not world2.queue:isEmpty() do
