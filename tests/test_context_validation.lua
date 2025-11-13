@@ -105,20 +105,20 @@ assert(enemy.hp <= 0, "Enemy should be dead after first Strike")
 assert((player.status.doubleTap or 0) == 0, "Double Tap stacks should be consumed")
 
 -- Check logs for expected behavior
-local foundDoubleTapTrigger = false
+local foundDoubleTapReady = false
 local foundCancellation = false
 for _, logEntry in ipairs(world.log) do
-    if string.match(logEntry, "Double Tap triggers") then
-        foundDoubleTapTrigger = true
+    if string.match(logEntry, "Double Tap readied") then
+        foundDoubleTapReady = true
     end
-    -- The duplicated Strike should either be cancelled or not deal damage
+    -- The duplicated Strike should be cancelled
     if string.match(logEntry, "cancel") or string.match(logEntry, "invalid") then
         foundCancellation = true
     end
 end
 
-print("Found Double Tap trigger: " .. tostring(foundDoubleTapTrigger))
-print("Found cancellation or skip: " .. tostring(foundCancellation))
+print("Found Double Tap ready: " .. tostring(foundDoubleTapReady))
+print("Found cancellation: " .. tostring(foundCancellation))
 
 -- Print last 10 log entries for debugging
 print("\n--- Last 10 Log Entries ---")
@@ -127,7 +127,8 @@ for i = startIdx, #world.log do
     print(world.log[i])
 end
 
-assert(foundDoubleTapTrigger, "Should find Double Tap trigger in logs")
+assert(foundDoubleTapReady, "Should find Double Tap ready message in logs")
+assert(foundCancellation, "Should find cancellation message when enemy dies")
 
 print("\n✓ Test passed! Double Tap + Strike handled enemy death correctly")
 print("\n=== CONTEXT VALIDATION TEST PASSED ===")
