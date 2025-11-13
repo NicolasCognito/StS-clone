@@ -88,18 +88,31 @@ function StartTurn.execute(world, player)
         table.insert(world.log, playerName .. " lost " .. status.wraith_form .. " Dexterity from Wraith Form")
     end
 
+    if status.intangible and status.intangible > 0 then
+        status.intangible = status.intangible - 1
+        table.insert(world.log, playerName .. "'s Intangible decreased to " .. status.intangible)
+    end
+
     if world.enemies then
         for _, enemy in ipairs(world.enemies) do
-            if enemy.hp > 0 and enemy.status and enemy.status.shackled and enemy.status.shackled > 0 then
-                world.queue:push({
-                    type = "ON_STATUS_GAIN",
-                    target = enemy,
-                    effectType = "Strength",
-                    amount = enemy.status.shackled,
-                    source = "Shackled"
-                })
-                enemy.status.shackled = nil
-                queuedStatusEvents = true
+            if enemy.hp > 0 and enemy.status then
+                if enemy.status.shackled and enemy.status.shackled > 0 then
+                    world.queue:push({
+                        type = "ON_STATUS_GAIN",
+                        target = enemy,
+                        effectType = "Strength",
+                        amount = enemy.status.shackled,
+                        source = "Shackled"
+                    })
+                    enemy.status.shackled = nil
+                    queuedStatusEvents = true
+                end
+
+                if enemy.status.intangible and enemy.status.intangible > 0 then
+                    enemy.status.intangible = enemy.status.intangible - 1
+                    local enemyName = enemy.name or "Enemy"
+                    table.insert(world.log, enemyName .. "'s Intangible decreased to " .. enemy.status.intangible)
+                end
             end
         end
     end
@@ -152,10 +165,10 @@ function StartTurn.execute(world, player)
 
     -- Inserter: Every 2 turns, gain 1 orb slot
     if Utils.hasRelic(player, "Inserter") then
-        world.combat.inserterTurnCounter = world.combat.inserterTurnCounter + 1
-        if world.combat.inserterTurnCounter >= 2 then
+        world.combat.turnCounter = world.combat.turnCounter + 1
+        if world.combat.turnCounter >= 2 then
             player.maxOrbs = player.maxOrbs + 1
-            world.combat.inserterTurnCounter = 0
+            world.combat.turnCounter = 0
             table.insert(world.log, playerName .. " gained 1 orb slot from Inserter")
         end
     end

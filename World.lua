@@ -60,9 +60,9 @@ function World.createWorld(playerData)
             powers = nil,
 
             -- Stance system
-            -- currentStance is a string: "Calm", "Wrath", "Divinity", or nil for neutral
+            -- currentStance is a string: "Calm", "Wrath", "Divinity", or "NO_STANCE" for neutral
             -- All stance logic lives in ChangeStance pipeline (no callbacks)
-            currentStance = nil,
+            currentStance = "NO_STANCE",
 
             -- Orb system (Defect mechanic)
             -- orbs is an array of orb instances: [{id = "Lightning", baseDamage = 8, ...}, ...]
@@ -118,7 +118,7 @@ function World.initCombatState()
         lastTurnLostHp = false,
         hpAtTurnStart = nil,
         -- Inserter relic tracking
-        inserterTurnCounter = 0
+        turnCounter = 0
     }
 end
 

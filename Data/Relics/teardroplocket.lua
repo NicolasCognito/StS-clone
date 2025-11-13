@@ -7,10 +7,9 @@ return {
         description = "Start each combat in Calm.",
 
         onCombatStart = function(self, world)
-            world.queue:push({
-                type = "CHANGE_STANCE",
-                newStance = "Calm"
-            })
+            -- Start in Calm (don't ENTER - no energy gain or other enter effects)
+            world.player.currentStance = "Calm"
+            table.insert(world.log, world.player.name .. " starts combat in Calm stance")
         end
     }
 }
