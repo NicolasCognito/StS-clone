@@ -57,6 +57,11 @@ function StartTurn.execute(world, player)
     -- Clear turn-based player flags
     player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
 
+    -- Clear temporary retention flags from all cards
+    for _, card in ipairs(player.combatDeck) do
+        card.retainThisTurn = nil
+    end
+
     -- Reset turn-based duplication flags
     player.status = player.status or {}
     player.status.necronomiconThisTurn = false  -- Necronomicon can trigger again

@@ -27,6 +27,7 @@ local Heal = require("Pipelines.Heal")
 local ApplyStatusEffect = require("Pipelines.ApplyStatusEffect")
 local DrawCard = require("Pipelines.DrawCard")
 local Discard = require("Pipelines.Discard")
+local Retain = require("Pipelines.Retain")
 local AcquireCard = require("Pipelines.AcquireCard")
 local ApplyPower = require("Pipelines.ApplyPower")
 local Exhaust = require("Pipelines.Exhaust")
@@ -57,6 +58,9 @@ local DefaultRoutes = {
     end,
     ON_DISCARD = function(world, event)
         Discard.execute(world, event)
+    end,
+    ON_RETAIN = function(world, event)
+        Retain.execute(world, event)
     end,
     ON_ACQUIRE_CARD = function(world, event)
         AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
