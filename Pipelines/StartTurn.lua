@@ -25,6 +25,16 @@ function StartTurn.execute(world, player)
         ChangeStance.execute(world, {newStance = nil})
     end
 
+    -- Trigger relics' onTurnStart effects
+    for _, relic in ipairs(player.relics) do
+        if relic.onTurnStart then
+            relic:onTurnStart(world, player)
+        end
+    end
+
+    -- Process queued events from relics
+    ProcessEventQueue.execute(world)
+
     -- Clear turn-based player flags
     player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
 
@@ -83,6 +93,32 @@ function StartTurn.execute(world, player)
     -- Echo Form: first N cards each turn are played twice (N = stacks)
     if player.status and player.status.echo_form and player.status.echo_form > 0 then
         player.status.echoFormThisTurn = player.status.echo_form
+    end
+
+    -- Simmering Fury: Enter Wrath and draw cards at start of next turn
+    if player.status and player.status.simmering_fury and player.status.simmering_fury > 0 then
+        world.queue:push({
+            type = "CHANGE_STANCE",
+            newStance = "Wrath"
+        })
+
+        for i = 1, 2 do
+            world.queue:push({type = "ON_DRAW"})
+        end
+
+        player.status.simmering_fury = 0  -- Clear after triggering
+        ProcessEventQueue.execute(world)
+    end
+
+    -- Devotion: Gain mantra at start of turn
+    if player.status and player.status.devotion and player.status.devotion > 0 then
+        world.queue:push({
+            type = "ON_STATUS_GAIN",
+            target = player,
+            effectType = "mantra",
+            amount = player.status.devotion
+        })
+        ProcessEventQueue.execute(world)
     end
 
     -- Loop: Trigger next orb passive at start of turn

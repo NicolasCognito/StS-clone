@@ -4,6 +4,13 @@
 
 This document provides a **practical decision-making framework** for implementing new game content (cards, enemies, relics, mechanics) in the Slay the Spire clone. It's designed for AI agents and developers to systematically analyze requirements and choose appropriate implementation strategies.
 
+**⚠️ IMPORTANT ARCHITECTURE NOTE:**
+- **"Powers" are implemented as status effects** - there is no separate power system
+- Cards with `type = "POWER"` are a display category, but they apply **status effects** via `ON_STATUS_GAIN`
+- Use `Utils.hasPower(player, "PowerName")` for backwards-compatible checking (converts to snake_case)
+- Some examples in this doc reference `Data/Powers/` and `player.powers` - these are **legacy patterns**
+- **Modern pattern:** Define "power" effects in `Data/statuseffects.lua`, apply via `ON_STATUS_GAIN`
+
 ---
 
 ## Decision-Making Process (The 6-Step Framework)
