@@ -412,6 +412,48 @@ local StatusEffects = {
         maxValue = 1,
         stackType = "intensity",
         debuff = false
+    },
+
+    -- ORB-RELATED STATUS EFFECTS
+
+    static_discharge = {
+        id = "static_discharge",
+        name = "Static Discharge",
+        description = "Whenever you take attack damage, Channel that many Lightning.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    storm = {
+        id = "storm",
+        name = "Storm",
+        description = "Whenever you play a Power card, Channel 1 Lightning.",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    electrodynamics = {
+        id = "electrodynamics",
+        name = "Electrodynamics",
+        description = "Lightning Orbs now hit ALL enemies.",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    loop = {
+        id = "loop",
+        name = "Loop",
+        description = "At the start of your turn, trigger your next Orb's passive N times.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
     }
 }
 

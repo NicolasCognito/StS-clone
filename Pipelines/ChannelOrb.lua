@@ -45,6 +45,14 @@ function ChannelOrb.execute(world, event)
     table.insert(player.orbs, orbInstance)
 
     table.insert(world.log, player.name .. " channeled " .. orbType .. " orb")
+
+    -- Track channeled orbs for Thunder Strike / Blizzard cards
+    if world.combat then
+        local trackField = string.lower(orbType) .. "ChanneledThisCombat"
+        if world.combat[trackField] ~= nil then
+            world.combat[trackField] = world.combat[trackField] + 1
+        end
+    end
 end
 
 -- Create orb instance by copying definition table

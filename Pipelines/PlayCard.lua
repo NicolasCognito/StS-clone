@@ -206,6 +206,12 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
 
         if card.type == "POWER" then
             world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
+
+            -- Storm: Channel 1 Lightning when playing Power cards
+            if player.status and player.status.storm and player.status.storm > 0 then
+                world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
+                table.insert(world.log, "Storm triggered!")
+            end
         end
 
         if card.type == "ATTACK" then

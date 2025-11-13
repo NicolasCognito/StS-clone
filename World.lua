@@ -108,7 +108,17 @@ function World.initCombatState()
         contextRequest = nil,   -- Request for context collection: {contextProvider, stability}
         deferStableContextClear = false,
         -- Death tracking
-        playerDied = false
+        playerDied = false,
+        -- Orb tracking (for Thunder Strike, Blizzard cards)
+        lightningChanneledThisCombat = 0,
+        frostChanneledThisCombat = 0,
+        darkChanneledThisCombat = 0,
+        plasmaChanneledThisCombat = 0,
+        -- Emotion Chip tracking
+        lastTurnLostHp = false,
+        hpAtTurnStart = nil,
+        -- Inserter relic tracking
+        inserterTurnCounter = 0
     }
 end
 

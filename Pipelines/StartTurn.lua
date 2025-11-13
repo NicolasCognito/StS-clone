@@ -85,6 +85,39 @@ function StartTurn.execute(world, player)
         player.status.echoFormThisTurn = player.status.echo_form
     end
 
+    -- Loop: Trigger next orb passive at start of turn
+    if player.status and player.status.loop and player.status.loop > 0 and #player.orbs > 0 then
+        local OrbPassive = require("Pipelines.OrbPassive")
+        local triggers = player.status.loop
+        table.insert(world.log, "Loop triggers leftmost orb passive " .. triggers .. " time(s)!")
+        for i = 1, triggers do
+            OrbPassive.triggerSingle(world, 1)  -- Trigger leftmost orb
+        end
+    end
+
+    -- Inserter: Every 2 turns, gain 1 orb slot
+    if Utils.hasRelic(player, "Inserter") then
+        world.combat.inserterTurnCounter = world.combat.inserterTurnCounter + 1
+        if world.combat.inserterTurnCounter >= 2 then
+            player.maxOrbs = player.maxOrbs + 1
+            world.combat.inserterTurnCounter = 0
+            table.insert(world.log, playerName .. " gained 1 orb slot from Inserter")
+        end
+    end
+
+    -- Emotion Chip: If lost HP last turn, trigger all orb passives
+    if Utils.hasRelic(player, "EmotionChip") and world.combat.lastTurnLostHp and #player.orbs > 0 then
+        local OrbPassive = require("Pipelines.OrbPassive")
+        table.insert(world.log, "Emotion Chip triggers all orb passives!")
+        for i = 1, #player.orbs do
+            OrbPassive.executeSingle(world, player.orbs[i])
+        end
+    end
+
+    -- Track HP at turn start for next turn's Emotion Chip
+    world.combat.hpAtTurnStart = player.hp
+    world.combat.lastTurnLostHp = false
+
     -- Plasma orbs: Gain 1 energy per Plasma orb at start of turn
     local plasmaCount = 0
     for _, orb in ipairs(player.orbs) do

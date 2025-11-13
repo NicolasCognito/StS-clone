@@ -36,6 +36,17 @@ function EndTurn.execute(world, player)
     -- Process all queued events from orb passives
     ProcessEventQueue.execute(world)
 
+    -- Frozen Core: If empty orb slots, channel 1 Frost
+    if Utils.hasRelic(player, "FrozenCore") and #player.orbs < player.maxOrbs then
+        world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Frost"})
+        ProcessEventQueue.execute(world)
+    end
+
+    -- Track HP loss for Emotion Chip
+    if player.hp < world.combat.hpAtTurnStart then
+        world.combat.lastTurnLostHp = true
+    end
+
     -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down
     -- in the EndRound pipeline, not here. This is because they are "End of Round"
     -- effects, not "End of Turn" effects.
