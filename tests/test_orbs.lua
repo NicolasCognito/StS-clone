@@ -278,4 +278,179 @@ end
 
 print("✓ TEST 6 PASSED\n")
 
+-- Test 7: Lock-On with Lightning passive
+print("TEST 7: Lock-On with Lightning passive")
+local world7 = World.createWorld({
+    id = "Defect",
+    maxHp = 80,
+    currentHp = 80,
+    cards = {
+        copyCard(Cards.Zap),
+        copyCard(Cards.Defend)
+    }
+})
+
+world7.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
+world7.enemies[1].hp = 100
+world7.enemies[1].status = {lock_on = 2}
+StartCombat.execute(world7, world7.player, world7.enemies)
+
+-- Play Zap to channel Lightning
+local zapCard7 = nil
+for _, card in ipairs(world7.player.combatDeck) do
+    if card.id == "Zap" and card.state == "HAND" then
+        zapCard7 = card
+        break
+    end
+end
+
+if zapCard7 then
+    PlayCard.execute(world7, world7.player, zapCard7)
+    ProcessEventQueue.execute(world7)
+
+    local enemyHpBefore = world7.enemies[1].hp
+    local lockOnBefore = world7.enemies[1].status.lock_on
+    EndTurn.execute(world7, world7.player)
+    local enemyHpAfter = world7.enemies[1].hp
+    local lockOnAfter = world7.enemies[1].status.lock_on
+
+    local damageDone = enemyHpBefore - enemyHpAfter
+    print("Damage from Lightning passive with Lock-On:", damageDone)
+    print("Lock-On before:", lockOnBefore, "Lock-On after:", lockOnAfter or 0)
+    -- Base Lightning passive damage is 3, with Lock-On it should be floor(3 * 1.5) = 4
+    assert(damageDone == 4, "Lightning passive with Lock-On should do 4 damage (3 * 1.5 = 4)")
+    -- Lock-On should still be active (doesn't decrease on use, only at end of round)
+    assert(lockOnAfter == 2, "Lock-On should still be 2 (not consumed on passive)")
+end
+
+print("✓ TEST 7 PASSED\n")
+
+-- Test 8: Lock-On with Lightning evoke
+print("TEST 8: Lock-On with Lightning evoke")
+local world8 = World.createWorld({
+    id = "Defect",
+    maxHp = 80,
+    currentHp = 80,
+    cards = {
+        copyCard(Cards.Zap),
+        copyCard(Cards.Consume),  -- Evoke all orbs
+        copyCard(Cards.Defend)
+    }
+})
+
+world8.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
+world8.enemies[1].hp = 100
+world8.enemies[1].status = {lock_on = 1}
+StartCombat.execute(world8, world8.player, world8.enemies)
+
+-- Play Zap to channel Lightning, then Consume to evoke
+local zapCard8 = nil
+local consumeCard = nil
+for _, card in ipairs(world8.player.combatDeck) do
+    if card.id == "Zap" and card.state == "HAND" then
+        zapCard8 = card
+    elseif card.id == "Consume" and card.state == "HAND" then
+        consumeCard = card
+    end
+end
+
+if zapCard8 and consumeCard then
+    PlayCard.execute(world8, world8.player, zapCard8)
+    ProcessEventQueue.execute(world8)
+
+    local enemyHpBefore = world8.enemies[1].hp
+    PlayCard.execute(world8, world8.player, consumeCard)
+    ProcessEventQueue.execute(world8)
+    local enemyHpAfter = world8.enemies[1].hp
+
+    local damageDone = enemyHpBefore - enemyHpAfter
+    print("Damage from Lightning evoke with Lock-On:", damageDone)
+    -- Base Lightning evoke damage is 8, with Lock-On it should be floor(8 * 1.5) = 12
+    assert(damageDone == 12, "Lightning evoke with Lock-On should do 12 damage (8 * 1.5 = 12)")
+end
+
+print("✓ TEST 8 PASSED\n")
+
+-- Test 9: Lock-On with Dark evoke
+print("TEST 9: Lock-On with Dark evoke")
+local world9 = World.createWorld({
+    id = "Defect",
+    maxHp = 80,
+    currentHp = 80,
+    cards = {
+        copyCard(Cards.Darkness),
+        copyCard(Cards.Consume),
+        copyCard(Cards.Defend)
+    }
+})
+
+world9.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
+world9.enemies[1].hp = 100
+world9.enemies[1].status = {lock_on = 3}
+StartCombat.execute(world9, world9.player, world9.enemies)
+
+-- Play Darkness to channel Dark
+local darknessCard9 = nil
+local consumeCard9 = nil
+for _, card in ipairs(world9.player.combatDeck) do
+    if card.id == "Darkness" and card.state == "HAND" then
+        darknessCard9 = card
+    elseif card.id == "Consume" and card.state == "HAND" then
+        consumeCard9 = card
+    end
+end
+
+if darknessCard9 and consumeCard9 then
+    PlayCard.execute(world9, world9.player, darknessCard9)
+    ProcessEventQueue.execute(world9)
+
+    -- Dark starts with 6 accumulated damage
+    local accumulatedDamage = world9.player.orbs[1].accumulatedDamage
+    print("Dark orb accumulated damage:", accumulatedDamage)
+
+    local enemyHpBefore = world9.enemies[1].hp
+    PlayCard.execute(world9, world9.player, consumeCard9)
+    ProcessEventQueue.execute(world9)
+    local enemyHpAfter = world9.enemies[1].hp
+
+    local damageDone = enemyHpBefore - enemyHpAfter
+    print("Damage from Dark evoke with Lock-On:", damageDone)
+    -- Dark starts with 6 damage, with Lock-On it should be floor(6 * 1.5) = 9
+    assert(damageDone == 9, "Dark evoke with Lock-On should do 9 damage (6 * 1.5 = 9)")
+end
+
+print("✓ TEST 9 PASSED\n")
+
+-- Test 10: Lock-On ticks down at end of round
+print("TEST 10: Lock-On ticks down at end of round")
+local EndRound = require("Pipelines.EndRound")
+local world10 = World.createWorld({
+    id = "Defect",
+    maxHp = 80,
+    currentHp = 80,
+    cards = {
+        copyCard(Cards.Defend)
+    }
+})
+
+world10.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
+world10.enemies[1].status = {lock_on = 3}
+StartCombat.execute(world10, world10.player, world10.enemies)
+
+print("Lock-On before end of round:", world10.enemies[1].status.lock_on)
+EndRound.execute(world10, world10.player, world10.enemies)
+print("Lock-On after end of round:", world10.enemies[1].status.lock_on or 0)
+
+assert(world10.enemies[1].status.lock_on == 2, "Lock-On should decrease by 1 at end of round")
+
+-- Tick down again
+EndRound.execute(world10, world10.player, world10.enemies)
+assert(world10.enemies[1].status.lock_on == 1, "Lock-On should be 1 after second round")
+
+-- Tick down to 0
+EndRound.execute(world10, world10.player, world10.enemies)
+assert(world10.enemies[1].status.lock_on == 0, "Lock-On should be 0 after third round")
+
+print("✓ TEST 10 PASSED\n")
+
 print("=== ALL ORBS TESTS PASSED ===\n")

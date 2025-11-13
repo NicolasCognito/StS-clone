@@ -56,6 +56,12 @@ function EvokeOrb.executeSingle(world, orb)
 
         local target = Utils.randomEnemy(world)
         if target then
+            -- Apply Lock-On damage bonus (50% more damage)
+            if target.status and target.status.lock_on and target.status.lock_on > 0 then
+                evokeDamage = math.floor(evokeDamage * 1.5)
+                table.insert(world.log, target.name .. " took enhanced damage from Lock-On")
+            end
+
             world.queue:push({
                 type = "ON_NON_ATTACK_DAMAGE",
                 source = player,
@@ -79,11 +85,19 @@ function EvokeOrb.executeSingle(world, orb)
         -- Dark evoke: Deal accumulated damage to lowest HP enemy
         local target = Utils.lowestHpEnemy(world)
         if target then
+            local darkDamage = orb.accumulatedDamage
+
+            -- Apply Lock-On damage bonus (50% more damage)
+            if target.status and target.status.lock_on and target.status.lock_on > 0 then
+                darkDamage = math.floor(darkDamage * 1.5)
+                table.insert(world.log, target.name .. " took enhanced damage from Lock-On")
+            end
+
             world.queue:push({
                 type = "ON_NON_ATTACK_DAMAGE",
                 source = player,
                 target = target,
-                amount = orb.accumulatedDamage
+                amount = darkDamage
             })
         end
 

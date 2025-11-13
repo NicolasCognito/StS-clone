@@ -329,7 +329,9 @@ local StatusEffects = {
         minValue = 0,
         maxValue = 999,
         stackType = "duration",
-        debuff = true
+        debuff = true,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     },
 
     mark = {
