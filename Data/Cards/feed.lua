@@ -27,7 +27,7 @@ return {
             -- Push damage event with lazy-evaluated defender
             -- Death pipeline will automatically trigger healing if this kills the target
             world.queue:push({
-                type = "ON_DAMAGE",
+                type = "ON_ATTACK_DAMAGE",
                 attacker = player,
                 defender = function() return world.combat.stableContext end,
                 card = self

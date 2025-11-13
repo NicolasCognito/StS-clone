@@ -24,7 +24,7 @@ return {
             -- Deal damage X times to the same target (where X = energySpent)
             for i = 1, self.energySpent do
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = player,
                     defender = function() return world.combat.stableContext end,
                     card = self

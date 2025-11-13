@@ -45,7 +45,7 @@ StS-clone/
 │   │   ├── EnemyTakeTurn.lua   # Enemy turn execution
 │   │   ├── StartCombat.lua     # Combat initialization
 │   │   ├── EndCombat.lua       # Combat cleanup
-│   │   ├── DealDamage.lua      # Damage calculation (strength, vulnerable, weak)
+│   │   ├── DealAttackDamage.lua      # Damage calculation (strength, vulnerable, weak)
 │   │   ├── DealNonAttackDamage.lua # Non-attack damage (HP loss effects)
 │   │   ├── ApplyBlock.lua      # Block calculation (dexterity, frail)
 │   │   ├── ApplyStatusEffect.lua # Status effect application
@@ -276,7 +276,7 @@ world.queue:clear()
 - Lazy evaluation: Event fields can be functions evaluated during processing
 
 **Event Types:**
-- `ON_DAMAGE`, `ON_NON_ATTACK_DAMAGE`, `ON_BLOCK`, `ON_HEAL`
+- `ON_ATTACK_DAMAGE`, `ON_NON_ATTACK_DAMAGE`, `ON_BLOCK`, `ON_HEAL`
 - `ON_STATUS_GAIN`, `ON_APPLY_POWER`
 - `ON_DRAW`, `ON_DISCARD`, `ON_EXHAUST`, `ON_ACQUIRE_CARD`
 - `COLLECT_CONTEXT`, `CLEAR_CONTEXT`, `AFTER_CARD_PLAYED`
@@ -339,7 +339,7 @@ This creates the expected visual: initial → duplicate 1 → duplicate 2
    ↓
 4. ProcessEventQueue.execute()
    → Drain EventQueue (FIFO) until empty
-   → Routes events to pipelines (DealDamage, ApplyBlock, etc.)
+   → Routes events to pipelines (DealAttackDamage, ApplyBlock, etc.)
    → If needs context: pause, collect, resume
    ↓
 5. EventQueueOver.execute()
@@ -393,7 +393,7 @@ world.queue:push({
 
 -- STEP 2: Use context (lazy evaluation)
 world.queue:push({
-    type = "ON_DAMAGE",
+    type = "ON_ATTACK_DAMAGE",
     attacker = player,
     defender = function() return world.combat.stableContext end,  -- Deferred!
     card = self
@@ -439,7 +439,7 @@ If validation fails, card execution is cancelled (logged, not error).
 | `ProcessEventQueue.lua` | Event router | Routes events to appropriate handlers (two-tier: SpecialBehaviors + DefaultRoutes) |
 | `EventQueueOver.lua` | Queue cleanup | Clear contexts, trigger next card from CardQueue |
 | `ResolveCard.lua` | CardQueue processor | Pop and resolve entries from CardQueue |
-| `DealDamage.lua` | Attack damage | Strength, weak, vulnerable, block absorption, thorns, Pen Nib, Feed |
+| `DealAttackDamage.lua` | Attack damage | Strength, weak, vulnerable, block absorption, thorns, Pen Nib, Feed |
 | `DealNonAttackDamage.lua` | HP loss effects | Bypasses strength/vulnerable/weak, optionally ignores block |
 | `ApplyBlock.lua` | Block gain | Dexterity, frail, blur (carry over block) |
 | `ApplyCaps.lua` | Enforce limits | Cap HP to maxHp, block to 999, trigger death checks |
@@ -507,8 +507,8 @@ return MyPipeline
 
 ```lua
 -- Tier 1: SpecialBehaviors (complex routing)
-if event.type == "ON_DAMAGE" then
-    DealDamage.execute(world, event)
+if event.type == "ON_ATTACK_DAMAGE" then
+    DealAttackDamage.execute(world, event)
     ApplyCaps.execute(world)  -- Auto-call after damage
 elseif event.type == "COLLECT_CONTEXT" then
     -- Pause processing if context not collected yet
@@ -602,7 +602,7 @@ return {
        }, "FIRST")
 
        world.queue:push({
-           type = "ON_DAMAGE",
+           type = "ON_ATTACK_DAMAGE",
            attacker = player,
            defender = function() return world.combat.stableContext end,
            card = self
@@ -614,7 +614,7 @@ return {
    ```lua
    onPlay = function(self, world, player)
        world.queue:push({
-           type = "ON_DAMAGE",
+           type = "ON_ATTACK_DAMAGE",
            attacker = player,
            defender = "all",  -- AOE damage
            card = self
@@ -627,7 +627,7 @@ return {
    cost = "X",  -- String, not number
    onPlay = function(self, world, player)
        for i = 1, self.energySpent do  -- energySpent set by PlayCard
-           world.queue:push({type = "ON_DAMAGE", defender = "all", ...})
+           world.queue:push({type = "ON_ATTACK_DAMAGE", defender = "all", ...})
        end
    end
    ```
@@ -700,7 +700,7 @@ return {
         -- Intent System (AI)
         intents = {
             attack = function(self, world, player)
-                world.queue:push({type = "ON_DAMAGE", attacker = self, defender = player, card = self})
+                world.queue:push({type = "ON_ATTACK_DAMAGE", attacker = self, defender = player, card = self})
             end,
             defend = function(self, world, player)
                 world.queue:push({type = "APPLY_BLOCK", target = self, amount = 5})
@@ -891,21 +891,21 @@ MapCLI.lua (main loop):
 - **Temporary effects** with stacks/duration
 - Data-driven: defined in `statuseffects.lua` (metadata only)
 - Applied via `APPLY_STATUS_EFFECT` events
-- Checked by pipelines (DealDamage, ApplyBlock, EndRound)
+- Checked by pipelines (DealAttackDamage, ApplyBlock, EndRound)
 - Tick down automatically at end of round (EndRound.lua)
 
 **Common Status Effects:**
 
 | Status | Effect | Where Checked |
 |--------|--------|---------------|
-| `vulnerable` | +50% damage taken (+75% with Paper Phrog) | DealDamage.lua |
-| `weak` | -25% damage dealt | DealDamage.lua |
+| `vulnerable` | +50% damage taken (+75% with Paper Phrog) | DealAttackDamage.lua |
+| `weak` | -25% damage dealt | DealAttackDamage.lua |
 | `frail` | -25% block gain | ApplyBlock.lua |
 | `poison` | Lose HP at end of turn | EndRound.lua |
-| `strength` | +N damage on attacks | DealDamage.lua |
+| `strength` | +N damage on attacks | DealAttackDamage.lua |
 | `dexterity` | +N block | ApplyBlock.lua |
-| `thorns` | Reflect damage to attacker | DealDamage.lua |
-| `intangible` | Damage capped at 1 | DealDamage.lua |
+| `thorns` | Reflect damage to attacker | DealAttackDamage.lua |
+| `intangible` | Damage capped at 1 | DealAttackDamage.lua |
 | `ritual` | Gain strength at end of turn | EndRound.lua |
 | `mark` | Accumulates for Pressure Points | Card: pressurepoints.lua |
 
@@ -957,13 +957,13 @@ return {
 - `onTurnStart`: StartTurn.lua
 - `onTurnEnd`: EndTurn.lua (line 51-55)
 - `onCardPlayed`: PlayCard.lua
-- `onDamageDealt`: DealDamage.lua
+- `onDamageDealt`: DealAttackDamage.lua
 
 **State Tracking:** Relic state persists in `world` (e.g., `world.penNibCounter`, `world.wingedBootsCharges`)
 
 **Examples:**
 
-- **Pen Nib**: Track attack counter in `world.penNibCounter`, check in DealDamage
+- **Pen Nib**: Track attack counter in `world.penNibCounter`, check in DealAttackDamage
 - **Necronomicon**: Check in PlayCard duplication system
 - **Snecko Eye**: Adds Confused status at StartCombat
 - **Winged Boots**: Enables bypassing map connections in Map_ChooseNextNode
@@ -977,7 +977,7 @@ return {
 **WRONG:**
 ```lua
 world.queue:push({
-    type = "ON_DAMAGE",
+    type = "ON_ATTACK_DAMAGE",
     defender = world.combat.stableContext  -- nil when pushed!
 })
 ```
@@ -985,7 +985,7 @@ world.queue:push({
 **CORRECT:**
 ```lua
 world.queue:push({
-    type = "ON_DAMAGE",
+    type = "ON_ATTACK_DAMAGE",
     defender = function() return world.combat.stableContext end  -- Evaluated later
 })
 ```
@@ -1030,7 +1030,7 @@ end
 
 ```lua
 world.queue:push({
-    type = "ON_DAMAGE",
+    type = "ON_ATTACK_DAMAGE",
     defender = "all",  -- Hits all enemies
     card = self
 })
@@ -1078,7 +1078,7 @@ world.queue:push({
 | `CombatEngine.lua` | Game loop, turn cycle | Adding special mechanics that hijack turn flow (Vault) |
 | `Pipelines/PlayCard.lua` | Card execution | New duplication mechanics, card-play hooks |
 | `Pipelines/ProcessEventQueue.lua` | Event routing | Adding new event types |
-| `Pipelines/DealDamage.lua` | Damage calculation | Effects that modify damage (Strength multipliers, Pen Nib) |
+| `Pipelines/DealAttackDamage.lua` | Damage calculation | Effects that modify damage (Strength multipliers, Pen Nib) |
 | `Pipelines/ApplyBlock.lua` | Block calculation | Effects that modify block (Dexterity multipliers, Frail) |
 | `Pipelines/GetCost.lua` | Cost calculation | Effects that modify costs (Corruption, Confusion) |
 | `Pipelines/StartTurn.lua` | Turn start | Start-of-turn triggers (Echo Form counter, draw cards) |
@@ -1125,7 +1125,7 @@ assert(enemy.hp == initialHp - 15)  -- PASSES: 5 == 20 - 15
 ```
 
 **ApplyCaps Location:** `Pipelines/ApplyCaps.lua:26`
-- Auto-called after ON_DAMAGE, ON_NON_ATTACK_DAMAGE, ON_BLOCK, ON_HEAL, ON_STATUS_GAIN
+- Auto-called after ON_ATTACK_DAMAGE, ON_NON_ATTACK_DAMAGE, ON_BLOCK, ON_HEAL, ON_STATUS_GAIN
 - Enforces: `hp = math.max(0, math.min(hp, maxHp))`
 - Also caps block, status effects
 
@@ -1320,7 +1320,7 @@ lua tests/test_myfeature.lua
 **Cons:**
 - ❌ Modifying mechanics requires touching pipelines
 - ❌ No code reuse through inheritance
-- ❌ Large pipelines can get complex (DealDamage is 200+ lines)
+- ❌ Large pipelines can get complex (DealAttackDamage is 200+ lines)
 - ❌ Powers/relics require pipeline modifications to integrate
 - ❌ Context system adds complexity (but solves hard problems correctly)
 

@@ -27,7 +27,7 @@ return {
 
             -- Deal damage
             world.queue:push({
-                type = "ON_DAMAGE",
+                type = "ON_ATTACK_DAMAGE",
                 attacker = player,
                 defender = world.combat.stableContext,
                 card = self

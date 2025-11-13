@@ -1,5 +1,5 @@
 -- DEAL DAMAGE PIPELINE
--- Processes ON_DAMAGE events from the queue
+-- Processes ON_ATTACK_DAMAGE events from the queue
 --
 -- Event should have:
 -- - attacker: character dealing damage
@@ -17,11 +17,11 @@
 -- - Combat logging
 -- - AOE damage (defender = "all")
 
-local DealDamage = {}
+local DealAttackDamage = {}
 
 local Utils = require("utils")
 
-function DealDamage.execute(world, event)
+function DealAttackDamage.execute(world, event)
     local attacker = event.attacker
     local defender = event.defender
     local card = event.card
@@ -40,7 +40,7 @@ function DealDamage.execute(world, event)
             for _, enemy in ipairs(world.enemies) do
                 if enemy.hp > 0 then
                     -- Call with aoe tag added
-                    DealDamage.executeSingle(world, attacker, enemy, card, aoeTags, event.damage)
+                    DealAttackDamage.executeSingle(world, attacker, enemy, card, aoeTags, event.damage)
                 end
             end
         end
@@ -48,11 +48,11 @@ function DealDamage.execute(world, event)
     end
 
     -- Single target damage
-    DealDamage.executeSingle(world, attacker, defender, card, tags, event.damage)
+    DealAttackDamage.executeSingle(world, attacker, defender, card, tags, event.damage)
 end
 
 -- Execute damage against a single target
-function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDamage)
+function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, eventDamage)
     -- Safety check: Skip if defender is invalid or already dead
     if not defender or not defender.hp or defender.hp <= 0 then
         table.insert(world.log, "Damage skipped - target no longer valid")
@@ -227,4 +227,4 @@ function DealDamage.executeSingle(world, attacker, defender, card, tags, eventDa
     end
 end
 
-return DealDamage
+return DealAttackDamage

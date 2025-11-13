@@ -33,7 +33,7 @@ When implementing ANY new content, follow this systematic process:
 ```
 Does this mechanic need to interact with existing game systems?
 ├─ YES → Use existing pipelines via event queue
-│   ├─ Damage? → ON_DAMAGE (attack) or ON_NON_ATTACK_DAMAGE (HP loss)
+│   ├─ Damage? → ON_ATTACK_DAMAGE (attack) or ON_NON_ATTACK_DAMAGE (HP loss)
 │   ├─ Block? → ON_BLOCK
 │   ├─ Status effects? → ON_STATUS_GAIN
 │   ├─ Card manipulation? → ON_DRAW, ON_DISCARD, ON_EXHAUST, ON_ACQUIRE_CARD
@@ -51,7 +51,7 @@ Does this mechanic need to interact with existing game systems?
 
 **Simple Attack (Strike):**
 - Needs: Damage pipeline
-- Solution: Push `ON_DAMAGE` event
+- Solution: Push `ON_ATTACK_DAMAGE` event
 - Context: Requires enemy target (stable)
 
 **Energy Manipulation (Offering):**
@@ -66,7 +66,7 @@ Does this mechanic need to interact with existing game systems?
 
 **Direct Modification Example (Judgment - rarity check):**
 - Needs: Check if only one enemy, deal damage equal to its HP
-- Solution: `ON_CUSTOM_EFFECT` wrapping direct state check + `ON_DAMAGE`
+- Solution: `ON_CUSTOM_EFFECT` wrapping direct state check + `ON_ATTACK_DAMAGE`
 - Why: Rarity check is card-specific, but damage uses pipeline for modifiers
 
 ---
@@ -121,7 +121,7 @@ Does this mechanic need to interact with existing game systems?
   - Cleaner than direct HP mutation in events
 - **Impact:** New map pipeline, mirrors combat patterns
 
-**SEPARATED: DealNonAttackDamage.lua** (from DealDamage.lua)
+**SEPARATED: DealNonAttackDamage.lua** (from DealAttackDamage.lua)
 - **Why:** Attack damage vs HP loss have VERY different rules:
   - Attack damage: affected by Strength, Vulnerable, Weak
   - HP loss: NOT affected by combat modifiers, can ignore block
@@ -312,7 +312,7 @@ world.player.currentStance = nil  -- "Calm", "Wrath", "Divinity", or nil
 
 **Why:** Stance persists across turns, affects damage/block calculations
 
-**Impact:** World.lua gained stance field, ChangeStance pipeline created, DealDamage/ApplyBlock check stance
+**Impact:** World.lua gained stance field, ChangeStance pipeline created, DealAttackDamage/ApplyBlock check stance
 
 **ADDED: world.combat.vaultPlayed** (for Vault card)
 ```lua
@@ -520,7 +520,7 @@ Slime Boss splits into 2 Spike Slimes when HP drops to 50% or below.
    end
    ```
 
-3. **Hook into DealDamage pipeline** (`Pipelines/DealDamage.lua`)
+3. **Hook into DealAttackDamage pipeline** (`Pipelines/DealAttackDamage.lua`)
    ```lua
    -- After applying damage, check for reactive triggers
    if defender.ChangeIntentOnDamage then
@@ -544,7 +544,7 @@ Slime Boss splits into 2 Spike Slimes when HP drops to 50% or below.
 
 **Files Modified:**
 - `Data/Enemies/slime.lua` - Added split intent and ChangeIntentOnDamage
-- `Pipelines/DealDamage.lua` - Added ChangeIntentOnDamage hook call
+- `Pipelines/DealAttackDamage.lua` - Added ChangeIntentOnDamage hook call
 
 **Files Created:** None
 
@@ -1199,7 +1199,7 @@ if world.player.currentHp < 0 then world.player.currentHp = 0 end
 **Analysis:**
 - **Reuse:** High - Multiple map events cause damage
 - **Interactions:** Medium - Potential relic hooks, logging
-- **Consistency:** High - Mirrors combat pattern (DealDamage / DealNonAttackDamage)
+- **Consistency:** High - Mirrors combat pattern (DealAttackDamage / DealNonAttackDamage)
 - **Caps:** Critical - HP must be capped consistently
 
 **Decision:** ✅ **CREATE Map_ReceiveDamage pipeline**
@@ -1510,13 +1510,13 @@ world.combat.vaultPlayed = true  -- CombatEngine checks this
 ```lua
 -- WRONG: Context doesn't exist yet
 world.queue:push({
-    type = "ON_DAMAGE",
+    type = "ON_ATTACK_DAMAGE",
     defender = world.combat.stableContext  -- nil!
 })
 
 -- RIGHT: Lazy evaluation
 world.queue:push({
-    type = "ON_DAMAGE",
+    type = "ON_ATTACK_DAMAGE",
     defender = function() return world.combat.stableContext end  -- Evaluated later
 })
 ```

@@ -12,7 +12,7 @@ local Utils = require("utils")
 local Cards = require("Data.cards")
 local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
-local DealDamage = require("Pipelines.DealDamage")
+local DealAttackDamage = require("Pipelines.DealAttackDamage")
 local ChangeStance = require("Pipelines.ChangeStance")
 local StartTurn = require("Pipelines.StartTurn")
 
@@ -43,7 +43,7 @@ StartCombat.execute(world1, world1.player, world1.enemies)
 
 -- Deal damage without Wrath
 local strikeCard = world1.player.combatDeck[1]
-DealDamage.execute(world1, {
+DealAttackDamage.execute(world1, {
     attacker = world1.player,
     defender = enemy1,
     card = strikeCard
@@ -57,7 +57,7 @@ enemy1.hp = 100
 
 -- Enter Wrath and deal damage again
 ChangeStance.execute(world1, {newStance = "Wrath"})
-DealDamage.execute(world1, {
+DealAttackDamage.execute(world1, {
     attacker = world1.player,
     defender = enemy1,
     card = strikeCard
@@ -91,7 +91,7 @@ local enemyAttack = {damage = 10}
 -- Take damage without Wrath
 world2.player.hp = 100
 world2.player.block = 0
-DealDamage.execute(world2, {
+DealAttackDamage.execute(world2, {
     attacker = enemy2,
     defender = world2.player,
     card = enemyAttack
@@ -104,7 +104,7 @@ print("Damage taken without Wrath: " .. damageWithoutWrath2)
 world2.player.hp = 100
 world2.player.block = 0
 ChangeStance.execute(world2, {newStance = "Wrath"})
-DealDamage.execute(world2, {
+DealAttackDamage.execute(world2, {
     attacker = enemy2,
     defender = world2.player,
     card = enemyAttack
@@ -135,7 +135,7 @@ StartCombat.execute(world3, world3.player, world3.enemies)
 
 -- Deal damage without Divinity
 local strikeCard3 = world3.player.combatDeck[1]
-DealDamage.execute(world3, {
+DealAttackDamage.execute(world3, {
     attacker = world3.player,
     defender = enemy3,
     card = strikeCard3
@@ -149,7 +149,7 @@ enemy3.hp = 100
 
 -- Enter Divinity and deal damage again
 ChangeStance.execute(world3, {newStance = "Divinity"})
-DealDamage.execute(world3, {
+DealAttackDamage.execute(world3, {
     attacker = world3.player,
     defender = enemy3,
     card = strikeCard3
@@ -206,7 +206,7 @@ StartCombat.execute(world5, world5.player, world5.enemies)
 
 -- Get base damage first
 local strikeCard5 = world5.player.combatDeck[1]
-DealDamage.execute(world5, {
+DealAttackDamage.execute(world5, {
     attacker = world5.player,
     defender = enemy5,
     card = strikeCard5
@@ -218,7 +218,7 @@ enemy5.hp = 100
 world5.player.currentStance = "Wrath"
 enemy5.currentStance = "Wrath"
 
-DealDamage.execute(world5, {
+DealAttackDamage.execute(world5, {
     attacker = world5.player,
     defender = enemy5,
     card = strikeCard5
@@ -251,7 +251,7 @@ StartCombat.execute(world6, world6.player, world6.enemies)
 
 -- Deal damage without stance
 local strikeCard6 = world6.player.combatDeck[1]
-DealDamage.execute(world6, {
+DealAttackDamage.execute(world6, {
     attacker = world6.player,
     defender = enemy6,
     card = strikeCard6
@@ -261,7 +261,7 @@ local damageNoStance = 100 - enemy6.hp
 -- Reset and enter Calm
 enemy6.hp = 100
 ChangeStance.execute(world6, {newStance = "Calm"})
-DealDamage.execute(world6, {
+DealAttackDamage.execute(world6, {
     attacker = world6.player,
     defender = enemy6,
     card = strikeCard6

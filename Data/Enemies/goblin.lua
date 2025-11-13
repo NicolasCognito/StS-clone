@@ -12,7 +12,7 @@ return {
         intents = {
             attack = function(self, world, player)
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self  -- enemy acts like a "card" for pipeline purposes
@@ -53,7 +53,7 @@ return {
             else
                 -- Fallback to simple attack if no intent selected
                 world.queue:push({
-                    type = "ON_DAMAGE",
+                    type = "ON_ATTACK_DAMAGE",
                     attacker = self,
                     defender = player,
                     card = self
