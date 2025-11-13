@@ -135,6 +135,13 @@ do
     local player = world.player
     local enemy1 = world.enemies[1]
     local enemy2 = world.enemies[2]
+
+    -- Give enemies enough HP to survive Fire Potion (15 damage)
+    enemy1.hp = 20
+    enemy1.maxHp = 20
+    enemy2.hp = 20
+    enemy2.maxHp = 20
+
     local initialHp1 = enemy1.hp
     local initialHp2 = enemy2.hp
 
