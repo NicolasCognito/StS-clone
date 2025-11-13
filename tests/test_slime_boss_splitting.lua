@@ -32,6 +32,7 @@ local deck1 = {
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
+    copyCard(Cards.Strike),  -- Need 5 Strikes to get boss below half HP (60 → 30)
     copyCard(Cards.Defend)
 }
 
@@ -39,13 +40,16 @@ local world1 = World.createWorld({
     id = "Ironclad",
     maxHp = 80,
     hp = 80,
-    maxEnergy = 3,
+    maxEnergy = 6,  -- Need at least 5 energy to play 5 Strikes to get boss below half HP
     cards = deck1,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
 
 local boss = copyEnemy(Enemies.SlimeBoss)
 world1.enemies = {boss}
+
+-- Enable NoShuffle for deterministic card draw
+world1.NoShuffle = true
 
 StartCombat.execute(world1)
 
@@ -75,6 +79,9 @@ for _, card in ipairs(handCards) do
                     world1.combat.stableContext = boss
                     world1.combat.contextRequest = nil
                 end
+            elseif result == false then
+                -- Card couldn't be played (e.g., not enough energy)
+                break
             end
         end
 
@@ -139,6 +146,7 @@ local deck2 = {
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
     copyCard(Cards.Strike),
+    copyCard(Cards.Strike),
     copyCard(Cards.Strike)
 }
 
@@ -146,7 +154,7 @@ local world2 = World.createWorld({
     id = "Ironclad",
     maxHp = 80,
     hp = 80,
-    maxEnergy = 3,
+    maxEnergy = 6,  -- Need enough energy to damage boss below half HP
     cards = deck2,  -- Use 'cards' parameter name, not 'deck'
     relics = {}
 })
@@ -157,9 +165,9 @@ world2.enemies = {boss2}
 StartCombat.execute(world2)
 -- StartCombat already calls StartTurn, no need to call it again
 
--- Damage boss below half HP
+-- Damage boss below half HP (need 5 Strikes: 60 → 30)
 local handCards2 = Utils.getCardsByState(world2.player.combatDeck, "HAND")
-for i = 1, 3 do
+for i = 1, 5 do
     local strike = handCards2[i]
     if strike and strike.id == "Strike" then
         -- Play card and provide context if needed
@@ -176,6 +184,9 @@ for i = 1, 3 do
                     world2.combat.stableContext = boss2
                     world2.combat.contextRequest = nil
                 end
+            elseif result == false then
+                -- Card couldn't be played (e.g., not enough energy)
+                break
             end
         end
         ProcessEventQueue.execute(world2)

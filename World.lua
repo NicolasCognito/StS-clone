@@ -19,8 +19,8 @@ function World.createWorld(playerData)
             block = 0,
 
             -- Energy
-            energy = 3,
-            maxEnergy = 3,
+            energy = playerData.energy or playerData.maxEnergy or 3,
+            maxEnergy = playerData.maxEnergy or 3,
 
             -- MASTER DECK (Persistent across combats)
             -- The player's permanent card collection. Modified by:
