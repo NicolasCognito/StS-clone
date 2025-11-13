@@ -19,9 +19,8 @@ function StartCombat.execute(world)
     world.cardQueue = CardQueue.new()
     world.log = {}
 
-    -- Ensure combat-only status/power tables exist
+    -- Ensure combat-only status table exists
     world.player.status = world.player.status or {}
-    world.player.powers = world.player.powers or {}
     local permanentStrength = world.player.permanentStrength or 0
     if permanentStrength ~= 0 then
         world.player.status.strength = (world.player.status.strength or 0) + permanentStrength

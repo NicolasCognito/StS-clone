@@ -142,8 +142,7 @@ world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 StartCombat.execute(world)
 
 -- Set up Echo Form (nightmare plays twice)
-world.player.powers = world.player.powers or {}
-table.insert(world.player.powers, {id = "EchoForm", stacks = 1})
+world.player.status.echo_form = 1
 world.player.status.echoFormThisTurn = 1
 
 -- Play Nightmare - should be duplicated by Echo Form

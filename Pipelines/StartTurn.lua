@@ -79,16 +79,10 @@ function StartTurn.execute(world, player)
         ProcessEventQueue.execute(world)
     end
 
-    -- Set Echo Form counter from power stacks
-    -- Echo Form: first N cards each turn are played twice (N = power stacks)
-    if player.powers then
-        local echoFormStacks = 0
-        for _, power in ipairs(player.powers) do
-            if power.id == "EchoForm" then
-                echoFormStacks = echoFormStacks + power.stacks
-            end
-        end
-        player.status.echoFormThisTurn = echoFormStacks
+    -- Set Echo Form counter from status effect stacks
+    -- Echo Form: first N cards each turn are played twice (N = stacks)
+    if player.status and player.status.echo_form and player.status.echo_form > 0 then
+        player.status.echoFormThisTurn = player.status.echo_form
     end
 
     -- Plasma orbs: Gain 1 energy per Plasma orb at start of turn
@@ -167,15 +161,6 @@ function StartTurn.execute(world, player)
             end
         end
     end
-
-    -- TODO: Trigger start-of-turn power effects here
-    -- if player.powers then
-    --     for _, power in ipairs(player.powers) do
-    --         if power.onTurnStart then
-    --             power:onTurnStart(world, player)
-    --         end
-    --     end
-    -- end
 end
 
 return StartTurn

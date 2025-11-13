@@ -372,6 +372,46 @@ local StatusEffects = {
         maxValue = 1,
         stackType = "intensity",
         debuff = false
+    },
+
+    corruption = {
+        id = "corruption",
+        name = "Corruption",
+        description = "Skills cost 0. Whenever you play a Skill, Exhaust it.",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    echo_form = {
+        id = "echo_form",
+        name = "Echo Form",
+        description = "The first N cards you play each turn are played twice.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    master_reality = {
+        id = "master_reality",
+        name = "Master Reality",
+        description = "Whenever a card is created during combat, Upgrade it.",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    establishment = {
+        id = "establishment",
+        name = "Establishment",
+        description = "Whenever you Retain a card, reduce its cost by 1.",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "intensity",
+        debuff = false
     }
 }
 

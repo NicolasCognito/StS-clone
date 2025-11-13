@@ -65,16 +65,19 @@ function Utils.copyEnemyTemplate(enemyTemplate)
     return copy
 end
 
--- Check if player has a specific power
+-- Check if player has a specific power (now implemented as status effects)
 -- Used throughout pipelines to check for power effects
+-- Converts PascalCase/camelCase to snake_case for status effect lookup
 function Utils.hasPower(player, powerId)
-    if not player.powers then return false end
-    for _, power in ipairs(player.powers) do
-        if power.id == powerId then
-            return true
-        end
-    end
-    return false
+    if not player.status then return false end
+
+    -- Convert powerId to snake_case (e.g., "MasterReality" -> "master_reality")
+    local statusKey = powerId:gsub("(%u)", function(c)
+        return "_" .. c:lower()
+    end):gsub("^_", "")  -- Remove leading underscore
+
+    -- Check if status effect exists and has value > 0
+    return player.status[statusKey] and player.status[statusKey] > 0
 end
 
 -- Check if player has a specific relic
