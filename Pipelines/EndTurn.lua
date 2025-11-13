@@ -78,6 +78,13 @@ function EndTurn.execute(world, player)
                     card.retainCostReduction = (card.retainCostReduction or 0) + 1
                 end
 
+                -- Push ON_RETAIN event to trigger retention effects
+                world.queue:push({
+                    type = "ON_RETAIN",
+                    card = card,
+                    player = player
+                })
+
                 -- Card stays in hand (don't change state)
                 table.insert(world.log, card.name .. " was retained")
             else
