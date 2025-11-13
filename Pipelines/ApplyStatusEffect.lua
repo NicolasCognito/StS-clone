@@ -158,6 +158,29 @@ function ApplyStatusEffect.executeSingle(world, target, effectType, amount, sour
             end
 
             table.insert(world.log, displayName .. " gained " .. amount .. " " .. statusDef.name .. " (" .. total .. ")")
+
+            -- MANTRA SPECIAL TRIGGER: Check for Divinity at 10+ Mantra
+            if statusKey == "mantra" and target.status.mantra >= 10 then
+                -- Track total Mantra gained for Brilliance card
+                if world.combat then
+                    world.combat.mantraGainedThisCombat = (world.combat.mantraGainedThisCombat or 0) + amount
+                end
+
+                -- Reduce by 10 and enter Divinity
+                target.status.mantra = target.status.mantra - 10
+                table.insert(world.log, displayName .. " gained 10 Mantra - entering Divinity!")
+
+                -- Push ChangeStance with FIRST priority (immediate trigger)
+                world.queue:push({
+                    type = "CHANGE_STANCE",
+                    newStance = "Divinity"
+                }, "FIRST")
+            elseif statusKey == "mantra" then
+                -- Track Mantra gains even if not triggering Divinity
+                if world.combat then
+                    world.combat.mantraGainedThisCombat = (world.combat.mantraGainedThisCombat or 0) + amount
+                end
+            end
         else
             table.insert(world.log, "Unknown status effect: " .. tostring(effectType))
         end

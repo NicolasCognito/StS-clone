@@ -47,6 +47,7 @@ return {
                 self.currentIntent = {
                     name = "Dark Strike",
                     description = "Deal " .. self.damage .. " damage",
+                    intentType = "ATTACK",
                     execute = self.intents.darkStrike
                 }
             end

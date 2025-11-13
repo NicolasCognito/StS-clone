@@ -454,6 +454,28 @@ local StatusEffects = {
         maxValue = 999,
         stackType = "intensity",
         debuff = false
+    },
+
+    -- STANCE-RELATED STATUS EFFECTS
+
+    mantra = {
+        id = "mantra",
+        name = "Mantra",
+        description = "At 10 Mantra, enter Divinity stance",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    mental_fortress = {
+        id = "mental_fortress",
+        name = "Mental Fortress",
+        description = "Whenever you change stance, gain Block equal to stacks",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
     }
 }
 

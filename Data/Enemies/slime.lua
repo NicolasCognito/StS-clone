@@ -65,12 +65,14 @@ return {
                 self.currentIntent = {
                     name = "Corrosive Spit",
                     description = "Deal " .. self.damage .. " damage and apply 1 Weak",
+                    intentType = "ATTACK",
                     execute = self.intents.corrosiveSpit
                 }
             else
                 self.currentIntent = {
                     name = "Tackle",
                     description = "Deal " .. self.damage .. " damage",
+                    intentType = "ATTACK",
                     execute = self.intents.tackle
                 }
             end
@@ -117,6 +119,7 @@ return {
             self.currentIntent = {
                 name = "Tackle",
                 description = "Deal " .. self.damage .. " damage",
+                intentType = "ATTACK",
                 execute = self.intents.tackle
             }
         end,
@@ -222,6 +225,7 @@ return {
                 self.currentIntent = {
                     name = "Slam",
                     description = "Deal " .. self.damage .. " damage",
+                    intentType = "ATTACK",
                     execute = self.intents.slam
                 }
             end

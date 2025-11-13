@@ -66,6 +66,43 @@ function ChangeStance.execute(world, event)
             table.insert(world.log, player.name .. " returned to Neutral stance")
         end
     end
+
+    -- ============================================================================
+    -- STANCE CHANGE TRIGGERS (only if stance actually changed)
+    -- ============================================================================
+    if oldStance ~= newStance then
+        -- Mental Fortress: gain block on stance change
+        if player.status and player.status.mental_fortress and player.status.mental_fortress > 0 then
+            world.queue:push({
+                type = "ON_BLOCK",
+                target = player,
+                amount = player.status.mental_fortress
+            })
+        end
+
+        -- Flurry of Blows: return from discard (respecting hand size)
+        world.queue:push({
+            type = "ON_CUSTOM_EFFECT",
+            effect = function()
+                local Utils = require("utils")
+                local maxHandSize = player.maxHandSize or 10
+                local currentHandSize = Utils.getCardCountByState(player.combatDeck, "HAND")
+
+                for _, card in ipairs(player.combatDeck) do
+                    if card.id == "FlurryOfBlows" and card.state == "DISCARD_PILE" then
+                        if currentHandSize < maxHandSize then
+                            card.state = "HAND"
+                            currentHandSize = currentHandSize + 1
+                            table.insert(world.log, "Flurry of Blows returned to hand!")
+                        else
+                            -- Hand is full, can't return
+                            break
+                        end
+                    end
+                end
+            end
+        })
+    end
 end
 
 return ChangeStance

@@ -96,6 +96,9 @@ function StartCombat.execute(world)
     -- Initialize HP tracking for Emotion Chip
     world.combat.hpAtTurnStart = world.player.hp
 
+    -- Initialize Mantra tracking for Brilliance card
+    world.combat.mantraGainedThisCombat = 0
+
     StartTurn.execute(world, world.player)
 end
 

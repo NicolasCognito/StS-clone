@@ -35,6 +35,7 @@ return {
                 self.currentIntent = {
                     name = "Attack",
                     description = "Deal " .. self.damage .. " damage",
+                    intentType = "ATTACK",
                     execute = self.intents.attack
                 }
             else
