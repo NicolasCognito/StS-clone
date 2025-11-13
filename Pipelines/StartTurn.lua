@@ -128,6 +128,28 @@ function StartTurn.execute(world, player)
     -- Draw cards
     DrawCard.execute(world, player, cardsToDraw)
 
+    -- Process NIGHTMARE state cards (from Nightmare card)
+    -- Move NIGHTMARE cards to hand, respecting max hand size (default 10)
+    -- If hand is full, Nightmare cards are removed entirely
+    local Utils = require("utils")
+    local maxHandSize = player.maxHandSize or 10
+
+    for i = #player.combatDeck, 1, -1 do
+        local card = player.combatDeck[i]
+        if card.state == "NIGHTMARE" then
+            local handSize = Utils.getCardCountByState(player.combatDeck, "HAND")
+
+            if handSize < maxHandSize then
+                card.state = "HAND"
+                table.insert(world.log, card.name .. " added to hand from Nightmare")
+            else
+                -- Hand full - card is lost (removed from deck entirely)
+                table.remove(player.combatDeck, i)
+                table.insert(world.log, card.name .. " lost (hand full)")
+            end
+        end
+    end
+
     if status.fasting and status.fasting > 0 then
         local penalty = math.min(status.fasting, player.energy)
         if penalty > 0 then

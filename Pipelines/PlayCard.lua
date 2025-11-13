@@ -128,6 +128,7 @@ local function prepareCardPlay(world, player, card, options)
     end
 
     card.energyPaid = true
+    card._previousLastPlayedCard = world.lastPlayedCard  -- Save for restoration if card is canceled
     ensureCombatContext(world).deferStableContextClear = true
     enterProcessingState(card)
     return true
@@ -221,6 +222,14 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
             card:onPlay(world, player)
         end
 
+        -- Track last played card (for Follow-Up, Sash Whip, Crush Joints)
+        -- This happens AFTER onPlay, so the card has read the previous lastPlayedCard,
+        -- and now we update it for the next card
+        world.lastPlayedCard = {
+            type = card.type,
+            name = card.name
+        }
+
         world.queue:push({
             type = "AFTER_CARD_PLAYED",
             player = player
@@ -272,6 +281,14 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
         end
 
     end
+
+    -- Track last played card (for Follow-Up, Sash Whip, Crush Joints)
+    -- This happens AFTER the card's effects have been processed, so the next card
+    -- can check what type the previous card was
+    world.lastPlayedCard = {
+        type = card.type,
+        name = card.name
+    }
 
     return true
 end

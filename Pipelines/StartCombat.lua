@@ -22,6 +22,9 @@ function StartCombat.execute(world)
         playerDied = false
     }
 
+    -- Initialize lastPlayedCard tracking (persists across turns within combat)
+    world.lastPlayedCard = nil
+
     world.queue = EventQueue.new()
     world.cardQueue = CardQueue.new()
     world.log = {}

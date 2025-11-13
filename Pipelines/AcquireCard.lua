@@ -29,6 +29,14 @@ function AcquireCard.execute(world, player, cardTemplate, tags, targetDeck)
         newCard[k] = v
     end
 
+    -- Check for Master Reality power: auto-upgrade created cards
+    if Utils.hasPower(player, "MasterReality") then
+        if not newCard.upgraded and type(newCard.onUpgrade) == "function" then
+            newCard:onUpgrade()
+            newCard.upgraded = true
+        end
+    end
+
     -- Determine target deck: default to combat if in combat, otherwise master
     local inCombat = player.combatDeck ~= nil
     if not targetDeck then
