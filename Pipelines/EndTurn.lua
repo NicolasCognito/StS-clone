@@ -47,6 +47,18 @@ function EndTurn.execute(world, player)
         world.combat.lastTurnLostHp = true
     end
 
+    -- Like Water: If in Calm stance, gain block at end of turn
+    if player.status and player.status.like_water and player.status.like_water > 0 then
+        if player.currentStance == "Calm" then
+            world.queue:push({
+                type = "ON_BLOCK",
+                target = player,
+                amount = player.status.like_water
+            })
+            ProcessEventQueue.execute(world)
+        end
+    end
+
     -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down
     -- in the EndRound pipeline, not here. This is because they are "End of Round"
     -- effects, not "End of Turn" effects.

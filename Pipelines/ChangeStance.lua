@@ -23,10 +23,15 @@ function ChangeStance.execute(world, event)
     -- EXIT OLD STANCE
     -- ============================================================================
     if oldStance == "Calm" then
-        -- Calm exit: Gain 2 energy
-        -- TODO: Check for relics that modify this (e.g., Violet Lotus)
-        player.energy = player.energy + 2
-        table.insert(world.log, player.name .. " exited Calm and gained 2 energy")
+        -- Calm exit: Gain 2 energy (3 with Violet Lotus)
+        local Utils = require("utils")
+        local energyGain = 2
+        if Utils.hasRelic(player, "Violet_Lotus") then
+            energyGain = 3
+        end
+
+        player.energy = player.energy + energyGain
+        table.insert(world.log, player.name .. " exited Calm and gained " .. energyGain .. " energy")
 
     elseif oldStance == "Wrath" then
         -- Wrath exit: No special effect in base game
@@ -78,6 +83,13 @@ function ChangeStance.execute(world, event)
                 target = player,
                 amount = player.status.mental_fortress
             })
+        end
+
+        -- Rushdown: draw 2 cards when entering Wrath
+        if newStance == "Wrath" and player.status and player.status.rushdown and player.status.rushdown > 0 then
+            for i = 1, 2 do
+                world.queue:push({type = "ON_DRAW"})
+            end
         end
 
         -- Flurry of Blows: return from discard (respecting hand size)

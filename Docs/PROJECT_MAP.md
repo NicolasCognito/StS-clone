@@ -884,15 +884,15 @@ MapCLI.lua (main loop):
 
 ---
 
-### 9. STATUS EFFECTS vs POWERS
+### 9. STATUS EFFECTS (including Powers)
 
 **Status Effects** (Data/statuseffects.lua):
 
-- **Temporary effects** with stacks/duration
+- **All effects** including what players call "Powers" are implemented as status effects
 - Data-driven: defined in `statuseffects.lua` (metadata only)
-- Applied via `APPLY_STATUS_EFFECT` events
-- Checked by pipelines (DealAttackDamage, ApplyBlock, EndRound)
-- Tick down automatically at end of round (EndRound.lua)
+- Applied via `ON_STATUS_GAIN` events
+- Checked by pipelines (DealAttackDamage, ApplyBlock, EndRound, GetCost, etc.)
+- Can tick down automatically or persist (depending on configuration)
 
 **Common Status Effects:**
 
@@ -908,24 +908,30 @@ MapCLI.lua (main loop):
 | `intangible` | Damage capped at 1 | DealAttackDamage.lua |
 | `ritual` | Gain strength at end of turn | EndRound.lua |
 | `mark` | Accumulates for Pressure Points | Card: pressurepoints.lua |
+| `mental_fortress` | Gain block on stance change | ChangeStance.lua |
+| `mantra` | Enter Divinity at 10 stacks | ApplyStatusEffect.lua |
 
-**Powers** (Data/Powers/*.lua):
+**"Power" Cards (type = "POWER"):**
 
-- **Persistent effects** that modify game mechanics
-- Defined as Lua files in `Data/Powers/` (separate from cards)
-- Applied via `ON_APPLY_POWER` events
-- Checked by pipelines using `Utils.hasPower(player, "PowerName")`
-- Persist until removed (usually by stacks reaching 0)
+- Cards with `type = "POWER"` are a **display category**, not a separate logic system
+- They apply status effects just like any other card (using `ON_STATUS_GAIN`)
+- Use `Utils.hasPower(player, "PowerName")` for backwards-compatible checking
+  - Converts PascalCase → snake_case (e.g., "MasterReality" → "master_reality")
+  - Checks if `player.status[statusKey] > 0`
 
-**Common Powers:**
+**Example Power-Type Status Effects:**
 
-| Power | Effect | Where Checked |
-|-------|--------|---------------|
-| `Corruption` | Skills cost 0, exhaust after play | GetCost.lua, PlayCard.lua |
-| `EchoForm` | First N cards each turn play twice | StartTurn.lua, PlayCard.lua |
-| `Barricade` | Block doesn't reset at end of turn | EndRound.lua |
+| Status Effect | Card Type | Effect | Where Checked |
+|---------------|-----------|--------|---------------|
+| `corruption` | POWER | Skills cost 0, exhaust after play | GetCost.lua, PlayCard.lua |
+| `echo_form` | POWER | First N cards each turn play twice | StartTurn.lua, PlayCard.lua |
+| `barricade` | POWER | Block doesn't reset at end of turn | EndRound.lua |
 
-**Key Difference:** Status effects tick down automatically. Powers persist until manually removed.
+**Key Points:**
+- **No separate power system** - all game effects use the unified status effect system
+- Some status effects tick down (vulnerable, weak), others persist (corruption, barricade)
+- `Utils.hasPower()` exists for backwards compatibility and cleaner code
+- The old `ApplyPower` pipeline may exist for legacy reasons but is not used for new content
 
 ---
 

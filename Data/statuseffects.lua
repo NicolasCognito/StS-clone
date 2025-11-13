@@ -476,6 +476,56 @@ local StatusEffects = {
         maxValue = 999,
         stackType = "intensity",
         debuff = false
+    },
+
+    die_next_turn = {
+        id = "die_next_turn",
+        name = "Die Next Turn",
+        description = "At the start of your next turn, take 9999 damage (from Blasphemy)",
+        minValue = 0,
+        maxValue = 1,  -- Non-stackable
+        stackType = "intensity",  -- Non-degrading
+        debuff = false  -- It's a "buff" in terms of game mechanics (positive for player strategy)
+    },
+
+    simmering_fury = {
+        id = "simmering_fury",
+        name = "Simmering Fury",
+        description = "At the start of your next turn, enter Wrath and draw 2 cards",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    like_water = {
+        id = "like_water",
+        name = "Like Water",
+        description = "At the end of your turn, if you are in Calm, gain Block equal to stacks",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    rushdown = {
+        id = "rushdown",
+        name = "Rushdown",
+        description = "Whenever you enter Wrath, draw 2 cards",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    devotion = {
+        id = "devotion",
+        name = "Devotion",
+        description = "At the start of your turn, gain Mantra equal to stacks",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
     }
 }
 
