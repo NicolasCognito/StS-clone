@@ -1870,4 +1870,295 @@ end
 
 ---
 
+## Step 7: Writing Effective Tests
+
+### The Golden Rules of Testing
+
+**Based on fixing 17 failing tests, here are the hard-learned lessons:**
+
+#### Rule 1: Enemies Must Survive Expected Damage
+
+**Problem:** HP is capped to [0, maxHp] AFTER damage calculation by `ApplyCaps.lua`.
+
+```lua
+-- ❌ BAD TEST: Enemy dies, can't verify full damage
+enemy.hp = 12
+FirePotion deals 15 damage
+assert(enemy.hp == -3)  -- WRONG! HP capped to 0
+
+-- ✅ GOOD TEST: Enemy survives, damage fully measurable
+enemy.hp = 20
+FirePotion deals 15 damage
+assert(enemy.hp == 5)  -- 20 - 15 = 5 ✅
+```
+
+**Rule of Thumb:** Enemy HP ≥ (expected_damage + 5) for safety margin.
+
+#### Rule 2: Player Needs Sufficient Energy
+
+**Problem:** Tests were hanging in infinite loops when `PlayCard.execute()` returned `false` (insufficient energy).
+
+```lua
+-- ❌ BAD: Default maxEnergy = 3, need 5 Strikes
+maxEnergy = 3
+for i = 1, 5 do playCard(Strike) end  -- Runs out at card 4!
+
+-- ✅ GOOD: Provide enough energy
+maxEnergy = 6  -- Can play 6 cards at cost 1
+for i = 1, 5 do playCard(Strike) end
+```
+
+**Context Loop Safety:**
+```lua
+while true do
+    local result = PlayCard.execute(world, player, card)
+    if result == true then
+        break
+    elseif result == false then  -- ← CRITICAL: Prevents infinite loop
+        break
+    end
+    -- Handle context...
+end
+```
+
+#### Rule 3: Use NoShuffle for Deterministic Tests
+
+**Problem:** Deck shuffling breaks tests that depend on card order.
+
+```lua
+-- ❌ BAD: Random card order
+StartCombat.execute(world)  -- Shuffles deck!
+
+-- ✅ GOOD: Deterministic order
+world.NoShuffle = true
+StartCombat.execute(world)
+-- Cards drawn in exact order they were added
+```
+
+**When to Use:**
+- Testing Havoc (plays top card of deck)
+- Testing card selection with labeled cards
+- Multi-duplication tests where order matters
+
+#### Rule 4: Account for Card States After Cancellation
+
+**Problem:** Cancelled cards stay in `PROCESSING` state, not `DISCARD_PILE`.
+
+```lua
+-- ❌ BAD: Only counts DISCARD_PILE
+local played = countCardsInState(deck, "DISCARD_PILE")
+assert(played == 4)  -- FAILS if duplication was cancelled
+
+-- ✅ GOOD: Count both states
+local played = countCardsInState(deck, "DISCARD_PILE") +
+               countCardsInState(deck, "PROCESSING")
+assert(played == 4)  -- Handles cancellations
+```
+
+**Why This Happens:** When enemy dies mid-duplication, remaining plays are cancelled. The card remains in `PROCESSING` instead of moving to `DISCARD_PILE`.
+
+#### Rule 5: Test Duplication Stacking Systematically
+
+**When testing Double Tap, Echo Form, Burst, Necronomicon:**
+
+1. Calculate total hits: initial + duplications
+2. Calculate total damage: hits × damage_per_hit
+3. Set enemy HP ≥ total_damage
+4. Set player energy ≥ card_cost
+5. Enable NoShuffle if order matters
+6. Verify trigger messages in log
+
+```lua
+-- TEST: Double Tap + Echo Form
+-- Expected: 1 initial + 1 Double Tap + 1 Echo Form = 3 hits
+local totalHits = 3
+local damagePerHit = 6  -- Strike
+local totalDamage = totalHits * damagePerHit  -- 18
+
+enemy.hp = 20  -- ≥ 18
+enemy.maxHp = 20
+player.energy = 3  -- ≥ 1 (Strike cost)
+player.status.doubleTap = 1
+player.status.echoFormThisTurn = 1
+
+playCard(Strike)
+
+assert(countLogEntries(log, "Double Tap triggers!") == 1)
+assert(countLogEntries(log, "Echo Form triggers!") == 1)
+assert(countLogEntries(log, "dealt 6 damage") == 3)
+assert(enemy.hp == 2)  -- 20 - 18 = 2
+```
+
+#### Rule 6: World.createWorld Accepts Testing Parameters
+
+**Critical Parameters:**
+
+```lua
+World.createWorld({
+    id = "IronClad",
+    maxHp = 80,
+    maxEnergy = 6,              -- Override default 3
+    energy = 5,                 -- Start with specific energy
+    cards = {card1, card2},     -- Starting deck
+    relics = {relic1},          -- Starting relics
+    masterPotions = {potion1}   -- Starting potions
+})
+```
+
+**Fixed Bug (2025-11-13):** World.lua now respects `maxEnergy` parameter (was hardcoded to 3).
+
+### Test Template Library
+
+#### Template 1: Simple Combat Test
+
+```lua
+local World = require("World")
+local Utils = require("utils")
+local Cards = require("Data.cards")
+local Enemies = require("Data.enemies")
+local StartCombat = require("Pipelines.StartCombat")
+local PlayCard = require("Pipelines.PlayCard")
+local ContextProvider = require("Pipelines.ContextProvider")
+
+math.randomseed(1337)
+
+local function playCardWithAutoContext(world, player, card)
+    while true do
+        local result = PlayCard.execute(world, player, card)
+        if result == true then return true end
+        if result == false then break end  -- Prevent infinite loop
+
+        if type(result) == "table" and result.needsContext then
+            local request = world.combat.contextRequest
+            local context = ContextProvider.execute(world, player,
+                                                    request.contextProvider,
+                                                    request.card)
+            if request.stability == "stable" then
+                world.combat.stableContext = context
+            else
+                world.combat.tempContext = context
+            end
+            world.combat.contextRequest = nil
+        end
+    end
+end
+
+-- Setup
+local world = World.createWorld({
+    id = "IronClad",
+    maxHp = 80,
+    maxEnergy = 6,
+    cards = {Utils.copyCardTemplate(Cards.Strike)},
+    relics = {}
+})
+
+world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
+world.NoShuffle = true
+StartCombat.execute(world)
+
+-- Modify as needed
+world.enemies[1].hp = 20
+world.enemies[1].maxHp = 20
+
+-- Test
+local card = world.player.combatDeck[1]  -- First card in hand
+playCardWithAutoContext(world, world.player, card)
+
+-- Assert
+assert(world.enemies[1].hp < 20, "Enemy should take damage")
+print("✓ Test passed")
+```
+
+#### Template 2: Duplication Test
+
+```lua
+-- Calculate requirements
+local hits = 3  -- initial + Double Tap + Echo Form
+local damagePerHit = 6
+local totalDamage = hits * damagePerHit
+
+-- Setup with sufficient resources
+local world = World.createWorld({
+    id = "IronClad",
+    maxEnergy = 6,  -- Enough for multiple cards
+    cards = {Utils.copyCardTemplate(Cards.Strike)},
+    relics = {}
+})
+
+world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
+world.NoShuffle = true
+StartCombat.execute(world)
+
+-- Ensure survival
+world.enemies[1].hp = totalDamage + 5
+world.enemies[1].maxHp = totalDamage + 5
+
+-- Enable duplications
+world.player.status.doubleTap = 1
+world.player.status.echoFormThisTurn = 1
+
+-- Test
+playCardWithAutoContext(world, world.player, strikeCard)
+
+-- Verify logs (triggers BEFORE execution)
+assert(countLogEntries(world.log, "Double Tap triggers!") == 1)
+assert(countLogEntries(world.log, "Echo Form triggers!") == 1)
+
+-- Verify damage
+local expectedHp = (totalDamage + 5) - totalDamage
+assert(world.enemies[1].hp == expectedHp)
+```
+
+#### Template 3: Enemy AI Test
+
+```lua
+local world = World.createWorld({
+    id = "IronClad",
+    maxHp = 80,
+    cards = {Utils.copyCardTemplate(Cards.Strike)},
+    relics = {}
+})
+
+local boss = Utils.copyEnemyTemplate(Enemies.SlimeBoss)
+world.enemies = {boss}
+StartCombat.execute(world)
+
+-- Damage boss below threshold
+-- NOTE: Give enough energy to reach threshold!
+world.player.energy = 6
+for i = 1, 5 do
+    local strike = findCardByType(world.player.combatDeck, "Strike")
+    playCardWithAutoContext(world, world.player, strike)
+end
+
+-- Verify intent changed
+assert(boss.hasSplit == true, "Boss should set split flag")
+assert(boss.currentIntent.name == "Split", "Boss should have Split intent")
+```
+
+### Common Test Failures & Fixes
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| "Expected 4 cards, got 3" | Cancelled card in PROCESSING | Count DISCARD_PILE + PROCESSING |
+| "Expected 15 damage, got 12" | Enemy died, HP capped | Increase enemy.hp ≥ expected_damage |
+| Test hangs indefinitely | Infinite loop on `result == false` | Add `elseif result == false then break` |
+| "Not enough energy" | Default maxEnergy = 3 too low | Set maxEnergy = 6+ in createWorld |
+| Cards in wrong order | Deck shuffled | Set world.NoShuffle = true |
+| "Echo Form should trigger" | Power not set up | Add power to player.powers + set status counter |
+
+### Testing Checklist
+
+Before submitting a test:
+
+- [ ] Enemy HP ≥ expected total damage + 5
+- [ ] Player maxEnergy ≥ total card costs
+- [ ] world.NoShuffle = true if order matters
+- [ ] Context loop handles `result == false`
+- [ ] Count PROCESSING + DISCARD_PILE for played cards
+- [ ] Verify log entries for trigger messages
+- [ ] Test passes with `math.randomseed(1337)` for deterministic randomness
+
+---
+
 **Happy implementing!**

@@ -1096,29 +1096,196 @@ world.queue:push({
 
 **Test Files:** `tests/`
 
-**Pattern:**
+### Critical Testing Knowledge
+
+#### 1. **HP Capping & Damage Validation**
+
+**Key Insight:** Damage is calculated BEFORE HP is capped to [0, maxHp].
+
+```lua
+-- Timeline of a 35-damage attack on 12 HP enemy:
+defender.hp = 12 - 35        -- = -23 (UNCAPPED!)
+-- Relics/effects see uncapped damage here (e.g., "draw on 30+ damage")
+ApplyCaps.execute()          -- Called by ProcessEventQueue
+defender.hp = math.max(0, -23) -- = 0 (CAPPED)
+```
+
+**Testing Implication:** To verify exact damage amounts, enemies must have enough HP to survive:
+
+```lua
+-- ❌ WRONG: Enemy dies, only 12 damage "taken"
+enemy.hp = 12
+FirePotion deals 15 damage
+assert(enemy.hp == initialHp - 15)  -- FAILS: 0 ≠ 12 - 15
+
+-- ✅ CORRECT: Enemy survives, full damage measurable
+enemy.hp = 20
+FirePotion deals 15 damage
+assert(enemy.hp == initialHp - 15)  -- PASSES: 5 == 20 - 15
+```
+
+**ApplyCaps Location:** `Pipelines/ApplyCaps.lua:26`
+- Auto-called after ON_DAMAGE, ON_NON_ATTACK_DAMAGE, ON_BLOCK, ON_HEAL, ON_STATUS_GAIN
+- Enforces: `hp = math.max(0, math.min(hp, maxHp))`
+- Also caps block, status effects
+
+#### 2. **Deterministic Testing with NoShuffle**
+
+The deck is shuffled during `StartCombat.lua` and when draw pile empties (`DrawCard.lua`). For deterministic tests:
+
+```lua
+world.NoShuffle = true  -- Must be set BEFORE StartCombat.execute()
+StartCombat.execute(world)
+```
+
+**Why Needed:**
+- Tests expecting specific draw order (e.g., "Havoc plays top card")
+- Tests using labeled cards for context validation
+- Multi-duplication tests where card order matters
+
+**Where Checked:**
+- `utils.lua` - `Utils.shuffleDeck(deck, world)` checks `world.NoShuffle`
+
+#### 3. **World.createWorld Parameters**
+
+```lua
+World.createWorld({
+    id = "IronClad",
+    maxHp = 80,
+    currentHp = 50,              -- Starting HP (defaults to maxHp)
+    maxEnergy = 6,               -- Override default of 3
+    energy = 4,                  -- Initial energy (defaults to maxEnergy)
+    cards = {card1, card2},      -- Array of cards for masterDeck
+    masterPotions = {potion1},   -- Starting potions
+    relics = {relic1, relic2},   -- Starting relics
+    permanentStrength = 2,       -- Applied at combat start
+    orbs = {},                   -- Defect orbs
+    maxOrbs = 3                  -- Defect orb slots
+})
+```
+
+**Fixed Bug:** World.lua now respects `maxEnergy` parameter (was hardcoded to 3 before 2025-11-13).
+
+#### 4. **Context Handling in Tests**
+
+Cards that need targets pause execution and request context. Tests must manually fulfill:
+
+```lua
+local function playCardWithAutoContext(world, player, card)
+    while true do
+        local result = PlayCard.execute(world, player, card)
+        if result == true then
+            return true  -- Card finished
+        end
+
+        -- Handle context request
+        if type(result) == "table" and result.needsContext then
+            local request = world.combat.contextRequest
+
+            -- Collect context (auto-selects in tests)
+            local context = ContextProvider.execute(world, player,
+                                                    request.contextProvider,
+                                                    request.card)
+
+            -- Store in appropriate location
+            if request.stability == "stable" then
+                world.combat.stableContext = context
+            else
+                world.combat.tempContext = context
+            end
+
+            world.combat.contextRequest = nil
+        elseif result == false then
+            -- Card couldn't be played (insufficient energy, etc.)
+            break
+        end
+    end
+end
+```
+
+**Common Pitfall:** Forgetting `elseif result == false then break` causes infinite loops.
+
+#### 5. **Card Duplication Testing**
+
+When testing duplication mechanics (Double Tap, Echo Form, Burst), ensure:
+
+1. **Enemy has enough HP** to survive all hits
+2. **Player has enough energy** to play cards
+3. **NoShuffle enabled** if card order matters
+
+```lua
+-- Test Double Tap + Echo Form (3 Strikes = 18 damage)
+enemy.hp = 20              -- Must survive 3×6 damage
+enemy.maxHp = 20
+player.status.doubleTap = 1
+player.status.echoFormThisTurn = 1
+
+-- After playing Strike:
+assert(enemy.hp == 2)      -- 20 - 18 = 2 ✅
+```
+
+**Duplication Cancellation:** If target dies mid-duplication chain, remaining duplications are cancelled with log entry `"[Card] canceled - target no longer valid"`. This is EXPECTED behavior.
+
+#### 6. **Card States During Execution**
+
+Cards move through states during play:
+- `HAND` → `PROCESSING` (during execution)
+- `PROCESSING` → `DISCARD_PILE` (after successful play)
+- `PROCESSING` → `EXHAUSTED_PILE` (if exhausts)
+- `PROCESSING` → `HAND` (if cancelled due to invalid target)
+
+**Important:** Cancelled cards may remain in `PROCESSING` state. Count both when verifying "cards played":
+
+```lua
+local playedCount = countCardsInState(deck, "DISCARD_PILE") +
+                   countCardsInState(deck, "PROCESSING")
+```
+
+#### 7. **Test Pattern Template**
+
 ```lua
 local World = require("World")
+local Utils = require("utils")
+local Cards = require("Data.cards")
+local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
+local ContextProvider = require("Pipelines.ContextProvider")
 
--- Setup world
-local world = World.createWorld({...})
+math.randomseed(1337)  -- Deterministic randomness
 
--- Setup deck
-world.player.masterDeck = {Cards.Strike, Cards.Defend}
+local function copyCard(template)
+    return Utils.copyCardTemplate(template)
+end
 
--- Setup enemies
-world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
+local function copyEnemy(template)
+    return Utils.copyEnemyTemplate(template)
+end
 
--- Start combat
+-- Setup
+local world = World.createWorld({
+    id = "IronClad",
+    maxHp = 80,
+    maxEnergy = 6,  -- Override if needed
+    cards = {copyCard(Cards.Strike), copyCard(Cards.Defend)},
+    relics = {}
+})
+
+world.enemies = {copyEnemy(Enemies.Goblin)}
+world.NoShuffle = true  -- For deterministic tests
 StartCombat.execute(world)
 
--- Simulate actions
-PlayCard.execute(world, world.player, world.player.combatDeck[1])
+-- Modify enemy HP if needed
+world.enemies[1].hp = 30
+world.enemies[1].maxHp = 30
 
--- Assert outcomes
-assert(world.enemies[1].hp < world.enemies[1].maxHp, "Enemy should take damage")
+-- Execute test
+local card = findCardById(world.player.combatDeck, "Strike")
+playCardWithAutoContext(world, world.player, card)
+
+-- Assertions
+assert(world.enemies[1].hp == expectedHp, "Message")
+assert(#world.log > 0, "Log should have entries")
 ```
 
 **Run Tests:**
