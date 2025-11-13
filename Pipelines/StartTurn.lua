@@ -35,6 +35,25 @@ function StartTurn.execute(world, player)
     -- Process queued events from relics
     ProcessEventQueue.execute(world)
 
+    -- Check for die_next_turn status (from Blasphemy) - happens at START of turn
+    if player.status and player.status.die_next_turn and player.status.die_next_turn > 0 then
+        table.insert(world.log, player.name .. " takes 9999 damage from Blasphemy!")
+
+        world.queue:push({
+            type = "ON_NON_ATTACK_DAMAGE",
+            source = "Blasphemy",
+            target = player,
+            amount = 9999,
+            tags = {"ignoreBlock"}
+        })
+
+        -- Remove the status after triggering (non-degrading, just one-shot)
+        player.status.die_next_turn = 0
+
+        ProcessEventQueue.execute(world)
+        -- If player somehow survived, continue turn normally
+    end
+
     -- Clear turn-based player flags
     player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
 

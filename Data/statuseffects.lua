@@ -481,11 +481,11 @@ local StatusEffects = {
     die_next_turn = {
         id = "die_next_turn",
         name = "Die Next Turn",
-        description = "At the end of your next turn, you will die (from Blasphemy)",
+        description = "At the start of your next turn, take 9999 damage (from Blasphemy)",
         minValue = 0,
-        maxValue = 1,
-        stackType = "intensity",  -- NOT duration, so it doesn't tick down
-        debuff = true
+        maxValue = 1,  -- Non-stackable
+        stackType = "intensity",  -- Non-degrading
+        debuff = false  -- It's a "buff" in terms of game mechanics (positive for player strategy)
     },
 
     simmering_fury = {

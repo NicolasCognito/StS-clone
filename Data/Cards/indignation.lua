@@ -13,19 +13,10 @@ return {
             if player.currentStance == "Wrath" then
                 -- Already in Wrath: apply vulnerable to all enemies
                 world.queue:push({
-                    type = "ON_CUSTOM_EFFECT",
-                    effect = function()
-                        for _, enemy in ipairs(world.enemies) do
-                            if not enemy.dead then
-                                world.queue:push({
-                                    type = "ON_STATUS_GAIN",
-                                    target = enemy,
-                                    effectType = "vulnerable",
-                                    amount = self.vulnerable
-                                })
-                            end
-                        end
-                    end
+                    type = "ON_STATUS_GAIN",
+                    target = "all",
+                    effectType = "vulnerable",
+                    amount = self.vulnerable
                 })
             else
                 -- Not in Wrath: enter Wrath

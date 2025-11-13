@@ -47,24 +47,6 @@ function EndTurn.execute(world, player)
         world.combat.lastTurnLostHp = true
     end
 
-    -- Check for die_next_turn status (from Blasphemy)
-    if player.status and player.status.die_next_turn and player.status.die_next_turn > 0 then
-        player.status.die_next_turn = player.status.die_next_turn - 1
-
-        if player.status.die_next_turn == 0 then
-            -- Player dies at the end of this turn
-            player.hp = 0
-            table.insert(world.log, player.name .. " died from Blasphemy")
-            -- Death will be handled by ApplyCaps/Death pipelines
-            world.queue:push({
-                type = "ON_DEATH",
-                target = player
-            }, "FIRST")
-            ProcessEventQueue.execute(world)
-            return  -- End turn immediately
-        end
-    end
-
     -- Like Water: If in Calm stance, gain block at end of turn
     if player.status and player.status.like_water and player.status.like_water > 0 then
         if player.currentStance == "Calm" then

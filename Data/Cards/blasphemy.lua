@@ -16,13 +16,13 @@ return {
                 newStance = "Divinity"
             })
 
-            -- Set die_next_turn status (will decrement at end of each turn)
-            -- Set to 2: decrements to 1 at end of this turn, then 0 at end of next turn (death)
+            -- Set die_next_turn status (triggers at START of next turn)
+            -- Non-degrading: set to 1, triggers next turn, then removed
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
                 effectType = "die_next_turn",
-                amount = 2
+                amount = 1
             })
         end,
 
