@@ -19,6 +19,15 @@ function ChangeStance.execute(world, event)
     local oldStance = player.currentStance
     local newStance = event.newStance
 
+    -- Convert nil to NO_STANCE for consistent comparisons
+    if oldStance == nil then oldStance = "NO_STANCE" end
+    if newStance == nil then newStance = "NO_STANCE" end
+
+    -- Break early if stances are the same
+    if oldStance == newStance then
+        return
+    end
+
     -- ============================================================================
     -- EXIT OLD STANCE
     -- ============================================================================
@@ -45,7 +54,8 @@ function ChangeStance.execute(world, event)
     -- ============================================================================
     -- SWAP STANCE
     -- ============================================================================
-    player.currentStance = newStance
+    -- Store as "NO_STANCE" instead of nil for consistency
+    player.currentStance = (newStance == "NO_STANCE") and "NO_STANCE" or newStance
 
     -- ============================================================================
     -- ENTER NEW STANCE
@@ -65,11 +75,9 @@ function ChangeStance.execute(world, event)
         player.energy = player.energy + 3
         table.insert(world.log, player.name .. " entered Divinity and gained 3 energy")
 
-    elseif newStance == nil then
+    elseif newStance == "NO_STANCE" then
         -- Neutral stance (no special effects)
-        if oldStance then
-            table.insert(world.log, player.name .. " returned to Neutral stance")
-        end
+        table.insert(world.log, player.name .. " returned to Neutral stance")
     end
 
     -- ============================================================================

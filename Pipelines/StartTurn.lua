@@ -165,10 +165,10 @@ function StartTurn.execute(world, player)
 
     -- Inserter: Every 2 turns, gain 1 orb slot
     if Utils.hasRelic(player, "Inserter") then
-        world.combat.inserterTurnCounter = world.combat.inserterTurnCounter + 1
-        if world.combat.inserterTurnCounter >= 2 then
+        world.combat.turnCounter = world.combat.turnCounter + 1
+        if world.combat.turnCounter >= 2 then
             player.maxOrbs = player.maxOrbs + 1
-            world.combat.inserterTurnCounter = 0
+            world.combat.turnCounter = 0
             table.insert(world.log, playerName .. " gained 1 orb slot from Inserter")
         end
     end
