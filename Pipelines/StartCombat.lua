@@ -53,7 +53,7 @@ function StartCombat.execute(world)
     end
 
     -- Shuffle the combat deck for random card order
-    Utils.shuffleDeck(world.player.combatDeck)
+    Utils.shuffleDeck(world.player.combatDeck, world)
 
     world.player.block = 0
     world.player.energy = world.player.maxEnergy
