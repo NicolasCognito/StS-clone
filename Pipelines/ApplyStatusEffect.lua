@@ -87,6 +87,11 @@ function ApplyStatusEffect.execute(world, event)
 end
 
 function ApplyStatusEffect.executeSingle(world, target, effectType, amount, source, tags)
+    -- Don't apply status to dead targets
+    if target.dead or (target.hp and target.hp <= 0) then
+        return
+    end
+
     -- Initialize status object if needed
     if not target.status then
         target.status = {}

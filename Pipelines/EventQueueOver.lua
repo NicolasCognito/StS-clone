@@ -18,16 +18,30 @@ end
 
 function QueueOver.execute(world)
     -- Temp context should not persist once queue resolves
-    world.combat.tempContext = nil
+    if world.combat then
+        world.combat.tempContext = nil
 
-    -- Allow stable context to persist while a card (or its duplications)
-    -- is still resolving. Outside those windows, clear it.
-    if not world.combat.deferStableContextClear then
-        world.combat.stableContext = nil
+        -- Allow stable context to persist while a card (or its duplications)
+        -- is still resolving. Outside those windows, clear it.
+        if not world.combat.deferStableContextClear then
+            world.combat.stableContext = nil
+        end
     end
 
+    -- Process next card in CardQueue if any
     if world.cardQueue and not world.cardQueue:isEmpty() then
         return getResolveCard().execute(world)
+    end
+
+    -- CardQueue is empty - all card executions (including duplications) are done
+    -- Now update lastPlayedCard from currentExecutingCard
+    if world.combat and world.combat.currentExecutingCard then
+        world.lastPlayedCard = {
+            type = world.combat.currentExecutingCard.type,
+            name = world.combat.currentExecutingCard.name
+        }
+        -- Clear currentExecutingCard so next card doesn't inherit it
+        world.combat.currentExecutingCard = nil
     end
 end
 

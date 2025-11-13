@@ -92,10 +92,10 @@ enemy = world.enemies[1]
 world.combat.stableContext = enemy
 PlayCard.execute(world, world.player, followup)
 
--- Check energy NOT gained
+-- Check energy NOT gained (costs 1, grants 0, net -1)
 energyAfter = world.player.energy
 print("Energy after Follow-Up: " .. energyAfter)
-assert(energyAfter == energyBefore, "Follow-Up should NOT grant energy after Skill")
+assert(energyAfter == energyBefore - 1, "Follow-Up should NOT grant energy after Skill (net cost 1)")
 
 print("✓ Test 2 passed: Follow-Up doesn't grant energy after Skill\n")
 
