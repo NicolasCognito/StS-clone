@@ -93,4 +93,43 @@ function World.createWorld(playerData)
     }
 end
 
+-- COMBAT STATE INITIALIZATION
+-- Creates the combat-specific state structure attached to world.combat
+-- Called by StartCombat pipeline at the beginning of each combat encounter
+-- Cleared by EndCombat pipeline when combat ends
+function World.initCombatState()
+    return {
+        timesHpLost = 0,
+        cardsDiscardedThisTurn = 0,
+        powersPlayedThisCombat = 0,
+        -- Context system
+        stableContext = nil,    -- Persists across duplications (e.g., enemy target)
+        tempContext = nil,      -- Re-collected on duplications (e.g., card discard)
+        contextRequest = nil,   -- Request for context collection: {contextProvider, stability}
+        deferStableContextClear = false,
+        -- Death tracking
+        playerDied = false
+    }
+end
+
+-- MAP EVENT STATE INITIALIZATION
+-- Creates the map event state structure attached to world.mapEvent
+-- Called when a map event starts (via MapEngine or pipelines)
+-- Cleared by Map_EventComplete pipeline when event ends
+-- Parameters:
+--   eventKey: The event identifier (optional)
+--   eventDef: The event definition table (optional)
+function World.initMapEventState(eventKey, eventDef)
+    return {
+        eventKey = eventKey or nil,
+        event = eventDef or nil,
+        currentNodeId = eventDef and eventDef.entryNode or nil,
+        stableContext = nil,
+        tempContext = nil,
+        contextRequest = nil,
+        deferStableContextClear = false,
+        pendingSelection = nil
+    }
+end
+
 return World

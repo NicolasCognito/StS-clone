@@ -2,6 +2,7 @@
 -- Helper utilities for querying map nodes/floors and driving map queues & events
 
 local MapEngine = {}
+local World = require("World")
 
 local WAIT_MODES = {
     OPTIONS = "options",
@@ -80,19 +81,6 @@ local function getMapEvents()
         lazy.MapEvents = require("Data.mapevents")
     end
     return lazy.MapEvents
-end
-
-local function ensureMapEventState(world)
-    if not world.mapEvent then
-        world.mapEvent = {
-            stableContext = nil,
-            tempContext = nil,
-            contextRequest = nil,
-            deferStableContextClear = false,
-            pendingSelection = nil
-        }
-    end
-    return world.mapEvent
 end
 
 function MapEngine.getCurrentNode(world)
@@ -182,11 +170,14 @@ local function storeContext(world, request, context, mode)
         return
     end
 
-    local mapEvent = ensureMapEventState(world)
+    if not world.mapEvent then
+        world.mapEvent = World.initMapEventState()
+    end
+
     if request.stability == "stable" then
-        mapEvent.stableContext = context
+        world.mapEvent.stableContext = context
     else
-        mapEvent.tempContext = context
+        world.mapEvent.tempContext = context
     end
 end
 
@@ -201,7 +192,6 @@ function MapEngine.resolveContextRequest(world, options)
         return nil
     end
 
-    local mapEvent = ensureMapEventState(world)
     local request = world.mapEvent.contextRequest
     if request and request.contextProvider and request.contextProvider.type == "cards" then
         local ContextProvider = getContextProvider()
@@ -286,16 +276,7 @@ end
 
 local function resetEventState(world, eventKey, eventDef)
     world.currentEvent = eventDef and (eventDef.id or eventKey) or nil
-    world.mapEvent = {
-        eventKey = eventKey,
-        event = eventDef,
-        currentNodeId = eventDef and eventDef.entryNode or nil,
-        stableContext = nil,
-        tempContext = nil,
-        contextRequest = nil,
-        deferStableContextClear = false,
-        pendingSelection = nil
-    }
+    world.mapEvent = World.initMapEventState(eventKey, eventDef)
 end
 
 local function ensureActiveEvent(world)

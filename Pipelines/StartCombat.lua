@@ -3,24 +3,14 @@
 
 local StartCombat = {}
 
+local World = require("World")
 local EventQueue = require("Pipelines.EventQueue")
 local CardQueue = require("Pipelines.CardQueue")
 local StartTurn = require("Pipelines.StartTurn")
 local Utils = require("utils")
 
 function StartCombat.execute(world)
-    world.combat = {
-        timesHpLost = 0,
-        cardsDiscardedThisTurn = 0,
-        powersPlayedThisCombat = 0,
-        -- Context system
-        stableContext = nil,    -- Persists across duplications (e.g., enemy target)
-        tempContext = nil,      -- Re-collected on duplications (e.g., card discard)
-        contextRequest = nil,   -- Request for context collection: {contextProvider, stability}
-        deferStableContextClear = false,
-        -- Death tracking
-        playerDied = false
-    }
+    world.combat = World.initCombatState()
 
     -- Initialize lastPlayedCard tracking (persists across turns within combat)
     world.lastPlayedCard = nil
