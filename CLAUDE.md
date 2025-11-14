@@ -23,6 +23,14 @@ If the user mentions a card or relic name without providing details:
 - Ask: "Do you need tests for this implementation?"
 - Wait for confirmation before proceeding
 
+## 4. 📊 Validation and Analysis at Scale
+
+When validating or analyzing many files:
+- For checking a **single file**, use the Read tool directly
+- For validating **multiple files** (e.g., checking all 300 cards have type/rarity fields), write and run a Python script
+- Python scripts are more practical for bulk validation, data analysis, and reporting across many files
+- This approach is faster and more efficient than reading files individually
+
 ---
 
 Following these steps ensures consistent, high-quality contributions to the project.
