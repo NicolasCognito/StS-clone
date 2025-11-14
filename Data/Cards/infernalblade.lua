@@ -9,13 +9,20 @@ return {
         description = "Add a random Attack to your hand. It costs 0 this turn.",
 
         onPlay = function(self, world, player, target)
-            -- Use AcquireCard pipeline with costsZeroThisTurn tag
-            local Cards = require("Data.cards")
+            -- Add a random Attack using new filter-based AcquireCard
             world.queue:push({
                 type = "ON_ACQUIRE_CARD",
                 player = player,
-                cardTemplate = Cards.Strike,  -- For testing, just add Strike (would be random in real version)
-                tags = {"costsZeroThisTurn"}
+                cardSource = {
+                    filter = function(w, card)
+                        return card.type == "ATTACK" and card.character == player.id
+                    end,
+                    count = 1
+                },
+                options = {
+                    destination = "HAND",
+                    tags = {"costsZeroThisTurn"}
+                }
             })
         end,
 
