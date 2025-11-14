@@ -2,6 +2,11 @@
 
 **Date:** 2025-11-14
 
+> **NOTE:** This document has been integrated into the main documentation:
+> - **Quick Reference:** See `PROJECT_MAP.md` Section 6.5 "Card Generation with AcquireCard"
+> - **Implementation Guide:** See `GUIDELINE.md` Example 8 "AcquireCard Pipeline (Card Generation)"
+> - This file is kept for comprehensive reference but is not required reading for developers
+
 ## Overview
 
 The AcquireCard pipeline has been redesigned to support flexible card acquisition with filtering, multiple destinations, and advanced options. This document explains the new API and provides usage examples.

@@ -451,7 +451,7 @@ If validation fails, card execution is cancelled (logged, not error).
 | `DrawCard.lua` | Card draw | Respect cannotDraw, status effects, Evolve (draw on Wound draw) |
 | `Discard.lua` | Card discard | Move to discard pile, track cardsDiscardedThisTurn |
 | `Exhaust.lua` | Card exhaust | Move to exhausted pile, trigger card.onExhaust hooks |
-| `AcquireCard.lua` | Add cards | Add to hand/deck, handle costsZeroThisTurn tag |
+| `AcquireCard.lua` | Card generation | Flexible card acquisition: filter-based selection, multiple destinations (hand/discard/deck/custom), position control (top/bottom/random), tags (costsZeroThisTurn/retain), Master Reality auto-upgrade, copy count control |
 | `UsePotion.lua` | Potion usage | Execute potion effect, remove from inventory |
 
 #### Key Map Pipelines
@@ -673,6 +673,165 @@ return {
    ```
 
 **Auto-Loading:** Drop `.lua` file in `Data/Cards/`, return table with card definitions. `Data/cards.lua` uses `LoaderUtils.loadModules()` to auto-load all files.
+
+---
+
+### 6.5 CARD GENERATION WITH ACQUIRECARD
+
+The **AcquireCard pipeline** provides a flexible, centralized system for generating cards during combat or map events.
+
+**API Signature:**
+
+```lua
+local AcquireCard = require("Pipelines.AcquireCard")
+
+-- Returns: array of created card instances
+local cards = AcquireCard.execute(world, player, cardSource, options)
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `cardSource` | Card template OR Filter spec | Direct: `Cards.Shiv`<br/>Filter: `{filter = func, count = N}` |
+| `options.destination` | string | `"HAND"`, `"DISCARD_PILE"`, `"DECK"`, or custom state |
+| `options.position` | string/number | For `"DECK"`: `"random"`, `"top"`, `"bottom"`, or index |
+| `options.tags` | array | Apply tags: `{"costsZeroThisTurn", "retain"}` |
+| `options.targetDeck` | string | `"combat"` (default in combat) or `"master"` |
+| `options.count` | number | Copies of each selected card (default: 1) |
+| `options.skipMasterReality` | boolean | Skip auto-upgrade (default: false) |
+| `options.forceShuffleDeck` | boolean | Full shuffle when dest="DECK" (default: false) |
+
+**Filter Specification:**
+
+```lua
+cardSource = {
+    filter = function(world, card)
+        return card.type == "ATTACK" and card.character == player.id
+    end,
+    count = 3  -- Select 3 unique cards from filtered pool
+}
+```
+
+**Common Patterns:**
+
+1. **Shiv Generation** (Blade Dance, Cloak and Dagger)
+   ```lua
+   -- Blade Dance: Add 3 Shivs to hand
+   AcquireCard.execute(world, player, Cards.Shiv, {
+       destination = "HAND",
+       count = 3
+   })
+   ```
+
+2. **Random Card with Tags** (Infernal Blade, White Noise)
+   ```lua
+   -- Infernal Blade: Random Attack, costs 0 this turn
+   AcquireCard.execute(world, player, {
+       filter = function(w, card)
+           return card.type == "ATTACK" and card.character == player.id
+       end,
+       count = 1
+   }, {
+       destination = "HAND",
+       tags = {"costsZeroThisTurn"}
+   })
+   ```
+
+3. **Status to Discard** (Immolate, Anger)
+   ```lua
+   -- Immolate: Add Burn to discard pile
+   AcquireCard.execute(world, player, Cards.Burn, {
+       destination = "DISCARD_PILE"
+   })
+   ```
+
+4. **Insert into Draw Pile** (Wild Strike, Evaluate)
+   ```lua
+   -- Wild Strike: Insert Wound at random position
+   AcquireCard.execute(world, player, Cards.Wound, {
+       destination = "DECK",
+       position = "random"  -- or "top", "bottom", number
+   })
+   ```
+
+5. **Discover Pattern** (Discovery, Foreign Influence)
+   ```lua
+   -- Discovery: Generate 3 different random cards for selection
+   local cards = AcquireCard.execute(world, player, {
+       filter = function(w, card)
+           return card.character and card.rarity ~= "CURSE"
+       end,
+       count = 3  -- 3 unique cards
+   }, {
+       destination = "DRAFT"  -- Custom state for selection UI
+   })
+   -- Then use context collection to let player choose
+   ```
+
+6. **Multiple Copies** (Doom and Gloom, Ritual Dagger)
+   ```lua
+   -- Doom and Gloom: Add 2 copies to discard
+   AcquireCard.execute(world, player, Cards.Doom, {
+       destination = "DISCARD_PILE",
+       count = 2
+   })
+   ```
+
+7. **Custom State** (Nightmare)
+   ```lua
+   -- Nightmare: Create 3 copies with NIGHTMARE state (delivered next turn)
+   AcquireCard.execute(world, player, selectedCard, {
+       destination = "NIGHTMARE",
+       count = 3
+   })
+   ```
+
+8. **Master Deck Addition** (Card Rewards)
+   ```lua
+   -- Add card to permanent deck (map events/rewards)
+   AcquireCard.execute(world, player, Cards.Strike, {
+       targetDeck = "master"
+   })
+   ```
+
+**Event Queue Usage:**
+
+AcquireCard can be called directly or via event queue:
+
+```lua
+-- Direct call (simpler)
+AcquireCard.execute(world, player, Cards.Shiv, {destination = "HAND"})
+
+-- Via queue (for timing control)
+world.queue:push({
+    type = "ON_ACQUIRE_CARD",
+    player = player,
+    cardSource = Cards.Shiv,
+    options = {destination = "HAND"}
+})
+```
+
+**Key Features:**
+
+- **Automatic Master Reality Integration**: All created cards are auto-upgraded if player has Master Reality power
+- **Filter-Based Selection**: Generate random cards from filtered pool (by type, character, rarity, etc.)
+- **Insert vs Shuffle**: `destination="DECK"` inserts at position without full shuffle (matches Slay the Spire)
+- **Tags System**: Declaratively apply modifiers (`costsZeroThisTurn`, `retain`, etc.)
+- **Flexible Destinations**: Standard (HAND, DISCARD_PILE, DECK) or custom states (NIGHTMARE, DRAFT)
+- **Deep Card Copying**: Uses `Utils.deepCopyCard()` to avoid shared state issues
+
+**When NOT to Use AcquireCard:**
+
+Some cards bypass AcquireCard for specific state control needs:
+- **Nightmare**: Creates cards directly with NIGHTMARE state for precise control
+- Bypassing requires manual Master Reality check (see `Data/Cards/nightmare.lua`)
+
+**Documentation:**
+- Full API reference: `Docs/do_not_read/AcquireCard_Redesign.md`
+- Implementation example: `GUIDELINE.md` Example 8
+- Test suite: `tests/test_acquirecard.lua`
+- Implementation: `Pipelines/AcquireCard.lua`
 
 ---
 
