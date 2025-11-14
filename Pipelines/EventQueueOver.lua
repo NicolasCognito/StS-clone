@@ -36,7 +36,8 @@ function QueueOver.execute(world)
     -- CardQueue is empty - all card executions (including duplications) are done
     -- Clear currentExecutingCard so next card doesn't inherit it
     -- (lastPlayedCard update moved to AfterCardPlayed for per-execution tracking)
-    if world.combat and world.combat.currentExecutingCard then
+    -- Don't clear if deferCurrentExecutingCardClear is set (Strange Spoon needs it for exhaust check)
+    if world.combat and world.combat.currentExecutingCard and not world.combat.deferCurrentExecutingCardClear then
         world.combat.currentExecutingCard = nil
     end
 end

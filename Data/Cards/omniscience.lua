@@ -1,4 +1,3 @@
-local PlayCard = require("Pipelines.PlayCard")
 local ClearContext = require("Pipelines.ClearContext")
 
 return {
@@ -30,6 +29,7 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
+                    local PlayCard = require("Pipelines.PlayCard")
                     local selection = world.combat.tempContext and world.combat.tempContext[1]
                     if not selection then
                         table.insert(world.log, "Omniscience had no card to target.")

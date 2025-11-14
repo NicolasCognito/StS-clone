@@ -134,6 +134,7 @@ local function prepareCardPlay(world, player, card, options)
     card.energyPaid = true
     card._previousLastPlayedCard = world.lastPlayedCard  -- Save for restoration if card is canceled
     world.combat.deferStableContextClear = true
+    world.combat.deferCurrentExecutingCardClear = true  -- For Strange Spoon - keep currentExecutingCard until exhaust
     enterProcessingState(card)
     return true
 end
@@ -147,6 +148,7 @@ local function finalizeCardPlay(world, card)
     card._pendingEntries = nil
     card._previousState = nil
     world.combat.deferStableContextClear = false
+    world.combat.deferCurrentExecutingCardClear = false
     ClearContext.execute(world)
 end
 
@@ -238,11 +240,8 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
         -- Strange Spoon: Roll 50% chance to save self-exhausting cards
         -- Tag is checked later in Exhaust.lua, cleared in EventQueueOver.lua
         local affectedBySpoon = false
-        if card.exhausts then
-            local Utils = require("utils")
-            if Utils.hasRelic(player, "Strange_Spoon") then
-                affectedBySpoon = (math.random() < 0.5)
-            end
+        if card.exhausts and Utils.hasRelic(player, "Strange_Spoon") then
+            affectedBySpoon = (math.random() < 0.5)
         end
 
         world.combat.currentExecutingCard = {

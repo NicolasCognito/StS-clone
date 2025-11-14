@@ -13,6 +13,7 @@
 
 local StartTurn = {}
 
+local Utils = require("utils")
 local DrawCard = require("Pipelines.DrawCard")
 local ChangeStance = require("Pipelines.ChangeStance")
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
