@@ -17,7 +17,7 @@ return {
                 player = player,
                 cardSource = {
                     filter = function(w, card)
-                        return card.type == "ATTACK" and Utils.matchesPlayerPool(card, player, true)
+                        return card.type == "ATTACK" and Utils.matchesPlayerPool(card, player, {influencedByShard = true})
                     end,
                     count = 1
                 },

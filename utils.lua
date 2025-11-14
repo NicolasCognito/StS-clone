@@ -263,15 +263,18 @@ end
 
 -- Check if card matches player's card pool (for AcquireCard filters)
 -- Used to determine if a card template should be available for generation
--- affectedByPrismaticShard: if true, Prismatic Shard relic allows all character cards
+-- tags: optional table with behavior flags
+--   influencedByShard: if true, Prismatic Shard relic allows all character cards
 -- Returns true if card is in player's available pool
-function Utils.matchesPlayerPool(card, player, affectedByPrismaticShard)
+function Utils.matchesPlayerPool(card, player, tags)
     if not card.character then
         return false
     end
 
+    tags = tags or {}
+
     -- Prismatic Shard: all character cards available
-    if affectedByPrismaticShard and Utils.hasRelic(player, "Prismatic_Shard") then
+    if tags.influencedByShard and Utils.hasRelic(player, "Prismatic_Shard") then
         return true
     end
 
