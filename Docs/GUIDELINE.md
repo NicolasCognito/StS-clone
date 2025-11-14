@@ -1848,6 +1848,332 @@ end
 
 ---
 
+## Example 8: AcquireCard Pipeline (Card Generation)
+
+### Step 0: Understand Architecture
+- **What:** Pipeline for adding cards to combat (hand, discard, deck) or master deck
+- **Where:** Combat and map contexts, used by many cards/events
+- **Interactions:** Master Reality power, deck manipulation, card states
+
+### Step 1: Pipeline Requirements
+**Analysis:**
+- Needs to create card copies (from template or filter)
+- Needs to support multiple destinations (hand, discard pile, draw pile, custom states)
+- Needs to handle tags (costsZeroThisTurn, retain, etc.)
+- Needs to integrate with Master Reality (auto-upgrade)
+- Needs to support filter-based random selection
+
+**Naive approaches:**
+```lua
+-- ❌ WRONG: Direct card copy, no Master Reality integration
+local newCard = {}
+for k, v in pairs(Cards.Shiv) do newCard[k] = v end
+newCard.state = "HAND"
+table.insert(player.combatDeck, newCard)
+
+-- ❌ WRONG: Shallow copy causes shared state
+local newCard = Cards.Shiv  -- All instances share same table!
+newCard.state = "HAND"
+```
+
+**Decision:** Use existing AcquireCard pipeline with new flexible API
+
+### Step 2: New Pipeline?
+**Question:** Was this pipeline created or modified?
+
+**Analysis:**
+- **Originally existed:** Yes, for basic card acquisition
+- **Redesigned (2025-11-14):** Expanded with filter-based selection, multiple destinations, tags system
+- **Reuse:** Very high - dozens of cards use it (Blade Dance, Infernal Blade, Wild Strike, Discovery, etc.)
+- **Complexity:** High - handles Master Reality, filtering, position control, multiple destinations
+
+**Decision:** ✅ **EXTENDED existing pipeline** - Added flexible options while maintaining backward compatibility
+
+### Step 3: New Queue?
+**Question:** Does card generation need special queue handling?
+
+**Analysis:**
+- Card generation is synchronous during event processing
+- Uses existing EventQueue via `ON_ACQUIRE_CARD` event type
+- No special timing semantics needed
+
+**Decision:** ❌ **NO new queue** - Uses existing EventQueue
+
+### Step 4: Engine/World Changes?
+**Question:** Does AcquireCard need world state modifications?
+
+**Analysis:**
+- No persistent state needed beyond what exists
+- Cards live in `player.combatDeck` or `player.masterDeck`
+- Master Reality check via existing `Utils.hasPower()`
+- Position insertion uses existing deck arrays
+
+**Decision:** ❌ **NO world/engine changes** - Works with existing structures
+
+### Step 5: Implementation Plan
+
+```
+# Implementation Plan: AcquireCard Pipeline Extension
+
+## Overview
+Redesign AcquireCard to support flexible destinations, filter-based selection, tags, and position control.
+
+## Analysis
+- **Complexity:** High (many options, filter system, Master Reality integration)
+- **Scope:** Pipeline redesign, used by many cards
+- **Reuse:** Foundational (30+ cards, map events, future content)
+
+## Decisions
+1. **Pipelines:** EXTEND AcquireCard.lua with new API
+2. **Queues:** Use existing EventQueue (ON_ACQUIRE_CARD)
+3. **Engine Changes:** None
+4. **World Changes:** None
+
+## Implementation Steps
+
+1. **New API Signature** (`Pipelines/AcquireCard.lua`)
+   ```lua
+   AcquireCard.execute(world, player, cardSource, options)
+
+   -- cardSource: Card template OR filter specification
+   -- options: {
+   --   destination: "HAND" | "DISCARD_PILE" | "DECK" | custom,
+   --   position: "random" | "top" | "bottom" | number,
+   --   tags: array of tag names,
+   --   targetDeck: "combat" | "master",
+   --   count: number of copies,
+   --   skipMasterReality: boolean,
+   --   forceShuffleDeck: boolean
+   -- }
+   ```
+
+2. **Filter Specification Support**
+   ```lua
+   cardSource = {
+       filter = function(world, card)
+           return card.type == "ATTACK" and card.character == player.id
+       end,
+       count = N  -- How many unique cards to select
+   }
+   ```
+
+3. **Destination Handling**
+   - "HAND": Add to hand (state = "HAND")
+   - "DISCARD_PILE": Add to discard pile (state = "DISCARD_PILE")
+   - "DECK": Insert into draw pile at position (state = "DECK")
+   - Custom: Set card.state to custom value (e.g., "NIGHTMARE")
+
+4. **Position Control** (for destination="DECK")
+   - "random": Insert at random index
+   - "top": Insert at index 1 (next draw)
+   - "bottom": Insert at end
+   - number: Insert at specific index
+
+5. **Tags System**
+   ```lua
+   tags = {"costsZeroThisTurn", "retain"}
+   -- Applied as: card.costsZeroThisTurn = 1, card.retain = 1
+   ```
+
+6. **Master Reality Integration**
+   ```lua
+   if Utils.hasPower(player, "MasterReality") then
+       if not newCard.upgraded and type(newCard.onUpgrade) == "function" then
+           newCard:onUpgrade()
+           newCard.upgraded = true
+       end
+   end
+   ```
+
+## Testing Strategy
+- Simple card to hand (Blade Dance: 3 Shivs)
+- Card with tags (Infernal Blade: random Attack, costs 0)
+- Card to discard pile (Immolate: Burn)
+- Insert into deck at positions (Wild Strike: Wound random, top, bottom)
+- Filter-based selection (Discovery: 3 different random cards)
+- Master Reality auto-upgrade
+- Multiple copies (count > 1)
+
+## Documentation Updates
+- [x] Create AcquireCard_Redesign.md with full API documentation
+- [x] Add to PROJECT_MAP.md: AcquireCard capabilities
+- [x] Add to GUIDELINE.md: Example 8 with decision framework
+```
+
+### Step 6: Implementation Result
+✅ **Implemented** - Flexible card generation system established
+
+**Files Modified:**
+- `Pipelines/AcquireCard.lua` - Complete redesign with new API
+
+**Files Created:**
+- `tests/test_acquirecard.lua` - Comprehensive test suite
+- `Docs/AcquireCard_Redesign.md` - Full API documentation and examples
+
+**Key Patterns Enabled:**
+
+1. **Shiv Generation** (Blade Dance, Cloak and Dagger)
+   ```lua
+   AcquireCard.execute(world, player, Cards.Shiv, {
+       destination = "HAND",
+       count = 3
+   })
+   ```
+
+2. **Random Cards with Tags** (Infernal Blade, White Noise)
+   ```lua
+   AcquireCard.execute(world, player, {
+       filter = function(w, card)
+           return card.type == "ATTACK" and card.character == player.id
+       end,
+       count = 1
+   }, {
+       destination = "HAND",
+       tags = {"costsZeroThisTurn"}
+   })
+   ```
+
+3. **Status to Discard** (Immolate → Burn)
+   ```lua
+   AcquireCard.execute(world, player, Cards.Burn, {
+       destination = "DISCARD_PILE"
+   })
+   ```
+
+4. **Insert into Deck** (Wild Strike → Wound)
+   ```lua
+   AcquireCard.execute(world, player, Cards.Wound, {
+       destination = "DECK",
+       position = "random"  -- or "top", "bottom", number
+   })
+   ```
+
+5. **Discover Pattern** (Discovery, Foreign Influence)
+   ```lua
+   AcquireCard.execute(world, player, {
+       filter = function(w, card)
+           return card.character and card.rarity ~= "CURSE"
+       end,
+       count = 3
+   }, {
+       destination = "DRAFT"  -- Custom state for selection UI
+   })
+   ```
+
+6. **Custom States** (Nightmare)
+   ```lua
+   AcquireCard.execute(world, player, selectedCard, {
+       destination = "NIGHTMARE",
+       count = 3
+   })
+   ```
+
+**Key Code (Master Reality Integration):**
+```lua
+-- In AcquireCard.execute, after creating card
+if Utils.hasPower(player, "MasterReality") then
+    if not newCard.upgraded and type(newCard.onUpgrade) == "function" then
+        newCard:onUpgrade()
+        newCard.upgraded = true
+    end
+end
+```
+
+**Key Insights:**
+
+1. **Filter-based selection** enables clean random card generation
+   - Builds pool of matching cards
+   - Randomly selects N unique cards
+   - Creates copies of selected cards
+
+2. **Insert vs Shuffle semantics**
+   - `destination="DECK"` inserts at position without full shuffle
+   - Matches Slay the Spire behavior
+   - `forceShuffleDeck=true` available for special cases
+
+3. **Tags system** is declarative
+   - Apply multiple modifiers in one call
+   - No manual field setting needed
+   - Extensible for new tags
+
+4. **Master Reality integration** is automatic
+   - All created cards check for power
+   - No card-specific code needed
+   - Can be disabled with `skipMasterReality=true`
+
+5. **Flexible destinations** support many patterns
+   - Standard: HAND, DISCARD_PILE, DECK
+   - Custom states for special mechanics (NIGHTMARE, DRAFT)
+   - Master deck vs combat deck controlled by `targetDeck`
+
+**When to Use AcquireCard vs Direct Creation:**
+
+| Scenario | Use AcquireCard? | Why |
+|----------|------------------|-----|
+| Card to hand/discard/deck | ✅ Yes | Standard pattern, Master Reality integration |
+| Multiple copies | ✅ Yes | Built-in count support |
+| Random card from pool | ✅ Yes | Filter-based selection |
+| Card with tags (costs 0, etc.) | ✅ Yes | Tags system |
+| Custom card state | ⚠️ Maybe | AcquireCard supports it, but Nightmare bypasses for specific logic |
+| Cross-turn persistence | ❌ No | Use direct creation with custom state (like Nightmare) |
+
+**Migration from Old Pattern:**
+
+```lua
+-- ❌ OLD: Manual card copying
+local newCard = {}
+for k, v in pairs(Cards.Shiv) do
+    newCard[k] = v
+end
+newCard.state = "HAND"
+newCard.costsZeroThisTurn = 1
+table.insert(player.combatDeck, newCard)
+
+-- Check Master Reality
+if Utils.hasPower(player, "MasterReality") then
+    if not newCard.upgraded then
+        newCard:onUpgrade()
+        newCard.upgraded = true
+    end
+end
+
+-- ✅ NEW: AcquireCard pipeline
+AcquireCard.execute(world, player, Cards.Shiv, {
+    destination = "HAND",
+    tags = {"costsZeroThisTurn"}
+})
+-- Master Reality handled automatically!
+```
+
+**Cautionary Tale Lessons:**
+
+1. **Not all card creation uses AcquireCard**
+   - Nightmare bypasses it for NIGHTMARE state control
+   - Master Reality check must be in BOTH places
+   - See Example 7 for shared logic pattern
+
+2. **Filter count ≠ copy count**
+   - Filter `count`: How many unique cards to select from pool
+   - Options `count`: How many copies of EACH selected card
+   - Discovery: `filter.count=3, options.count=1` → 3 different cards
+
+3. **Position "random" ≠ shuffle**
+   - Inserts at random index, doesn't shuffle entire deck
+   - Matches Slay the Spire "shuffle into draw pile" behavior
+   - Use `forceShuffleDeck=true` if you need full shuffle
+
+4. **EventQueue usage**
+   - Can be called directly: `AcquireCard.execute(world, player, ...)`
+   - Or via queue: `world.queue:push({type = "ON_ACQUIRE_CARD", ...})`
+   - Direct is simpler, queue useful for timing control
+
+**Documentation Reference:**
+- Full API documentation: `Docs/do_not_read/AcquireCard_Redesign.md`
+- Usage examples: `tests/test_acquirecard.lua`
+- Implementation: `Pipelines/AcquireCard.lua`
+
+---
+
 ## Summary: The Decision-Making Framework
 
 **The 6-Step Process:**
