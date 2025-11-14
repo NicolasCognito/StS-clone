@@ -207,16 +207,46 @@ function StartTurn.execute(world, player)
     player.block = 0
 
     -- Calculate number of cards to draw
-    local cardsToDraw = 5  -- Base draw
+    local baseDraw = 5  -- Base starting hand size
+    local relicBonus = 0
 
-    -- Snecko Eye: Draw 2 additional cards
+    -- Calculate relic bonuses
     if player.relics then
         for _, relic in ipairs(player.relics) do
             if relic.id == "Snecko_Eye" then
-                cardsToDraw = cardsToDraw + 2
+                relicBonus = relicBonus + 2
+            elseif relic.id == "RingOfTheSnake" or relic.id == "Ring_of_the_Snake" then
+                relicBonus = relicBonus + 2
+            elseif relic.id == "RingOfTheSerpent" or relic.id == "Ring_of_the_Serpent" then
+                relicBonus = relicBonus + 1
+            elseif relic.id == "BagOfPreparation" or relic.id == "Bag_of_Preparation" then
+                relicBonus = relicBonus + 2
             end
         end
     end
+
+    local cardsToDraw = baseDraw + relicBonus
+
+    -- First turn only: Handle Innate cards
+    -- If Innate count exceeds base draw, draw all Innate cards + relic bonuses
+    if world.combat.turnCounter == 0 then
+        local innateCount = 0
+        for _, card in ipairs(player.combatDeck) do
+            if card.state == "DECK" and card.innate then
+                innateCount = innateCount + 1
+            end
+        end
+
+        if innateCount > baseDraw then
+            -- Draw all Innate cards + relic bonuses
+            cardsToDraw = innateCount + relicBonus
+        end
+        -- else: use normal draw (baseDraw + relicBonus)
+    end
+
+    -- Cap at max hand size (10)
+    local maxHandSize = player.maxHandSize or 10
+    cardsToDraw = math.min(cardsToDraw, maxHandSize)
 
     if status.draw_reduction and status.draw_reduction > 0 then
         local reduction = status.draw_reduction
