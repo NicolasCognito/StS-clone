@@ -197,25 +197,21 @@ local function enqueueCardEntries(world, player, card, options)
     -- Bottom separator: clears stable context AFTER this card group finishes (pops last)
     queue:pushSeparator()
 
-    -- If there are duplications, push ONLY shadow copies (they replace the original)
-    -- If no duplications, push the original card
-    if #shadowCopies > 0 then
-        -- Push shadow copies in reverse order (LIFO)
-        for i = #shadowCopies, 1, -1 do
-            queue:push({
-                card = shadowCopies[i],
-                player = player,
-                options = options
-            })
-        end
-    else
-        -- No duplications - push original card
+    -- Push shadow copies in reverse order (LIFO) so they execute before the original
+    for i = #shadowCopies, 1, -1 do
         queue:push({
-            card = card,
+            card = shadowCopies[i],
             player = player,
             options = options
         })
     end
+
+    -- Push original card entry (always executes, shadows are additional plays)
+    queue:push({
+        card = card,
+        player = player,
+        options = options
+    })
 
     -- Top separator: clears stable context BEFORE this card group starts (pops first)
     queue:pushSeparator()
