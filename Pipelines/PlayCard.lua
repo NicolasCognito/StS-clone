@@ -10,11 +10,10 @@
 -- - Context can be "stable" (persists across duplications) or "temp" (re-collected each duplication)
 --
 -- Handles:
--- - Check energy cost
--- - Check custom playability (if card has isPlayable function)
+-- - Check playability (via IsPlayable pipeline)
 -- - Execute pre-play action (if card has prePlayAction function)
--- - Request context collection (sets world.combat.contextRequest)
 -- - Pay energy cost
+-- - Request context collection (sets world.combat.contextRequest)
 -- - Track combat statistics (Powers played, etc.)
 -- - Call card.onPlay to generate events
 -- - Process effect queue
@@ -27,6 +26,7 @@ local PlayCard = {}
 
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local GetCost = require("Pipelines.GetCost")
+local IsPlayable = require("Pipelines.IsPlayable")
 local Utils = require("utils")
 local DuplicationHelpers = require("Pipelines.PlayCard_DuplicationHelpers")
 local ClearContext = require("Pipelines.ClearContext")
@@ -53,53 +53,25 @@ end
 local function prepareCardPlay(world, player, card, options)
     options = options or {}
 
-    if card.energyPaid then
-        return true
-    end
-
-    player.status = player.status or {}
-    if card.type == "ATTACK" and player.status.entangled and player.status.entangled > 0 then
-        table.insert(world.log, player.name .. " is Entangled and cannot play attacks")
+    -- STEP 1: CHECK PLAYABILITY
+    local playable, errorMsg = IsPlayable.execute(world, player, card, options)
+    if not playable then
+        table.insert(world.log, errorMsg)
         return false
-    end
-
-    -- Check card play limits (Velvet Choker, Normality)
-    -- Skip for auto-cast cards (like Havoc) since they were already validated
-    if world.combat and not options.auto then
-        local limit = Utils.getCardPlayLimit(world, player)
-        if world.combat.cardsPlayedThisTurn >= limit then
-            table.insert(world.log, "Cannot play more than " .. limit .. " cards this turn")
-            return false
-        end
     end
 
     local auto = options.auto or options.skipEnergyCost or false  -- Support both names for compatibility
     local energySpentOverride = options.energySpentOverride
     local playSource = options.playSource
     local costWhenPlayedOverride = options.costWhenPlayedOverride
-
-    -- STEP 1: CHECK ENERGY (skip for auto-cast)
     local cardCost = costWhenPlayedOverride or GetCost.execute(world, player, card)
-    if not auto and player.energy < cardCost then
-        table.insert(world.log, "Not enough energy to play " .. card.name)
-        return false
-    end
 
-    -- STEP 2: CHECK CUSTOM PLAYABILITY (Optional)
-    if card.isPlayable then
-        local playable, errorMsg = card:isPlayable(world, player)
-        if not playable then
-            table.insert(world.log, errorMsg or ("Cannot play " .. card.name))
-            return false
-        end
-    end
-
-    -- STEP 3: PRE-PLAY ACTION (Optional)
+    -- STEP 2: PRE-PLAY ACTION (Optional)
     if card.prePlayAction then
         card:prePlayAction(world, player)
     end
 
-    -- STEP 4: PAY ENERGY (skip for auto-cast)
+    -- STEP 3: PAY ENERGY (skip for auto-cast)
     if not auto then
         player.energy = player.energy - cardCost
     end
