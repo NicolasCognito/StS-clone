@@ -23,12 +23,13 @@ If the user mentions a card or relic name without providing details:
 - Ask: "Do you need tests for this implementation?"
 - Wait for confirmation before proceeding
 
-## 4. 🧪 Testing Strategy
+## 4. 📊 Validation and Analysis at Scale
 
-When testing is required:
-- For testing a **single file or component**, use direct test commands
-- For testing **multiple files or comprehensive test suites**, it's more suitable to run Python scripts
-- Python scripts provide better control, logging, and can handle complex test scenarios efficiently
+When validating or analyzing many files:
+- For checking a **single file**, use the Read tool directly
+- For validating **multiple files** (e.g., checking all 300 cards have type/rarity fields), write and run a Python script
+- Python scripts are more practical for bulk validation, data analysis, and reporting across many files
+- This approach is faster and more efficient than reading files individually
 
 ---
 
