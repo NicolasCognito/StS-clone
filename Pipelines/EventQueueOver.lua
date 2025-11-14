@@ -20,12 +20,7 @@ function QueueOver.execute(world)
     -- Temp context should not persist once queue resolves
     if world.combat then
         world.combat.tempContext = nil
-
-        -- Allow stable context to persist while a card (or its duplications)
-        -- is still resolving. Outside those windows, clear it.
-        if not world.combat.deferStableContextClear then
-            world.combat.stableContext = nil
-        end
+        -- Note: Stable context is cleared by separators in CardQueue, not here
     end
 
     -- Process next card in CardQueue if any

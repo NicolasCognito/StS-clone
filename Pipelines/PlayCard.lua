@@ -136,18 +136,16 @@ local function prepareCardPlay(world, player, card, options)
 
     card.energyPaid = true
     card._previousLastPlayedCard = world.lastPlayedCard  -- Save for restoration if card is canceled
-    world.combat.deferStableContextClear = true
     enterProcessingState(card)
     return true
 end
 
 local function finalizeCardPlay(world, card)
     -- Clean up temporary card flags
+    -- Stable context is cleared by separators, not here
     card.energyPaid = nil
     card._runActive = nil
     card._previousState = nil
-    world.combat.deferStableContextClear = false
-    ClearContext.execute(world)
 end
 
 local function enqueueCardEntries(world, player, card, options)
@@ -159,12 +157,6 @@ local function enqueueCardEntries(world, player, card, options)
     local prepared = prepareCardPlay(world, player, card, options)
     if prepared ~= true then
         return prepared
-    end
-
-    -- Push a separator if there are already entries in the queue
-    -- This helps visualize when one card's duplication cycle ends and another begins
-    if not queue:isEmpty() then
-        queue:pushSeparator()
     end
 
     -- Build duplication plan
@@ -189,7 +181,12 @@ local function enqueueCardEntries(world, player, card, options)
         table.insert(shadowCopies, shadow)
     end
 
-    -- Push entries to CardQueue (LIFO)
+    -- Push entries to CardQueue (LIFO) with separators bracketing the execution group
+    -- Separators ensure stable context is cleared before and after this card+duplicates
+
+    -- Bottom separator: clears stable context AFTER this card group finishes (pops last)
+    queue:pushSeparator()
+
     -- Push shadow copies in reverse order so they execute before the original
     for i = #shadowCopies, 1, -1 do
         queue:push({
@@ -199,12 +196,15 @@ local function enqueueCardEntries(world, player, card, options)
         })
     end
 
-    -- Push original card entry (executes last due to LIFO)
+    -- Push original card entry
     queue:push({
         card = card,
         player = player,
         options = options
     })
+
+    -- Top separator: clears stable context BEFORE this card group starts (pops first)
+    queue:pushSeparator()
 
     card._runActive = true
     return true
@@ -327,7 +327,7 @@ local function resolveEntry(world, entry)
                 local cardName = card.isShadow and card.originalCardName or card.name
                 table.insert(world.log, cardName .. " canceled - target no longer valid")
 
-                -- Clean up only for original cards (shadows don't need finalization)
+                -- Finalize original card (shadows are cleaned up at end of turn)
                 if not card.isShadow then
                     finalizeCardPlay(world, card)
                 end
@@ -346,7 +346,7 @@ local function resolveEntry(world, entry)
         return result
     end
 
-    -- Clean up only for original cards (shadows are cleaned up at end of turn)
+    -- Finalize original card after execution (shadows are cleaned up at end of turn)
     if not card.isShadow then
         finalizeCardPlay(world, card)
     end
