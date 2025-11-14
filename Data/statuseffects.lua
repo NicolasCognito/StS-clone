@@ -536,6 +536,28 @@ local StatusEffects = {
         maxValue = 999,
         stackType = "intensity",
         debuff = false
+    },
+
+    phantasmal = {
+        id = "phantasmal",
+        name = "Phantasmal",
+        description = "At the start of your next turn, gain that many stacks of Double Damage",
+        minValue = 0,
+        maxValue = 99,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    double_damage = {
+        id = "double_damage",
+        name = "Double Damage",
+        description = "Your Attacks deal double damage this turn. Decreases by 1 at end of round.",
+        minValue = 0,
+        maxValue = 99,
+        stackType = "duration",
+        debuff = false,
+        goesDownOnRoundEnd = true,
+        roundEndMode = "TickDown"
     }
 }
 

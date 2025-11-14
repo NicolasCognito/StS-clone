@@ -132,6 +132,14 @@ function StartTurn.execute(world, player)
         player.status.echoFormThisTurn = player.status.echo_form
     end
 
+    -- Phantasmal: Add to Double Damage at start of turn
+    if player.status and player.status.phantasmal and player.status.phantasmal > 0 then
+        local stacks = player.status.phantasmal
+        player.status.double_damage = (player.status.double_damage or 0) + stacks
+        player.status.phantasmal = 0
+        table.insert(world.log, playerName .. " gains " .. stacks .. " Double Damage from Phantasmal!")
+    end
+
     -- Simmering Fury: Enter Wrath and draw cards at start of next turn
     if player.status and player.status.simmering_fury and player.status.simmering_fury > 0 then
         world.queue:push({
