@@ -23,6 +23,13 @@ If the user mentions a card or relic name without providing details:
 - Ask: "Do you need tests for this implementation?"
 - Wait for confirmation before proceeding
 
+## 4. 🧪 Testing Strategy
+
+When testing is required:
+- For testing a **single file or component**, use direct test commands
+- For testing **multiple files or comprehensive test suites**, it's more suitable to run Python scripts
+- Python scripts provide better control, logging, and can handle complex test scenarios efficiently
+
 ---
 
 Following these steps ensures consistent, high-quality contributions to the project.
