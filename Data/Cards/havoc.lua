@@ -27,8 +27,8 @@ return {
                     topCard._previousState = topCard.state
                     topCard.state = "PROCESSING"
 
-                    local success = PlayCard.autoExecute(world, player, topCard, {
-                        skipEnergyCost = true,
+                    local success = PlayCard.execute(world, player, topCard, {
+                        auto = true,
                         playSource = "Havoc",
                         energySpentOverride = 0
                     })

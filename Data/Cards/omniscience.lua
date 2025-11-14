@@ -40,8 +40,8 @@ return {
                     selection.state = "PROCESSING"
                     PlayCard.queueForcedReplay(selection, "Omniscience", 1)
 
-                    local success = PlayCard.autoExecute(world, player, selection, {
-                        skipEnergyCost = true,
+                    local success = PlayCard.execute(world, player, selection, {
+                        auto = true,
                         playSource = "Omniscience",
                         energySpentOverride = 0
                     })

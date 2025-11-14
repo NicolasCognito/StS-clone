@@ -17,6 +17,7 @@ function StartCombat.execute(world)
 
     world.queue = EventQueue.new()
     world.cardQueue = CardQueue.new()
+    world.DuplicationShadowCards = {}  -- Tracks shadow copies created during duplication, cleared on turn end
     world.log = {}
 
     -- Ensure combat-only status table exists

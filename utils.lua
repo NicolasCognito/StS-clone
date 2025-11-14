@@ -282,4 +282,13 @@ function Utils.matchesPlayerPool(card, player, tags)
     return card.character == player.id
 end
 
+-- Generate a unique ID for shadow copies and other entities
+-- Returns a string like "shadow_12345"
+function Utils.generateGUID()
+    -- Simple GUID based on current time and random number
+    local timestamp = os.time()
+    local random = math.random(10000, 99999)
+    return string.format("shadow_%d_%d", timestamp, random)
+end
+
 return Utils
