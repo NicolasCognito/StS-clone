@@ -20,6 +20,11 @@ local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 function StartTurn.execute(world, player)
     table.insert(world.log, "--- Start of Player Turn ---")
 
+    -- Reset turn counters
+    if world.combat then
+        world.combat.cardsPlayedThisTurn = 0
+    end
+
     -- Exit Divinity stance if player is in it (Divinity only lasts one turn)
     if player.currentStance == "Divinity" then
         ChangeStance.execute(world, {newStance = nil})

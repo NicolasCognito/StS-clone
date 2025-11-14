@@ -63,6 +63,15 @@ local function prepareCardPlay(world, player, card, options)
         return false
     end
 
+    -- Check card play limits (Velvet Choker, Normality)
+    if world.combat then
+        local limit = Utils.getCardPlayLimit(world, player)
+        if world.combat.cardsPlayedThisTurn >= limit then
+            table.insert(world.log, "Cannot play more than " .. limit .. " cards this turn")
+            return false
+        end
+    end
+
     local skipEnergyCost = options.skipEnergyCost or false
     local energySpentOverride = options.energySpentOverride
     local playSource = options.playSource

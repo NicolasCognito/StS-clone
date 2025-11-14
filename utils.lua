@@ -230,4 +230,35 @@ function Utils.log(world, message)
     end
 end
 
+-- Check if player has a specific card in hand
+-- Used for Normality curse detection
+function Utils.hasCardInHand(deck, cardId)
+    if not deck then return false end
+    for _, card in ipairs(deck) do
+        if card.state == "HAND" and card.id == cardId then
+            return true
+        end
+    end
+    return false
+end
+
+-- Get the card play limit for the current turn
+-- Accounts for Velvet Choker (6 cards) and Normality curse (3 cards)
+-- Returns the most restrictive limit, or math.huge if unlimited
+function Utils.getCardPlayLimit(world, player)
+    local limit = math.huge  -- Default: unlimited
+
+    -- Check Velvet Choker (Boss Relic): 6 cards per turn
+    if Utils.hasRelic(player, "Velvet_Choker") then
+        limit = 6
+    end
+
+    -- Check Normality (Curse Card in hand): 3 cards per turn (overrides if lower)
+    if player.combatDeck and Utils.hasCardInHand(player.combatDeck, "Normality") then
+        limit = math.min(limit, 3)
+    end
+
+    return limit
+end
+
 return Utils
