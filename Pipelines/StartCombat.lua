@@ -44,6 +44,54 @@ function StartCombat.execute(world)
     -- Shuffle the combat deck for random card order
     Utils.shuffleDeck(world.player.combatDeck, world)
 
+    -- Handle Innate cards: move to top of deck
+    local innateCards = {}
+    local nonInnateCards = {}
+
+    for _, card in ipairs(world.player.combatDeck) do
+        if card.state == "DECK" then
+            if card.innate then
+                table.insert(innateCards, card)
+            else
+                table.insert(nonInnateCards, card)
+            end
+        end
+    end
+
+    if #innateCards > 0 then
+        -- Shuffle Innate cards among themselves (for randomness when >10 Innate)
+        if not world.NoShuffle then
+            for i = #innateCards, 2, -1 do
+                local j = math.random(i)
+                innateCards[i], innateCards[j] = innateCards[j], innateCards[i]
+            end
+        end
+
+        -- Rebuild deck: non-DECK cards, then Innate cards, then regular cards
+        local rebuiltDeck = {}
+
+        -- Preserve non-DECK cards (shouldn't be any at combat start, but safety)
+        for _, card in ipairs(world.player.combatDeck) do
+            if card.state ~= "DECK" then
+                table.insert(rebuiltDeck, card)
+            end
+        end
+
+        -- Add Innate cards on top
+        for _, card in ipairs(innateCards) do
+            table.insert(rebuiltDeck, card)
+        end
+
+        -- Add regular cards below
+        for _, card in ipairs(nonInnateCards) do
+            table.insert(rebuiltDeck, card)
+        end
+
+        world.player.combatDeck = rebuiltDeck
+
+        table.insert(world.log, #innateCards .. " Innate card(s) placed on top of draw pile")
+    end
+
     world.player.block = 0
     world.player.energy = world.player.maxEnergy
     world.player.hp = world.player.currentHp
