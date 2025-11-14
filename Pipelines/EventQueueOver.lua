@@ -34,13 +34,9 @@ function QueueOver.execute(world)
     end
 
     -- CardQueue is empty - all card executions (including duplications) are done
-    -- Now update lastPlayedCard from currentExecutingCard
+    -- Clear currentExecutingCard so next card doesn't inherit it
+    -- (lastPlayedCard update moved to AfterCardPlayed for per-execution tracking)
     if world.combat and world.combat.currentExecutingCard then
-        world.lastPlayedCard = {
-            type = world.combat.currentExecutingCard.type,
-            name = world.combat.currentExecutingCard.name
-        }
-        -- Clear currentExecutingCard so next card doesn't inherit it
         world.combat.currentExecutingCard = nil
     end
 end

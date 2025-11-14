@@ -1,6 +1,6 @@
 # Project Map - Slay the Spire Clone
 
-**Last Updated:** 2025-11-13
+**Last Updated:** 2025-11-14
 
 This document explains the architecture, relationships between components, and how to navigate/modify the codebase.
 
@@ -169,7 +169,7 @@ world = {
     },
 
     -- Combat state (nil outside combat)
-    enemies, combat, queue, cardQueue, log,
+    enemies, combat, queue, cardQueue, log, lastPlayedCard,
 
     -- Map/Progression
     map, currentNode, floor, mapQueue, mapEvent,
@@ -293,8 +293,15 @@ world.queue:clear()
 ```lua
 world.cardQueue:push(entry)      -- Push execution entry to stack
 world.cardQueue:pop()            -- Pop and return top entry
-world.cardQueue:pushSeparator()  -- Visual marker between cards
+world.cardQueue:pushSeparator()  -- Marks boundary between different cards
+world.cardQueue:clear()          -- Abort all pending entries (for limit enforcement)
 ```
+
+**Separator Semantics:**
+- Pushed when enqueueing a new card while queue isn't empty
+- Marks transition boundary between different cards (NOT duplications of same card)
+- ResolveCard.lua clears stable context when crossing separator
+- Enables proper target persistence: duplications reuse target, new cards reset it
 
 **Entry Structure:**
 ```lua
@@ -340,6 +347,10 @@ This creates the expected visual: initial → duplicate 1 → duplicate 2
 4. ProcessEventQueue.execute()
    → Drain EventQueue (FIFO) until empty
    → Routes events to pipelines (DealAttackDamage, ApplyBlock, etc.)
+   → AFTER_CARD_PLAYED event processed by AfterCardPlayed.execute()
+     → Updates lastPlayedCard (every execution, including duplications)
+     → Increments cardsPlayedThisTurn counter
+     → Enforces card limits (Velvet Choker, Normality) - clears CardQueue if exceeded
    → If needs context: pause, collect, resume
    ↓
 5. EventQueueOver.execute()
@@ -349,6 +360,7 @@ This creates the expected visual: initial → duplicate 1 → duplicate 2
    ↓
 6. ResolveCard.execute()
    → Pop next entry from CardQueue (next duplication)
+   → If entry is SEPARATOR: clear stable context, continue to next entry
    → Repeat from step 3 until CardQueue empty
 ```
 
@@ -435,10 +447,11 @@ If validation fails, card execution is cancelled (logged, not error).
 
 | Pipeline | Purpose | Key Responsibilities |
 |----------|---------|---------------------|
-| `PlayCard.lua` | Card execution orchestrator | Energy payment, duplication handling, context management, exhaust/discard |
+| `PlayCard.lua` | Card execution orchestrator | Energy payment, duplication handling, context management, exhaust/discard, card limit pre-check |
 | `ProcessEventQueue.lua` | Event router | Routes events to appropriate handlers (two-tier: SpecialBehaviors + DefaultRoutes) |
-| `EventQueueOver.lua` | Queue cleanup | Clear contexts, trigger next card from CardQueue |
-| `ResolveCard.lua` | CardQueue processor | Pop and resolve entries from CardQueue |
+| `EventQueueOver.lua` | Queue cleanup | Clear contexts, trigger next card from CardQueue, clear currentExecutingCard |
+| `ResolveCard.lua` | CardQueue processor | Pop and resolve entries from CardQueue, handle separators (clear stable context) |
+| `AfterCardPlayed.lua` | Post-card triggers | Pen Nib reset, Choked damage, lastPlayedCard tracking, card limit enforcement |
 | `DealAttackDamage.lua` | Attack damage | Strength, weak, vulnerable, block absorption, thorns, Pen Nib, Feed |
 | `DealNonAttackDamage.lua` | HP loss effects | Bypasses strength/vulnerable/weak, optionally ignores block |
 | `ApplyBlock.lua` | Block gain | Dexterity, frail, blur (carry over block) |
@@ -1132,6 +1145,104 @@ return {
 - **Necronomicon**: Check in PlayCard duplication system
 - **Snecko Eye**: Adds Confused status at StartCombat
 - **Winged Boots**: Enables bypassing map connections in Map_ChooseNextNode
+- **Velvet Choker**: Grants energy, enforces 6 card/turn limit via card limit system
+
+---
+
+### 11. CARD PLAY LIMITS SYSTEM
+
+**Purpose:** Unified system for restricting cards played per turn (Velvet Choker relic, Normality curse)
+
+**Architecture:**
+
+```lua
+-- World combat state tracking
+world.combat = {
+    cardsPlayedThisTurn = 0,    -- Counter, resets at StartTurn
+    currentExecutingCard = {...} -- Tracks card being executed
+}
+
+world.lastPlayedCard = {         -- Updated after every execution
+    type = "ATTACK",
+    name = "Strike"
+}
+```
+
+**Enforcement Points:**
+
+1. **Pre-Play Check** (`PlayCard.prepareCardPlay:66-73`)
+   - Before energy payment or card execution
+   - Calls `Utils.getCardPlayLimit(world, player)`
+   - Rejects play if `cardsPlayedThisTurn >= limit`
+   - Returns false with error message
+
+2. **Post-Execution Tracking** (`AfterCardPlayed.execute:63`)
+   - After card effect completes (including duplications)
+   - Increments `cardsPlayedThisTurn` counter
+   - Updates `lastPlayedCard` from `currentExecutingCard`
+
+3. **Duplication Abort** (`AfterCardPlayed.execute:69-73`)
+   - Recalculates limit (Normality might be exhausted/played!)
+   - If exceeded: `world.cardQueue:clear()`
+   - Aborts pending duplications (Echo Form, Double Tap)
+
+**Limit Calculation:**
+
+```lua
+-- Utils.getCardPlayLimit(world, player)
+local limit = math.huge  -- Default: unlimited
+
+if Utils.hasRelic(player, "Velvet_Choker") then
+    limit = 6  -- Boss relic: 6 cards/turn
+end
+
+if Utils.hasCardInHand(player.combatDeck, "Normality") then
+    limit = math.min(limit, 3)  -- Curse: 3 cards/turn (most restrictive)
+end
+
+return limit
+```
+
+**Implementation:**
+
+| Component | Location | Responsibility |
+|-----------|----------|----------------|
+| `Utils.getCardPlayLimit()` | `utils.lua:248` | Calculate current limit (checks relic + curse) |
+| `Utils.hasCardInHand()` | `utils.lua:235` | Check if specific card in hand |
+| Pre-check | `PlayCard.lua:66-73` | Block card play if at limit |
+| Counter increment | `AfterCardPlayed.lua:63` | Track cards played |
+| Duplication abort | `AfterCardPlayed.lua:69-73` | Clear queue if limit exceeded |
+| Counter reset | `StartTurn.lua:24-26` | Reset to 0 each turn |
+
+**Content:**
+
+- **Velvet Choker** (`Data/Relics/velvetchoker.lua`): Boss relic, +1 energy, 6 card limit
+- **Normality** (`Data/Relics/normality.lua`): Curse card (unplayable), 3 card limit while in hand
+
+**Key Behaviors:**
+
+- **Duplications count**: Echo Form, Double Tap, Burst duplications each count toward limit
+- **Dynamic recalculation**: Limit checked both pre-play AND post-execution (Normality can be removed mid-chain)
+- **Most restrictive wins**: Velvet Choker (6) + Normality (3) = 3 card limit
+- **Abort prevents cascades**: If 6th card has Echo Form queued, 7th duplication is cancelled
+
+**Example Flow:**
+
+```
+Player has Velvet Choker (6 limit), plays 5 cards, then Strike with Double Tap:
+
+1. Pre-check: 5 < 6 → ALLOW
+2. Strike executes (initial)
+3. AfterCardPlayed: cardsPlayedThisTurn = 6
+4. EventQueueOver: CardQueue has duplication waiting
+5. Strike executes (Double Tap duplication)
+6. AfterCardPlayed: cardsPlayedThisTurn = 7
+7. Check: 7 > 6 → Clear CardQueue (abort Echo Form if present)
+```
+
+**Testing:**
+- Test suite: `tests/test_cardlimits.lua`
+- Tests: Velvet Choker limit, Normality limit, combined limits, counter reset
 
 ---
 
@@ -1246,14 +1357,18 @@ world.queue:push({
 | `Pipelines/DealAttackDamage.lua` | Damage calculation | Effects that modify damage (Strength multipliers, Pen Nib) |
 | `Pipelines/ApplyBlock.lua` | Block calculation | Effects that modify block (Dexterity multipliers, Frail) |
 | `Pipelines/GetCost.lua` | Cost calculation | Effects that modify costs (Corruption, Confusion) |
-| `Pipelines/StartTurn.lua` | Turn start | Start-of-turn triggers (Echo Form counter, draw cards) |
+| `Pipelines/StartTurn.lua` | Turn start | Start-of-turn triggers (Echo Form counter, draw cards, reset counters) |
 | `Pipelines/EndTurn.lua` | Turn end | End-of-turn triggers (Retain, discard, orb passives) |
 | `Pipelines/EndRound.lua` | Round end | Round-end status tick down |
+| `Pipelines/AfterCardPlayed.lua` | After card | Post-card triggers (Pen Nib, Choked, lastPlayedCard, limit enforcement) |
+| `Pipelines/EventQueueOver.lua` | Queue cleanup | Context clearing, CardQueue continuation |
 | `Data/statuseffects.lua` | Status metadata | Adding new status effects |
 | `Data/Cards/*.lua` | Card definitions | Adding new cards (auto-loaded) |
+| `Data/Relics/*.lua` | Relic definitions | Adding new relics (auto-loaded) |
 | `Data/Enemies/*.lua` | Enemy definitions | Adding new enemies (auto-loaded) |
 | `Data/MapEvents/*.lua` | Map events | Adding new map encounters/events |
 | `utils.lua` | Shared helpers | Utility functions used across files |
+| `World.lua` | World state structure | Combat state counters, persistent tracking |
 
 ---
 

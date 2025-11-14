@@ -4,6 +4,9 @@
 --
 -- Handles:
 -- - Pen Nib counter reset (when counter reaches trigger threshold)
+-- - Choked status damage
+-- - lastPlayedCard tracking (moved from EventQueueOver)
+-- - Card play limit tracking and enforcement (Velvet Choker, Normality)
 
 local AfterCardPlayed = {}
 
@@ -43,6 +46,30 @@ function AfterCardPlayed.execute(world, player)
             if enemy.hp > 0 then
                 queueChokedDamage(enemy)
             end
+        end
+    end
+
+    -- Update lastPlayedCard tracking (moved from EventQueueOver)
+    -- This updates after EVERY card execution (including duplications)
+    if world.combat and world.combat.currentExecutingCard then
+        world.lastPlayedCard = {
+            type = world.combat.currentExecutingCard.type,
+            name = world.combat.currentExecutingCard.name
+        }
+    end
+
+    -- Track cards played this turn and enforce limits (Velvet Choker, Normality)
+    if world.combat then
+        world.combat.cardsPlayedThisTurn = (world.combat.cardsPlayedThisTurn or 0) + 1
+
+        -- Recalculate limit (Normality might have been played/exhausted this execution!)
+        local limit = Utils.getCardPlayLimit(world, player)
+
+        -- Check if we've exceeded the limit
+        if world.combat.cardsPlayedThisTurn > limit and world.cardQueue and not world.cardQueue:isEmpty() then
+            -- Abort all pending duplications
+            world.cardQueue:clear()
+            table.insert(world.log, "Card play limit (" .. limit .. ") exceeded - aborting duplications")
         end
     end
 end
