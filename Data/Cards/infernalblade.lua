@@ -1,3 +1,5 @@
+local Utils = require("utils")
+
 return {
     InfernalBlade = {
         id = "Infernal_Blade",
@@ -15,7 +17,7 @@ return {
                 player = player,
                 cardSource = {
                     filter = function(w, card)
-                        return card.type == "ATTACK" and card.character == player.id
+                        return card.type == "ATTACK" and Utils.matchesPlayerPool(card, player, true)
                     end,
                     count = 1
                 },

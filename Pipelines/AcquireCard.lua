@@ -6,7 +6,16 @@
 --
 -- cardSource:
 --   - Card template directly (e.g., Cards.Shiv, Cards.Wound)
---   - Filter specification: {filter = function(world, card) ... end, count = N}
+--   - Filter specification: {
+--       filter = function(world, card) ... end,
+--       count = N,
+--       distribution = "uniform" | "default" | function(pool)
+--     }
+--
+--   distribution options:
+--     "uniform" (default): equal probability for all cards
+--     "default": weighted by rarity (60% common, 30% uncommon, 10% rare)
+--     function(pool): custom distribution, returns (card, index)
 --
 -- options: {
 --   destination = "HAND" | "DISCARD_PILE" | "DECK" | custom_state_string
@@ -63,6 +72,55 @@ local function buildCardPool(world, filter)
     end
 
     return pool
+end
+
+-- Helper: Distribution functions for selecting from filtered pool
+local Distributions = {}
+
+-- Uniform: equal probability for all cards (default behavior)
+function Distributions.uniform(pool)
+    if #pool == 0 then return nil end
+    local index = math.random(1, #pool)
+    return pool[index], index
+end
+
+-- Default: weighted by rarity (60% common, 30% uncommon, 10% rare)
+function Distributions.default(pool)
+    if #pool == 0 then return nil, nil end
+
+    -- Build weighted list
+    local weighted = {}
+    local weights = {
+        STARTER = 0,
+        COMMON = 60,
+        UNCOMMON = 30,
+        RARE = 10,
+        CURSE = 0
+    }
+
+    for _, card in ipairs(pool) do
+        local weight = weights[card.rarity] or 10
+        for i = 1, weight do
+            table.insert(weighted, card)
+        end
+    end
+
+    if #weighted == 0 then
+        -- Fallback to uniform if no weights
+        return Distributions.uniform(pool)
+    end
+
+    -- Select from weighted pool
+    local selected = weighted[math.random(1, #weighted)]
+
+    -- Find index in original pool
+    for i, card in ipairs(pool) do
+        if card == selected then
+            return selected, i
+        end
+    end
+
+    return selected, 1
 end
 
 -- Helper: Get cards by state from combat deck
@@ -151,12 +209,27 @@ function AcquireCard.execute(world, player, cardSource, options)
             return {}
         end
 
+        -- Determine distribution function
+        local distributionFunc
+        if type(cardSource.distribution) == "function" then
+            -- Custom distribution function provided
+            distributionFunc = cardSource.distribution
+        elseif cardSource.distribution == "default" then
+            -- Use default rarity-weighted distribution
+            distributionFunc = Distributions.default
+        else
+            -- Default to uniform random (cardSource.distribution == "uniform" or nil)
+            distributionFunc = Distributions.uniform
+        end
+
         -- Select N unique cards from pool
         local selectedCount = math.min(selectCount, #pool)
         for i = 1, selectedCount do
-            local index = math.random(1, #pool)
-            table.insert(cardTemplates, pool[index])
-            table.remove(pool, index)  -- Remove to avoid duplicates
+            local selected, index = distributionFunc(pool)
+            if selected then
+                table.insert(cardTemplates, selected)
+                table.remove(pool, index)  -- Remove to avoid duplicates
+            end
         end
     else
         -- Direct template provided

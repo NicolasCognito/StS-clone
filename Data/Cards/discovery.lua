@@ -1,3 +1,5 @@
+local Utils = require("utils")
+
 return {
     Discovery = {
         id = "Discovery",
@@ -17,7 +19,8 @@ return {
                 filter = function(w, card)
                     return card.character and card.rarity ~= "CURSE"
                 end,
-                count = 3
+                count = 3,
+                distribution = "default"  -- Weighted by rarity
             }, {
                 destination = "DRAFT"
             })
