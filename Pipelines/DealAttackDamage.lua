@@ -124,6 +124,11 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
         damage = damage * 3
     end
 
+    -- Apply Double Damage status: 2x damage on all attacks this turn
+    if attackerStatus and attackerStatus.double_damage and attackerStatus.double_damage > 0 then
+        damage = damage * 2
+    end
+
     -- Apply Intangible: Reduce damage to 1 if defender has Intangible status
     if defenderStatus and defenderStatus.intangible and defenderStatus.intangible > 0 and damage > 0 then
         damage = 1
