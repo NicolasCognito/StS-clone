@@ -64,7 +64,8 @@ local function prepareCardPlay(world, player, card, options)
     end
 
     -- Check card play limits (Velvet Choker, Normality)
-    if world.combat then
+    -- Skip for auto-cast cards (like Havoc) since they were already validated
+    if world.combat and not options.auto then
         local limit = Utils.getCardPlayLimit(world, player)
         if world.combat.cardsPlayedThisTurn >= limit then
             table.insert(world.log, "Cannot play more than " .. limit .. " cards this turn")
@@ -72,14 +73,14 @@ local function prepareCardPlay(world, player, card, options)
         end
     end
 
-    local skipEnergyCost = options.skipEnergyCost or false
+    local auto = options.auto or options.skipEnergyCost or false  -- Support both names for compatibility
     local energySpentOverride = options.energySpentOverride
     local playSource = options.playSource
     local costWhenPlayedOverride = options.costWhenPlayedOverride
 
-    -- STEP 1: CHECK ENERGY
+    -- STEP 1: CHECK ENERGY (skip for auto-cast)
     local cardCost = costWhenPlayedOverride or GetCost.execute(world, player, card)
-    if not skipEnergyCost and player.energy < cardCost then
+    if not auto and player.energy < cardCost then
         table.insert(world.log, "Not enough energy to play " .. card.name)
         return false
     end
@@ -98,25 +99,27 @@ local function prepareCardPlay(world, player, card, options)
         card:prePlayAction(world, player)
     end
 
-    -- STEP 4: PAY ENERGY
-    if not skipEnergyCost then
+    -- STEP 4: PAY ENERGY (skip for auto-cast)
+    if not auto then
         player.energy = player.energy - cardCost
     end
 
-    local loggedCost = skipEnergyCost and 0 or cardCost
+    -- Logging
+    local loggedCost = auto and 0 or cardCost
     local logMessage = player.id .. " played " .. card.name .. " (cost: " .. loggedCost .. ")"
     if playSource then
         logMessage = logMessage .. " via " .. playSource
-    elseif skipEnergyCost then
+    elseif auto then
         logMessage = logMessage .. " for free"
     end
     table.insert(world.log, logMessage)
 
+    -- Set cost information (needed even for auto-cast for X-cost cards, etc.)
     card.costWhenPlayed = cardCost
 
     if energySpentOverride ~= nil then
         card.energySpent = energySpentOverride
-    elseif card.cost == "X" and skipEnergyCost then
+    elseif card.cost == "X" and auto then
         card.energySpent = 0
     else
         card.energySpent = cardCost
@@ -133,21 +136,17 @@ local function prepareCardPlay(world, player, card, options)
 
     card.energyPaid = true
     card._previousLastPlayedCard = world.lastPlayedCard  -- Save for restoration if card is canceled
-    world.combat.deferStableContextClear = true
     enterProcessingState(card)
     return true
 end
 
 local function finalizeCardPlay(world, card)
+    -- Clean up temporary card flags
+    -- Stable context is cleared by separators, not here
     card.energyPaid = nil
-    card._pendingContextPhase = nil
-    card._effectInitialized = nil
-    card._echoFormApplied = nil
     card._runActive = nil
-    card._pendingEntries = nil
     card._previousState = nil
-    world.combat.deferStableContextClear = false
-    ClearContext.execute(world)
+    card._effectInitialized = nil
 end
 
 local function enqueueCardEntries(world, player, card, options)
@@ -161,82 +160,107 @@ local function enqueueCardEntries(world, player, card, options)
         return prepared
     end
 
-    -- Push a separator if there are already entries in the queue
-    -- This helps visualize when one card's duplication cycle ends and another begins
-    if not queue:isEmpty() then
-        queue:pushSeparator()
+    -- Build duplication plan
+    local replayPlan = DuplicationHelpers.buildReplayPlan(world, player, card)
+
+    -- Create shadow copies for each duplication
+    -- Shadow copies are REAL card instances that inherit all prepared state from the original
+    local shadowCopies = {}
+    local loggedSources = {}  -- Track which sources we've logged
+    for i, sourceName in ipairs(replayPlan) do
+        -- Log duplication trigger (once per source)
+        if not loggedSources[sourceName] then
+            table.insert(world.log, sourceName .. " triggers!")
+            loggedSources[sourceName] = true
+        end
+
+        local shadow = Utils.deepCopyCard(card)
+        shadow.isShadow = true
+        shadow.id = Utils.generateGUID()  -- Unique ID for tracking
+        shadow.originalCardName = card.name
+        shadow.duplicationSource = sourceName  -- "Double Tap", "Echo Form", etc.
+        -- Shadow inherits all prepared state from original
+        shadow.costWhenPlayed = card.costWhenPlayed
+        shadow.energySpent = card.energySpent
+        shadow.energyPaid = card.energyPaid
+        shadow.state = "PROCESSING"
+        -- Shadow should NOT inherit execution state flags
+        shadow._effectInitialized = nil
+
+        table.insert(world.DuplicationShadowCards, shadow)
+        table.insert(shadowCopies, shadow)
     end
 
-    local replayPlan = DuplicationHelpers.buildReplayPlan(world, player, card)
-    local totalEntries = 1 + #replayPlan
+    -- Push entries to CardQueue (LIFO) with separators bracketing the execution group
+    -- Separators ensure stable context is cleared before and after this card+duplicates
 
-    -- Push duplication entries first so LIFO order executes initial play before replays
-    for i = #replayPlan, 1, -1 do
-        local sourceName = replayPlan[i]
+    -- Bottom separator: clears stable context AFTER this card group finishes (pops last)
+    queue:pushSeparator()
+
+    -- Push shadow copies in reverse order (LIFO) so they execute before the original
+    for i = #shadowCopies, 1, -1 do
         queue:push({
-            card = card,
+            card = shadowCopies[i],
             player = player,
-            options = options,
-            replaySource = sourceName,
-            isInitial = false,
-            isLast = (i == #replayPlan),
-            phase = "duplication",
-            skipDiscard = (i ~= #replayPlan)
+            options = options
         })
     end
 
-    -- Initial play runs last (top of stack)
+    -- Push original card entry (always executes, shadows are additional plays)
     queue:push({
         card = card,
         player = player,
-        options = options,
-        replaySource = nil,
-        isInitial = true,
-        isLast = (#replayPlan == 0),
-        phase = "main",
-        skipDiscard = (#replayPlan ~= 0)
+        options = options
     })
 
+    -- Top separator: clears stable context BEFORE this card group starts (pops first)
+    queue:pushSeparator()
+
     card._runActive = true
-    card._pendingEntries = totalEntries
     return true
 end
 
--- EXECUTE CARD EFFECT (Steps 6-9)
--- This is the "bracketed section" that gets replayed for effects like Double Tap
--- skipDiscard: if true, don't move card to discard pile (for replays where card is already in a pile)
--- Context is read from world.combat.latestContext
-function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
-    phase = phase or "main"
-
-    -- STEP 6: TRACK STATISTICS (only once per actual execution)
+-- EXECUTE CARD EFFECT
+-- Executes a card's effect. Works with both original cards and shadow copies.
+-- Each card (original or shadow) is executed independently with full game mechanics.
+function PlayCard.executeCardEffect(world, player, card)
+    -- Only execute effect and push events if not already initialized
+    -- This prevents duplicate event pushing when resuming after context collection
     if not card._effectInitialized then
         card._effectInitialized = true
 
+        -- STEP 1: TRACK STATISTICS (for ALL cards, including shadows)
         if card.type == "POWER" then
             world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
 
-            -- Storm: Channel 1 Lightning when playing Power cards
+            -- Storm: Channel 1 Lightning when playing Power cards (ALL powers trigger this)
             if player.status and player.status.storm and player.status.storm > 0 then
                 world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
                 table.insert(world.log, "Storm triggered!")
             end
         end
 
+        -- Pen Nib: ALL attacks increment counter (including shadow copies)
         if card.type == "ATTACK" then
             world.penNibCounter = world.penNibCounter + 1
         end
 
-        -- STEP 7: EXECUTE CARD EFFECT
+        -- Enhanced logging for shadow copies
+        if card.isShadow then
+            local source = card.duplicationSource or "Duplication"
+            table.insert(world.log, "  → " .. card.originalCardName .. " (" .. source .. ")")
+        end
+
+        -- STEP 2: EXECUTE CARD EFFECT
         if card.onPlay then
             card:onPlay(world, player)
         end
 
-        -- Track current executing card for EventQueueOver to update lastPlayedCard
-        -- This happens AFTER onPlay, so the card has read the previous lastPlayedCard
+        -- STEP 3: TRACK CURRENT EXECUTING CARD
         world.combat.currentExecutingCard = {
             type = card.type,
-            name = card.name
+            name = card.isShadow and card.originalCardName or card.name,
+            isShadow = card.isShadow
         }
 
         world.queue:push({
@@ -245,20 +269,20 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
         })
     end
 
-    -- STEP 8: PROCESS EVENT QUEUE
+    -- STEP 4: PROCESS EVENT QUEUE (always do this, even when resuming)
     local queueResult = ProcessEventQueue.execute(world)
     if type(queueResult) == "table" and queueResult.needsContext then
-        card._pendingContextPhase = phase
         return queueResult
     end
 
-    -- STEP 9: CARD CLEANUP (Discard or Exhaust)
+    -- STEP 5: CARD CLEANUP (Discard or Exhaust)
+    -- Each card independently handles its own discard/exhaust
     local shouldExhaust = false
     local exhaustSource = nil
 
     if card.exhausts then
         shouldExhaust = true
-        exhaustSource = exhaustSource or "SelfExhaust"
+        exhaustSource = "SelfExhaust"
     end
 
     if Utils.hasPower(player, "Corruption") and card.type == "SKILL" then
@@ -274,10 +298,10 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
         })
         queueResult = ProcessEventQueue.execute(world)
         if type(queueResult) == "table" and queueResult.needsContext then
-            card._pendingContextPhase = phase
             return queueResult
         end
-    elseif not skipDiscard then
+    else
+        -- Discard the card
         world.queue:push({
             type = "ON_DISCARD",
             card = card,
@@ -285,10 +309,8 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
         })
         queueResult = ProcessEventQueue.execute(world)
         if type(queueResult) == "table" and queueResult.needsContext then
-            card._pendingContextPhase = phase
             return queueResult
         end
-
     end
 
     return true
@@ -299,14 +321,13 @@ local function resolveEntry(world, entry)
         return nil
     end
 
+    -- Handle separator entries (skip them - they're handled by ResolveCard)
+    if entry.type == "SEPARATOR" then
+        return true
+    end
+
     local card = entry.card
     local player = entry.player
-    local skipDiscard = entry.skipDiscard
-    local phase = entry.phase or (entry.isInitial and "main" or "duplication")
-
-    if not entry.resuming then
-        card._effectInitialized = nil
-    end
 
     -- STABLE CONTEXT VALIDATION
     -- Check if stable context is still valid before executing card
@@ -324,10 +345,11 @@ local function resolveEntry(world, entry)
 
             if not isValid then
                 -- Still invalid - cancel card execution
-                table.insert(world.log, card.name .. " canceled - target no longer valid")
+                local cardName = card.isShadow and card.originalCardName or card.name
+                table.insert(world.log, cardName .. " canceled - target no longer valid")
 
-                -- Clean up if this was the last entry
-                if entry.isLast then
+                -- Finalize original card (shadows are cleaned up at end of turn)
+                if not card.isShadow then
                     finalizeCardPlay(world, card)
                 end
 
@@ -336,24 +358,17 @@ local function resolveEntry(world, entry)
         end
     end
 
-    if entry.replaySource and not entry.replayLogged then
-        table.insert(world.log, entry.replaySource .. " triggers!")
-        entry.replayLogged = true
-    end
-
-    local result = PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
+    -- Execute the card effect
+    local result = PlayCard.executeCardEffect(world, player, card)
     if type(result) == "table" and result.needsContext then
-        entry.phase = card._pendingContextPhase or phase
+        -- Need context - push entry back to queue to resume later
         entry.resuming = true
         world.cardQueue:push(entry)
         return result
     end
 
-    card._effectInitialized = nil
-    card._pendingContextPhase = nil
-    entry.resuming = nil
-
-    if entry.isLast then
+    -- Finalize original card after execution (shadows are cleaned up at end of turn)
+    if not card.isShadow then
         finalizeCardPlay(world, card)
     end
 
@@ -367,54 +382,72 @@ end
 function PlayCard.execute(world, player, card, options)
     options = options or {}
 
-    if not card._runActive then
-        local enqueueResult = enqueueCardEntries(world, player, card, options)
-        if enqueueResult ~= true then
-            return enqueueResult
-        end
-    end
-
-    local queueResult = ProcessEventQueue.execute(world)
-    if type(queueResult) == "table" and queueResult.needsContext then
-        return queueResult
-    end
-
-    return true
-end
-
-function PlayCard.autoExecute(world, player, card, options)
-    options = options or {}
-
-    while true do
-        local result = PlayCard.execute(world, player, card, options)
-
-        if result == true then
-            return true
-        end
-
-        if type(result) == "table" and result.needsContext then
-            local request = world.combat and world.combat.contextRequest
-            if not request then
-                return false
+    -- Auto-cast mode: automatically handle context collection
+    if options.auto then
+        while true do
+            -- Enqueue card if not already active
+            if not card._runActive then
+                local enqueueResult = enqueueCardEntries(world, player, card, options)
+                if enqueueResult ~= true then
+                    revertProcessingState(card)
+                    return enqueueResult
+                end
             end
 
-            local context = ContextProvider.execute(world, player, request.contextProvider, request.card)
-            if not context then
+            -- Process event queue
+            local queueResult = ProcessEventQueue.execute(world)
+
+            -- If no context needed, we're done
+            if queueResult == true then
+                return true
+            end
+
+            -- If context needed, automatically collect it
+            if type(queueResult) == "table" and queueResult.needsContext then
+                local request = world.combat and world.combat.contextRequest
+                if not request then
+                    revertProcessingState(card)
+                    return false
+                end
+
+                -- Auto-collect context
+                local context = ContextProvider.execute(world, player, request.contextProvider, request.card)
+                if not context then
+                    world.combat.contextRequest = nil
+                    revertProcessingState(card)
+                    return false
+                end
+
+                -- Store context based on stability
+                if request.stability == "stable" then
+                    world.combat.stableContext = context
+                else
+                    world.combat.tempContext = context
+                end
+
                 world.combat.contextRequest = nil
-                return false
-            end
-
-            if request.stability == "stable" then
-                world.combat.stableContext = context
+                -- Continue loop to process with collected context
             else
-                world.combat.tempContext = context
+                -- Unexpected result
+                revertProcessingState(card)
+                return queueResult
             end
-
-            world.combat.contextRequest = nil
-        else
-            revertProcessingState(card)
-            return result
         end
+    else
+        -- Normal mode: return to caller when context is needed
+        if not card._runActive then
+            local enqueueResult = enqueueCardEntries(world, player, card, options)
+            if enqueueResult ~= true then
+                return enqueueResult
+            end
+        end
+
+        local queueResult = ProcessEventQueue.execute(world)
+        if type(queueResult) == "table" and queueResult.needsContext then
+            return queueResult
+        end
+
+        return true
     end
 end
 

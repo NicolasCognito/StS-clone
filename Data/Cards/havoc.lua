@@ -1,5 +1,4 @@
 local Utils = require("utils")
-local PlayCard = require("Pipelines.PlayCard")
 
 return {
     Havoc = {
@@ -16,6 +15,9 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
+                    -- Lazy-load PlayCard to avoid circular dependency
+                    local PlayCard = require("Pipelines.PlayCard")
+
                     local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
                     local topCard = deckCards[1]
 
@@ -27,8 +29,8 @@ return {
                     topCard._previousState = topCard.state
                     topCard.state = "PROCESSING"
 
-                    local success = PlayCard.autoExecute(world, player, topCard, {
-                        skipEnergyCost = true,
+                    local success = PlayCard.execute(world, player, topCard, {
+                        auto = true,
                         playSource = "Havoc",
                         energySpentOverride = 0
                     })

@@ -363,6 +363,7 @@ do
     })
 
     world.enemies = { copyEnemy(Enemies.Goblin) }
+    world.NoShuffle = true  -- Ensure deterministic card order (Havoc in hand, 2 Defends in deck)
     StartCombat.execute(world)
 
     local player = world.player

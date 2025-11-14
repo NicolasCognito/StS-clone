@@ -149,6 +149,10 @@ function EndTurn.execute(world, player)
     -- Reset energy for next turn
     player.energy = player.maxEnergy
 
+    -- Clear shadow copies created during duplication
+    -- Shadows have already been discarded/exhausted, so just clear the table
+    world.DuplicationShadowCards = {}
+
     table.insert(world.log, player.id .. " ended turn")
 end
 

@@ -1,6 +1,3 @@
-local PlayCard = require("Pipelines.PlayCard")
-local ClearContext = require("Pipelines.ClearContext")
-
 return {
     Omniscience = {
         id = "Omniscience",
@@ -30,6 +27,10 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
+                    -- Lazy-load to avoid circular dependency
+                    local PlayCard = require("Pipelines.PlayCard")
+                    local ClearContext = require("Pipelines.ClearContext")
+
                     local selection = world.combat.tempContext and world.combat.tempContext[1]
                     if not selection then
                         table.insert(world.log, "Omniscience had no card to target.")
@@ -40,8 +41,8 @@ return {
                     selection.state = "PROCESSING"
                     PlayCard.queueForcedReplay(selection, "Omniscience", 1)
 
-                    local success = PlayCard.autoExecute(world, player, selection, {
-                        skipEnergyCost = true,
+                    local success = PlayCard.execute(world, player, selection, {
+                        auto = true,
                         playSource = "Omniscience",
                         energySpentOverride = 0
                     })

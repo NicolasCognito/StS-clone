@@ -153,6 +153,7 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
     -- Check if this damage ignores block
     if not Utils.hasTag(tags, "ignoreBlock") then
         -- Apply block absorption
+        defender.block = defender.block or 0
         blockAbsorbed = math.min(defender.block, damage)
         defender.block = defender.block - blockAbsorbed
         damage = damage - blockAbsorbed
@@ -183,7 +184,9 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
     end
 
     -- Log
-    local logMsg = attacker.name .. " dealt " .. damage .. " damage to " .. defender.name
+    local attackerName = attacker.name or attacker.id or "Unknown"
+    local defenderName = defender.name or defender.id or "Unknown"
+    local logMsg = attackerName .. " dealt " .. damage .. " damage to " .. defenderName
     if blockAbsorbed > 0 then
         logMsg = logMsg .. " (blocked " .. blockAbsorbed .. ")"
     end
