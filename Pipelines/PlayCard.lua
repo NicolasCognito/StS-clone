@@ -146,6 +146,7 @@ local function finalizeCardPlay(world, card)
     card.energyPaid = nil
     card._runActive = nil
     card._previousState = nil
+    card._effectInitialized = nil
 end
 
 local function enqueueCardEntries(world, player, card, options)
@@ -183,6 +184,8 @@ local function enqueueCardEntries(world, player, card, options)
         shadow.energySpent = card.energySpent
         shadow.energyPaid = card.energyPaid
         shadow.state = "PROCESSING"
+        -- Shadow should NOT inherit execution state flags
+        shadow._effectInitialized = nil
 
         table.insert(world.DuplicationShadowCards, shadow)
         table.insert(shadowCopies, shadow)
@@ -194,21 +197,25 @@ local function enqueueCardEntries(world, player, card, options)
     -- Bottom separator: clears stable context AFTER this card group finishes (pops last)
     queue:pushSeparator()
 
-    -- Push shadow copies in reverse order so they execute before the original
-    for i = #shadowCopies, 1, -1 do
+    -- If there are duplications, push ONLY shadow copies (they replace the original)
+    -- If no duplications, push the original card
+    if #shadowCopies > 0 then
+        -- Push shadow copies in reverse order (LIFO)
+        for i = #shadowCopies, 1, -1 do
+            queue:push({
+                card = shadowCopies[i],
+                player = player,
+                options = options
+            })
+        end
+    else
+        -- No duplications - push original card
         queue:push({
-            card = shadowCopies[i],
+            card = card,
             player = player,
             options = options
         })
     end
-
-    -- Push original card entry
-    queue:push({
-        card = card,
-        player = player,
-        options = options
-    })
 
     -- Top separator: clears stable context BEFORE this card group starts (pops first)
     queue:pushSeparator()
@@ -221,46 +228,52 @@ end
 -- Executes a card's effect. Works with both original cards and shadow copies.
 -- Each card (original or shadow) is executed independently with full game mechanics.
 function PlayCard.executeCardEffect(world, player, card)
-    -- STEP 1: TRACK STATISTICS (for ALL cards, including shadows)
-    if card.type == "POWER" then
-        world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
+    -- Only execute effect and push events if not already initialized
+    -- This prevents duplicate event pushing when resuming after context collection
+    if not card._effectInitialized then
+        card._effectInitialized = true
 
-        -- Storm: Channel 1 Lightning when playing Power cards (ALL powers trigger this)
-        if player.status and player.status.storm and player.status.storm > 0 then
-            world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
-            table.insert(world.log, "Storm triggered!")
+        -- STEP 1: TRACK STATISTICS (for ALL cards, including shadows)
+        if card.type == "POWER" then
+            world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
+
+            -- Storm: Channel 1 Lightning when playing Power cards (ALL powers trigger this)
+            if player.status and player.status.storm and player.status.storm > 0 then
+                world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
+                table.insert(world.log, "Storm triggered!")
+            end
         end
+
+        -- Pen Nib: ALL attacks increment counter (including shadow copies)
+        if card.type == "ATTACK" then
+            world.penNibCounter = world.penNibCounter + 1
+        end
+
+        -- Enhanced logging for shadow copies
+        if card.isShadow then
+            local source = card.duplicationSource or "Duplication"
+            table.insert(world.log, "  → " .. card.originalCardName .. " (" .. source .. ")")
+        end
+
+        -- STEP 2: EXECUTE CARD EFFECT
+        if card.onPlay then
+            card:onPlay(world, player)
+        end
+
+        -- STEP 3: TRACK CURRENT EXECUTING CARD
+        world.combat.currentExecutingCard = {
+            type = card.type,
+            name = card.isShadow and card.originalCardName or card.name,
+            isShadow = card.isShadow
+        }
+
+        world.queue:push({
+            type = "AFTER_CARD_PLAYED",
+            player = player
+        })
     end
 
-    -- Pen Nib: ALL attacks increment counter (including shadow copies)
-    if card.type == "ATTACK" then
-        world.penNibCounter = world.penNibCounter + 1
-    end
-
-    -- Enhanced logging for shadow copies
-    if card.isShadow then
-        local source = card.duplicationSource or "Duplication"
-        table.insert(world.log, "  → " .. card.originalCardName .. " (" .. source .. ")")
-    end
-
-    -- STEP 2: EXECUTE CARD EFFECT
-    if card.onPlay then
-        card:onPlay(world, player)
-    end
-
-    -- STEP 3: TRACK CURRENT EXECUTING CARD
-    world.combat.currentExecutingCard = {
-        type = card.type,
-        name = card.isShadow and card.originalCardName or card.name,
-        isShadow = card.isShadow
-    }
-
-    world.queue:push({
-        type = "AFTER_CARD_PLAYED",
-        player = player
-    })
-
-    -- STEP 4: PROCESS EVENT QUEUE
+    -- STEP 4: PROCESS EVENT QUEUE (always do this, even when resuming)
     local queueResult = ProcessEventQueue.execute(world)
     if type(queueResult) == "table" and queueResult.needsContext then
         return queueResult
