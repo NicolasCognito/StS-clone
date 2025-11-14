@@ -234,9 +234,21 @@ function PlayCard.executeCardEffect(world, player, card, skipDiscard, phase)
 
         -- Track current executing card for EventQueueOver to update lastPlayedCard
         -- This happens AFTER onPlay, so the card has read the previous lastPlayedCard
+
+        -- Strange Spoon: Roll 50% chance to save self-exhausting cards
+        -- Tag is checked later in Exhaust.lua, cleared in EventQueueOver.lua
+        local affectedBySpoon = false
+        if card.exhausts then
+            local Utils = require("utils")
+            if Utils.hasRelic(player, "Strange_Spoon") then
+                affectedBySpoon = (math.random() < 0.5)
+            end
+        end
+
         world.combat.currentExecutingCard = {
             type = card.type,
-            name = card.name
+            name = card.name,
+            affectedBySpoon = affectedBySpoon
         }
 
         world.queue:push({

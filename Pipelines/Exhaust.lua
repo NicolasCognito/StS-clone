@@ -23,10 +23,17 @@ function Exhaust.execute(world, event)
     local card = event.card
     local source = event.source or "Exhaust"
 
-    -- TODO: Check for Strange Spoon (50% chance to prevent exhaust)
-    -- if hasPower(player, "Strange_Spoon") and math.random() < 0.5 then
-    --     return -- Card not exhausted
-    -- end
+    -- Strange Spoon: Check if this self-exhausting card was saved
+    -- Tag is set in PlayCard.lua when currentExecutingCard is created
+    -- Only self-exhausting cards (card.exhausts = true) get the tag
+    if world.combat and world.combat.currentExecutingCard and world.combat.currentExecutingCard.affectedBySpoon then
+        -- Card saved! Send to discard pile instead of exhausting
+        card.state = "DISCARD_PILE"
+        table.insert(world.log, card.name .. " saved by Strange Spoon! (not exhausted)")
+
+        -- Return early - skip exhaust hooks (Dead Branch, Dark Embrace, etc.)
+        return
+    end
 
     -- Move card to exhausted pile
     card.state = "EXHAUSTED_PILE"
