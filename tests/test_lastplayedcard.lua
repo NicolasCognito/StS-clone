@@ -7,10 +7,63 @@ local Cards = require("Data.cards")
 local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
-local ResolveCard = require("Pipelines.ResolveCard")
+local ContextProvider = require("Pipelines.ContextProvider")
 local Utils = require("utils")
 
 print("=== Testing Last Played Card Tracking ===\n")
+
+-- Helper: play a card to completion, auto-fulfilling context requests.
+-- Tests don't run through the full CombatEngine prompt loop, so the
+-- separators that wipe stable context require us to respond to context
+-- requests manually. Doing it here keeps the production mechanics intact
+-- (popping separators would hide real-world bugs) while staying tolerable
+-- for tests with a single deterministic target.
+local function pickEnemyTarget(world)
+    if not world.enemies then
+        return nil
+    end
+
+    for _, enemy in ipairs(world.enemies) do
+        if enemy.hp > 0 then
+            return enemy
+        end
+    end
+
+    return world.enemies[1]
+end
+
+local function playCard(world, player, card)
+    while true do
+        local result = PlayCard.execute(world, player, card)
+        if result == true then
+            return true
+        end
+
+        assert(type(result) == "table" and result.needsContext,
+            "Unexpected PlayCard result when resolving " .. card.name)
+
+        local request = world.combat.contextRequest
+        assert(request, "Context request missing for " .. card.name)
+
+        local context = ContextProvider.execute(world, player, request.contextProvider, request.card)
+
+        -- If a card ever requests {type = "enemies"} (should be rare), tests
+        -- select the first living enemy manually instead of popping separators,
+        -- keeping production context-clearing behavior intact.
+        if not context and request.contextProvider and request.contextProvider.type == "enemies" then
+            context = pickEnemyTarget(world)
+        end
+
+        assert(context, "Failed to supply context for " .. (request.card and request.card.name or "unknown card"))
+
+        if request.stability == "stable" then
+            world.combat.stableContext = context
+        else
+            world.combat.tempContext = context
+        end
+        world.combat.contextRequest = nil
+    end
+end
 
 -- Test 1: Follow-Up grants energy when last card was Attack
 print("Test 1: Follow-Up grants energy after Attack")
@@ -33,9 +86,7 @@ StartCombat.execute(world)
 
 -- Play Strike first
 local enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, strike)
-ResolveCard.execute(world)
+playCard(world, world.player, strike)
 
 -- Check last played card
 assert(world.lastPlayedCard ~= nil, "lastPlayedCard should be set")
@@ -47,8 +98,7 @@ local energyBefore = world.player.energy
 print("Energy before Follow-Up: " .. energyBefore)
 
 -- Play Follow-Up
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, followup)
+playCard(world, world.player, followup)
 
 -- Check energy gained (Follow-Up costs 1, grants 1, so net 0 change)
 local energyAfter = world.player.energy
@@ -77,7 +127,7 @@ world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 StartCombat.execute(world)
 
 -- Play Defend first
-PlayCard.execute(world, world.player, defend)
+playCard(world, world.player, defend)
 
 -- Check last played card
 assert(world.lastPlayedCard.type == "SKILL", "Last played card should be SKILL")
@@ -89,8 +139,7 @@ print("Energy before Follow-Up: " .. energyBefore)
 
 -- Play Follow-Up
 enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, followup)
+playCard(world, world.player, followup)
 
 -- Check energy NOT gained (costs 1, grants 0, net -1)
 energyAfter = world.player.energy
@@ -120,14 +169,12 @@ StartCombat.execute(world)
 
 -- Play Strike first
 enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, strike)
+playCard(world, world.player, strike)
 
 print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
 
 -- Play Sash Whip
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, sashwhip)
+playCard(world, world.player, sashwhip)
 
 -- Check enemy has Weak
 assert(enemy.status.weak and enemy.status.weak > 0, "Enemy should have Weak after Sash Whip following Attack")
@@ -155,14 +202,13 @@ world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 StartCombat.execute(world)
 
 -- Play Defend first
-PlayCard.execute(world, world.player, defend)
+playCard(world, world.player, defend)
 
 print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
 
 -- Play Sash Whip
 enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, sashwhip)
+playCard(world, world.player, sashwhip)
 
 -- Check enemy does NOT have Weak
 assert(not enemy.status.weak or enemy.status.weak == 0, "Enemy should NOT have Weak after Sash Whip following Skill")
@@ -190,14 +236,13 @@ world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 StartCombat.execute(world)
 
 -- Play Defend first
-PlayCard.execute(world, world.player, defend)
+playCard(world, world.player, defend)
 
 print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
 
 -- Play Crush Joints
 enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, crushjoints)
+playCard(world, world.player, crushjoints)
 
 -- Check enemy has Vulnerable
 assert(enemy.status.vulnerable and enemy.status.vulnerable > 0, "Enemy should have Vulnerable after Crush Joints following Skill")
@@ -226,14 +271,12 @@ StartCombat.execute(world)
 
 -- Play Strike first
 enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, strike)
+playCard(world, world.player, strike)
 
 print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
 
 -- Play Crush Joints
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, crushjoints)
+playCard(world, world.player, crushjoints)
 
 -- Check enemy does NOT have Vulnerable
 assert(not enemy.status.vulnerable or enemy.status.vulnerable == 0, "Enemy should NOT have Vulnerable after Crush Joints following Attack")
@@ -282,10 +325,8 @@ StartCombat.execute(world)
 
 -- Play Strike, then Sash Whip
 enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, strike)
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, sashwhip)
+playCard(world, world.player, strike)
+playCard(world, world.player, sashwhip)
 
 -- Check enemy has 2 Weak
 assert(enemy.status.weak == 2, "Enemy should have 2 Weak from upgraded Sash Whip (was " .. enemy.status.weak .. ")")
@@ -314,8 +355,7 @@ assert(world.lastPlayedCard == nil, "lastPlayedCard should be nil at start of co
 
 -- Play Sash Whip as first card
 enemy = world.enemies[1]
-world.combat.stableContext = enemy
-PlayCard.execute(world, world.player, sashwhip)
+playCard(world, world.player, sashwhip)
 
 -- Check enemy doesn't have Weak (no previous card)
 assert(not enemy.status.weak or enemy.status.weak == 0, "Enemy should NOT have Weak when Sash Whip is first card")

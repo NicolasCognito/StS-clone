@@ -15,13 +15,8 @@ return {
                 type = "COLLECT_CONTEXT",
                 card = self,
                 contextProvider = {
-                    type = "enemies",
-                    stability = "stable",
-                    source = "combat",
-                    count = {min = 1, max = 1},
-                    filter = function(_, _, _, candidate)
-                        return candidate.hp > 0
-                    end
+                    type = "enemy",
+                    stability = "stable"
                 }
             }, "FIRST")
 
@@ -29,7 +24,7 @@ return {
             world.queue:push({
                 type = "ON_ATTACK_DAMAGE",
                 attacker = player,
-                defender = world.combat.stableContext,
+                defender = function() return world.combat.stableContext end,
                 card = self
             })
 
