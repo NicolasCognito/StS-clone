@@ -165,7 +165,14 @@ local function enqueueCardEntries(world, player, card, options)
     -- Create shadow copies for each duplication
     -- Shadow copies are REAL card instances that inherit all prepared state from the original
     local shadowCopies = {}
+    local loggedSources = {}  -- Track which sources we've logged
     for i, sourceName in ipairs(replayPlan) do
+        -- Log duplication trigger (once per source)
+        if not loggedSources[sourceName] then
+            table.insert(world.log, sourceName .. " triggers!")
+            loggedSources[sourceName] = true
+        end
+
         local shadow = Utils.deepCopyCard(card)
         shadow.isShadow = true
         shadow.id = Utils.generateGUID()  -- Unique ID for tracking
@@ -303,6 +310,11 @@ end
 local function resolveEntry(world, entry)
     if not entry then
         return nil
+    end
+
+    -- Handle separator entries (skip them - they're handled by ResolveCard)
+    if entry.type == "SEPARATOR" then
+        return true
     end
 
     local card = entry.card
