@@ -63,7 +63,7 @@ local DefaultRoutes = {
         Retain.execute(world, event)
     end,
     ON_ACQUIRE_CARD = function(world, event)
-        AcquireCard.execute(world, event.player, event.cardTemplate, event.tags)
+        AcquireCard.execute(world, event.player, event.cardSource, event.options)
     end,
     ON_APPLY_POWER = function(world, event)
         ApplyPower.execute(world, event)

@@ -10,33 +10,17 @@ return {
 
         -- PRE-PLAY ACTION: Generate 3 random cards before player chooses
         prePlayAction = function(self, world, player)
-            -- Get all available cards (for testing, use current deck cards)
-            local Cards = require("Data.cards")
-            local cardPool = {
-                Cards.Strike,
-                Cards.Defend,
-                Cards.Bash,
-                Cards.Catalyst,
-                Cards.InfernalBlade,
-                Cards.Corruption,
-            }
+            -- Use new AcquireCard with filter to generate 3 random cards
+            local AcquireCard = require("Pipelines.AcquireCard")
 
-            -- Generate 3 random cards and add to combatDeck with DRAFT state
-            for i = 1, 3 do
-                local randomCard = cardPool[math.random(1, #cardPool)]
-
-                -- Create a copy of the card template
-                local draftCard = {}
-                for k, v in pairs(randomCard) do
-                    draftCard[k] = v
-                end
-
-                -- Mark as DRAFT (temporary state for selection)
-                draftCard.state = "DRAFT"
-
-                -- Add to combat deck
-                table.insert(player.combatDeck, draftCard)
-            end
+            AcquireCard.execute(world, player, {
+                filter = function(w, card)
+                    return card.character and card.rarity ~= "CURSE"
+                end,
+                count = 3
+            }, {
+                destination = "DRAFT"
+            })
 
             table.insert(world.log, "Choose 1 of 3 cards...")
         end,

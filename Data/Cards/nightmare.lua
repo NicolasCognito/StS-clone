@@ -27,11 +27,7 @@ return {
                 }
             }, "FIRST")
 
-            -- Create 3 copies with NIGHTMARE state
-            -- NOTE: This bypasses the AcquireCard pipeline intentionally.
-            -- Nightmare creates copies directly with special NIGHTMARE state,
-            -- which are moved to hand by StartTurn.lua next turn.
-            -- This avoids triggering card acquisition hooks (relics, etc.)
+            -- Create 3 copies with NIGHTMARE state using AcquireCard pipeline
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
@@ -41,23 +37,13 @@ return {
                         return
                     end
 
-                    local Utils = require("utils")
+                    local AcquireCard = require("Pipelines.AcquireCard")
 
-                    -- Create 3 copies with NIGHTMARE state
-                    for i = 1, 3 do
-                        local copy = Utils.deepCopyCard(selectedCard)
-
-                        -- Check for Master Reality power: auto-upgrade created cards
-                        if Utils.hasPower(player, "MasterReality") then
-                            if not copy.upgraded and type(copy.onUpgrade) == "function" then
-                                copy:onUpgrade()
-                                copy.upgraded = true
-                            end
-                        end
-
-                        copy.state = "NIGHTMARE"  -- Special state for next turn
-                        table.insert(player.combatDeck, copy)
-                    end
+                    -- Use new AcquireCard pipeline with NIGHTMARE state
+                    AcquireCard.execute(world, player, selectedCard, {
+                        destination = "NIGHTMARE",
+                        count = 3
+                    })
 
                     table.insert(world.log, "Nightmare: 3 copies of " .. selectedCard.name .. " will arrive next turn")
                 end
