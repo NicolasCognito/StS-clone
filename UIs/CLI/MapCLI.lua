@@ -195,7 +195,7 @@ local function runCombat(world, combatConfig)
         end,
         onContextRequest = function(w, request)
             -- Reuse the combat CLI context handling
-            local CombatCLI = require("CombatCLI")
+            local CombatCLI = require("UIs.CLI.CombatCLI")
             local contextType = request.contextProvider and request.contextProvider.type or "none"
 
             if contextType == "enemy" then

@@ -2,8 +2,8 @@
 -- Simple primitive-based UI for Kill the Tower
 
 local World = require("World")
-local CombatLove = require("CombatLove")
-local MapLove = require("MapLove")
+local CombatLove = require("UIs.love_gui.CombatLove")
+local MapLove = require("UIs.love_gui.MapLove")
 local Cards = require("Data.cards")
 local Enemies = require("Data.enemies")
 local Maps = require("Data.maps")

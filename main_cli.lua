@@ -3,7 +3,7 @@
 -- Combat encounters are triggered automatically through map events
 
 local World = require("World")
-local MapCLI = require("MapCLI")
+local MapCLI = require("UIs.CLI.MapCLI")
 
 local Cards = require("Data.cards")
 local Relics = require("Data.relics")
