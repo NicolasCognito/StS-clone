@@ -142,7 +142,7 @@ end
 
 function startMapDemo()
     -- Create a simple map scenario
-    local MapGenerator = require("MapGenerator")
+    local Maps = require("Data.maps")
     local Utils = require("utils")
     local Cards = require("Data.cards")
 
@@ -162,11 +162,10 @@ function startMapDemo()
             copyCard(Cards.Defend),
             copyCard(Cards.Bash)
         },
-        relics = {}
+        relics = {},
+        map = Maps.TestMap,
+        startNode = Maps.TestMap.startNode
     })
-
-    -- Generate a map
-    world.map = MapGenerator.generate({floors = 15, width = 7})
 
     -- Switch to map mode
     gameMode = "map"
