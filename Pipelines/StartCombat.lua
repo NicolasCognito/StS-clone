@@ -90,6 +90,47 @@ function StartCombat.execute(world)
         table.insert(world.log, #innateCards .. " Innate card(s) placed on top of draw pile")
     end
 
+    -- Blue Candle: Make all Curse cards playable
+    if Utils.hasRelic(world.player, "Blue_Candle") then
+        for _, card in ipairs(world.player.combatDeck) do
+            if card.type == "CURSE" then
+                -- Override isPlayable to always return true
+                card.isPlayable = function(self, world, player)
+                    return true
+                end
+
+                -- Override onPlay to deal 1 HP damage
+                card.onPlay = function(self, world, player)
+                    world.queue:push({
+                        type = "ON_NON_ATTACK_DAMAGE",
+                        source = self,
+                        target = player,
+                        amount = 1,
+                        tags = {"ignoreBlock"}
+                    })
+                    table.insert(world.log, player.name .. " plays " .. self.name .. ", losing 1 HP (Blue Candle)")
+                end
+            end
+        end
+    end
+
+    -- MedKit: Make all Status cards playable
+    if Utils.hasRelic(world.player, "Medkit") then
+        for _, card in ipairs(world.player.combatDeck) do
+            if card.type == "STATUS" then
+                -- Override isPlayable to always return true
+                card.isPlayable = function(self, world, player)
+                    return true
+                end
+
+                -- Override onPlay to just exhaust (Status cards have no effect)
+                card.onPlay = function(self, world, player)
+                    table.insert(world.log, player.name .. " plays " .. self.name .. " (Medkit)")
+                end
+            end
+        end
+    end
+
     world.player.block = 0
     world.player.energy = world.player.maxEnergy
     world.player.hp = world.player.currentHp

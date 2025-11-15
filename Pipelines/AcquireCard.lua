@@ -257,6 +257,19 @@ function AcquireCard.execute(world, player, cardSource, options)
                 newCard[tag] = 1
             end
 
+            -- MedKit hook: Make Status cards playable when acquired during combat
+            if targetDeck == "combat" and inCombat and newCard.type == "STATUS" then
+                local Utils = require("utils")
+                if Utils.hasRelic(player, "Medkit") then
+                    newCard.isPlayable = function(self, world, player)
+                        return true
+                    end
+                    newCard.onPlay = function(self, world, player)
+                        table.insert(world.log, player.name .. " plays " .. self.name .. " (Medkit)")
+                    end
+                end
+            end
+
             -- Handle destination
             if targetDeck == "combat" and inCombat then
                 -- Add to combat deck
