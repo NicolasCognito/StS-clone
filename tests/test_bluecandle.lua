@@ -148,8 +148,86 @@ do
     end
 end
 
--- TEST 4: Pain deals 2 HP total (1 from play + 1 from onExhaust)
-print("Test 4: Pain deals 2 HP total (Blue Candle + onExhaust)")
+-- TEST 4: Pain triggers when playing OTHER cards
+print("Test 4: Pain in hand triggers damage when playing other cards")
+do
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        currentHp = 80,
+        maxEnergy = 6,
+        cards = {
+            Utils.copyCardTemplate(Cards.Pain),
+            Utils.copyCardTemplate(Cards.Strike)
+        },
+        relics = {}
+    })
+
+    world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
+    world.NoShuffle = true
+    StartCombat.execute(world)
+
+    local initialHp = world.player.hp
+
+    -- Find Strike and play it
+    local strike = nil
+    for _, card in ipairs(world.player.combatDeck) do
+        if card.id == "Strike" then
+            strike = card
+            break
+        end
+    end
+
+    playCardWithAutoContext(world, world.player, strike)
+
+    -- Should lose 1 HP from Pain in hand
+    assert(world.player.hp == initialHp - 1, "Pain in hand should deal 1 HP when playing other cards (expected " .. (initialHp - 1) .. ", got " .. world.player.hp .. ")")
+
+    print("✓ Pain in hand triggers damage when playing other cards")
+end
+
+-- TEST 5: Multiple Pain cards stack
+print("Test 5: Multiple Pain cards in hand stack damage")
+do
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        currentHp = 80,
+        maxEnergy = 6,
+        cards = {
+            Utils.copyCardTemplate(Cards.Pain),
+            Utils.copyCardTemplate(Cards.Pain),
+            Utils.copyCardTemplate(Cards.Pain),
+            Utils.copyCardTemplate(Cards.Strike)
+        },
+        relics = {}
+    })
+
+    world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
+    world.NoShuffle = true
+    StartCombat.execute(world)
+
+    local initialHp = world.player.hp
+
+    -- Find Strike and play it
+    local strike = nil
+    for _, card in ipairs(world.player.combatDeck) do
+        if card.id == "Strike" then
+            strike = card
+            break
+        end
+    end
+
+    playCardWithAutoContext(world, world.player, strike)
+
+    -- Should lose 3 HP from 3 Pain cards in hand
+    assert(world.player.hp == initialHp - 3, "3 Pain cards should deal 3 HP total (expected " .. (initialHp - 3) .. ", got " .. world.player.hp .. ")")
+
+    print("✓ Multiple Pain cards stack damage")
+end
+
+-- TEST 6: Playing Pain with Blue Candle also triggers Pain damage
+print("Test 6: Playing Pain with Blue Candle triggers its own damage")
 do
     local world = World.createWorld({
         id = "IronClad",
@@ -169,14 +247,14 @@ do
 
     playCardWithAutoContext(world, world.player, pain)
 
-    -- Should lose 2 HP total: 1 from Blue Candle play, 1 from onExhaust
-    assert(world.player.hp == initialHp - 2, "Pain should deal 2 HP total (expected " .. (initialHp - 2) .. ", got " .. world.player.hp .. ")")
+    -- Should lose 2 HP total: 1 from Pain triggering (before card resolves), 1 from Blue Candle (card's onPlay)
+    assert(world.player.hp == initialHp - 2, "Playing Pain should deal 2 HP total (expected " .. (initialHp - 2) .. ", got " .. world.player.hp .. ")")
 
-    print("✓ Pain deals 2 HP total (1 from Blue Candle + 1 from onExhaust)")
+    print("✓ Playing Pain with Blue Candle triggers its own damage (2 HP total)")
 end
 
--- TEST 5: Multiple Curse cards can be played
-print("Test 5: Multiple Curse cards can be played")
+-- TEST 7: Multiple Curse cards can be played
+print("Test 7: Multiple Curse cards can be played")
 do
     local world = World.createWorld({
         id = "IronClad",
@@ -220,8 +298,8 @@ do
     print("✓ Multiple Curse cards can be played")
 end
 
--- TEST 6: Curse cards cost 0 energy
-print("Test 6: Curse cards cost 0 energy")
+-- TEST 8: Curse cards cost 0 energy
+print("Test 8: Curse cards cost 0 energy")
 do
     local world = World.createWorld({
         id = "IronClad",

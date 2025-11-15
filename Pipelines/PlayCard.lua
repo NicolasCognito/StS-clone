@@ -223,6 +223,30 @@ function PlayCard.executeCardEffect(world, player, card)
             table.insert(world.log, "  → " .. card.originalCardName .. " (" .. source .. ")")
         end
 
+        -- STEP 1.5: PAIN CURSE DAMAGE (before card effect resolves)
+        -- Count all Pain cards in hand and deal 1 HP per Pain
+        -- Pain damage is pushed with "FIRST" priority to process before the card's own effects
+        local handCards = Utils.getCardsByState(player.combatDeck, "HAND")
+        local painCount = 0
+        for _, handCard in ipairs(handCards) do
+            if handCard.id == "Pain" then
+                painCount = painCount + 1
+            end
+        end
+
+        if painCount > 0 then
+            for i = 1, painCount do
+                world.queue:push({
+                    type = "ON_NON_ATTACK_DAMAGE",
+                    source = "Pain",
+                    target = player,
+                    amount = 1,
+                    tags = {"ignoreBlock"}
+                }, "FIRST")
+            end
+            table.insert(world.log, player.name .. " loses " .. painCount .. " HP from Pain in hand")
+        end
+
         -- STEP 2: EXECUTE CARD EFFECT
         if card.onPlay then
             card:onPlay(world, player)
