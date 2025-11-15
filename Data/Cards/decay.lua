@@ -1,6 +1,6 @@
 -- Decay (Curse)
 -- Unplayable. At the end of your turn, lose 2 HP.
--- Can be played with Blue Candle relic: Lose 1 HP, Exhaust.
+-- Can be played with Blue Candle relic (handled by StartCombat pipeline)
 
 return {
     Decay = {
@@ -13,28 +13,14 @@ return {
         exhausts = true,
         description = "Unplayable. At the end of your turn, lose 2 HP.",
 
-        -- Only playable with Blue Candle relic
+        -- Unplayable by default (Blue Candle overrides this in StartCombat)
         isPlayable = function(self, world, player)
-            local Utils = require("utils")
-            if Utils.hasRelic(player, "Blue_Candle") then
-                return true
-            end
             return false, "Decay is unplayable"
         end,
 
-        -- When played (via Blue Candle): Lose 1 HP
-        onPlay = function(self, world, player)
-            world.queue:push({
-                type = "ON_NON_ATTACK_DAMAGE",
-                source = self,
-                target = player,
-                amount = 1,
-                tags = {"ignoreBlock"}
-            })
-            table.insert(world.log, player.name .. " plays Decay, losing 1 HP")
-        end,
+        -- No onPlay - Blue Candle adds this dynamically
 
-        -- Hook for end of turn (would need to be checked in EndTurn pipeline)
+        -- Hook for end of turn (checked in EndTurn pipeline)
         onEndOfTurn = function(self, world, player)
             -- Only trigger if this card is in hand at end of turn
             if self.state == "HAND" then
