@@ -62,6 +62,14 @@ function love.textinput(text)
     end
 end
 
+function love.mousepressed(x, y, button)
+    if gameMode == "combat" then
+        CombatLove.mousepressed(world, x, y, button)
+    elseif gameMode == "map" then
+        -- MapLove.mousepressed could be added later
+    end
+end
+
 function drawMenu()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("KILL THE TOWER", 50, 50, 0, 2, 2)
