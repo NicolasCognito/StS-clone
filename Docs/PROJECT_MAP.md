@@ -34,6 +34,7 @@ StS-clone/
 ├── Pipelines/                  # ALL game logic lives here
 │   ├── Combat Pipelines:
 │   │   ├── PlayCard.lua        # Card playing orchestration
+│   │   ├── IsPlayable.lua      # Playability validation
 │   │   ├── ResolveCard.lua     # CardQueue processor
 │   │   ├── ProcessEventQueue.lua # Routes combat events to handlers
 │   │   ├── EventQueue.lua      # FIFO queue for game events
@@ -306,30 +307,33 @@ world.cardQueue:clear()          -- Abort all pending entries (for limit enforce
 **Entry Structure:**
 ```lua
 {
-    card = card,                  -- The card instance
+    card = card,                  -- The card instance (original or shadow copy)
     player = player,              -- The player
-    options = options,            -- Play options (skipEnergyCost, etc.)
-    replaySource = "Double Tap",  -- nil for initial, source for replays
-    isInitial = true,             -- true for first play, false for duplications
-    isLast = false,               -- true for final duplication (discard/exhaust)
-    phase = "main",               -- "main" or "duplication"
-    skipDiscard = false,          -- don't discard yet (non-final duplication)
-    resuming = false              -- resuming after context collection
+    options = options             -- Play options (skipEnergyCost, etc.)
 }
 ```
 
+**Shadow Copy System:**
+
+When duplications are triggered (Double Tap, Echo Form, etc.), the system creates **shadow copies**:
+- Shadow copies are real card instances (via `Utils.deepCopyCard()`)
+- Each shadow has: `isShadow = true`, `duplicationSource = "Double Tap"`, `originalCardName = "Strike"`
+- Shadows are stored in `world.DuplicationShadowCards` (NOT in `player.combatDeck`)
+- Each shadow executes independently: calls its own `onPlay()`, generates events, handles discard/exhaust
+- All shadows are purged at end of turn via `world.DuplicationShadowCards = {}`
+
 **Why LIFO?**
 
-Ensures correct execution order for duplication chains:
+Ensures correct execution order for shadow copy chains:
 
 ```
-PUSH ORDER (bottom → top):     POP ORDER (top → bottom):
-1. Initial play                1. Duplication 2 (Echo Form)
-2. Duplication 1 (Double Tap)  2. Duplication 1 (Double Tap)
-3. Duplication 2 (Echo Form)   3. Initial play
+PUSH ORDER (bottom → top):          POP ORDER (top → bottom):
+1. Original card                    1. Shadow 2 (Echo Form)
+2. Shadow 1 (Double Tap)            2. Shadow 1 (Double Tap)
+3. Shadow 2 (Echo Form)             3. Original card
 ```
 
-This creates the expected visual: initial → duplicate 1 → duplicate 2
+This creates the expected visual execution order: original → shadow 1 → shadow 2
 
 #### Queue Interaction Flow
 
@@ -338,9 +342,11 @@ This creates the expected visual: initial → duplicate 1 → duplicate 2
    ↓
 2. PlayCard.execute()
    → Build duplication plan (Double Tap, Burst, Echo Form, Necronomicon)
-   → Push entries to CardQueue in reverse order (LIFO)
+   → Create shadow copies for each duplication (real card instances)
+   → Store shadows in world.DuplicationShadowCards
+   → Push entries to CardQueue in reverse order (LIFO): shadows first, then original
    ↓
-3. First entry pops from CardQueue
+3. First entry pops from CardQueue (a shadow copy or original)
    → PlayCard.executeCardEffect()
    → card.onPlay() pushes events to EventQueue
    ↓
@@ -348,8 +354,8 @@ This creates the expected visual: initial → duplicate 1 → duplicate 2
    → Drain EventQueue (FIFO) until empty
    → Routes events to pipelines (DealAttackDamage, ApplyBlock, etc.)
    → AFTER_CARD_PLAYED event processed by AfterCardPlayed.execute()
-     → Updates lastPlayedCard (every execution, including duplications)
-     → Increments cardsPlayedThisTurn counter
+     → Updates lastPlayedCard (every execution, including shadows)
+     → Increments cardsPlayedThisTurn counter (shadows count!)
      → Enforces card limits (Velvet Choker, Normality) - clears CardQueue if exceeded
    → If needs context: pause, collect, resume
    ↓
@@ -359,12 +365,19 @@ This creates the expected visual: initial → duplicate 1 → duplicate 2
    → Trigger ResolveCard.execute()
    ↓
 6. ResolveCard.execute()
-   → Pop next entry from CardQueue (next duplication)
+   → Pop next entry from CardQueue (next shadow or original)
    → If entry is SEPARATOR: clear stable context, continue to next entry
    → Repeat from step 3 until CardQueue empty
+   ↓
+7. EndTurn.execute()
+   → Clear all shadow copies: world.DuplicationShadowCards = {}
 ```
 
-**Key Insight:** CardQueue handles WHEN cards execute (scheduling), EventQueue handles WHAT effects happen (game events). This separation enables complex duplication stacking and event-driven architecture.
+**Key Insights:**
+- CardQueue handles WHEN cards execute (scheduling), EventQueue handles WHAT effects happen (game events)
+- Shadow copies are real card instances that execute independently
+- AfterCardPlayed counts both originals and shadows for turn limits
+- All shadows purged wholesale at end of turn
 
 ---
 
@@ -447,7 +460,8 @@ If validation fails, card execution is cancelled (logged, not error).
 
 | Pipeline | Purpose | Key Responsibilities |
 |----------|---------|---------------------|
-| `PlayCard.lua` | Card execution orchestrator | Energy payment, duplication handling, context management, exhaust/discard, card limit pre-check |
+| `PlayCard.lua` | Card execution orchestrator | Energy payment, duplication handling, context management, exhaust/discard |
+| `IsPlayable.lua` | Playability validation | Entangled check, card limit enforcement, energy check, custom card.isPlayable() |
 | `ProcessEventQueue.lua` | Event router | Routes events to appropriate handlers (two-tier: SpecialBehaviors + DefaultRoutes) |
 | `EventQueueOver.lua` | Queue cleanup | Clear contexts, trigger next card from CardQueue, clear currentExecutingCard |
 | `ResolveCard.lua` | CardQueue processor | Pop and resolve entries from CardQueue, handle separators (clear stable context) |
@@ -1353,6 +1367,7 @@ world.queue:push({
 |------|---------|-------------|
 | `CombatEngine.lua` | Game loop, turn cycle | Adding special mechanics that hijack turn flow (Vault) |
 | `Pipelines/PlayCard.lua` | Card execution | New duplication mechanics, card-play hooks |
+| `Pipelines/IsPlayable.lua` | Playability checks | New play restrictions (status effects, card limits, custom rules) |
 | `Pipelines/ProcessEventQueue.lua` | Event routing | Adding new event types |
 | `Pipelines/DealAttackDamage.lua` | Damage calculation | Effects that modify damage (Strength multipliers, Pen Nib) |
 | `Pipelines/ApplyBlock.lua` | Block calculation | Effects that modify block (Dexterity multipliers, Frail) |

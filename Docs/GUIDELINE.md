@@ -110,7 +110,7 @@ Does this mechanic need to interact with existing game systems?
   - Context collection handling
   - State management (card.state, _previousState)
   - Energy override for free plays
-  - Forced replay queueing (Omniscience plays twice)
+  - Forced shadow copy queueing (Omniscience plays twice)
 - **Impact:** PlayCard pipeline gained helper function, no new pipeline file
 
 **CREATED: ChangeStance.lua** (for Watcher)
@@ -185,20 +185,22 @@ Naive approach (using only EventQueue):
    ❌ Problem: onPlay() already ran, can't re-run
    ❌ Problem: Context already collected, duplicates must reuse
    ❌ Problem: Need to mark "this is a duplicate" for logging
-   ❌ Problem: Only last duplicate should discard card
+   ❌ Problem: Execution tracking and cleanup
 ```
 
-**Solution: CardQueue (LIFO Stack)**
+**Solution: CardQueue (LIFO Stack) + Shadow Copies**
 
 ```
-CardQueue approach:
+CardQueue + Shadow Copy approach:
 1. PlayCard.execute() builds duplication plan
-2. Push entries to stack: [Initial, Dupe1, Dupe2]
-3. Pop and execute in REVERSE: Dupe2 → Dupe1 → Initial
-   ✅ Each entry calls card.onPlay() fresh
+2. Create shadow copies (real card instances) for each duplication
+3. Push entries to stack: [Original, Shadow1, Shadow2]
+4. Pop and execute in REVERSE: Shadow2 → Shadow1 → Original
+   ✅ Each shadow calls its own onPlay() fresh (real card instance)
    ✅ Stable context persists, temp context re-collected
-   ✅ Metadata tracks: isInitial, isLast, replaySource
-   ✅ Only isLast=true triggers discard
+   ✅ Shadow metadata tracks: isShadow, duplicationSource, originalCardName
+   ✅ Each shadow independently handles discard/exhaust
+   ✅ All shadows purged wholesale at end of turn
 ```
 
 **LIFO Critical:**
@@ -206,7 +208,7 @@ CardQueue approach:
 - Pop order (top→bottom): Echo Form copy, Double Tap copy, Initial
 - Creates visual: Initial effect → Double Tap → Echo Form (correct!)
 
-**Impact:** Major architecture addition, but solved previously unsolvable problem
+**Impact:** Major architecture addition (CardQueue + shadow copy system), but solved previously unsolvable problem
 
 **Real Example: MapQueue Creation (Map Events)**
 
