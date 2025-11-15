@@ -36,6 +36,10 @@ function EnemyTakeTurn.execute(world, enemy, player)
         local intentName = enemy.currentIntent.name or "Unknown"
         local intentDesc = enemy.currentIntent.description or ""
         table.insert(world.log, enemy.name .. " executes: " .. intentName .. (intentDesc ~= "" and (" (" .. intentDesc .. ")") or ""))
+
+        -- Record intent in history (for AI decision-making)
+        enemy.intentHistory = enemy.intentHistory or {}
+        table.insert(enemy.intentHistory, intentName)
     end
 
     -- Execute enemy's intent action (pushes events to queue)

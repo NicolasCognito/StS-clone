@@ -62,6 +62,7 @@ function Utils.copyEnemyTemplate(enemyTemplate)
     copy.status = copy.status or {}
     copy.powers = copy.powers or {}
     copy.dead = false
+    copy.intentHistory = {}  -- Track intent names executed each turn (for AI decision-making)
     return copy
 end
 

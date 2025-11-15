@@ -81,14 +81,6 @@ return {
         executeIntent = function(self, world, player)
             if self.currentIntent and self.currentIntent.execute then
                 self.currentIntent.execute(self, world, player)
-            else
-                -- Fallback to simple attack
-                world.queue:push({
-                    type = "ON_ATTACK_DAMAGE",
-                    attacker = self,
-                    defender = player,
-                    card = self
-                })
             end
         end
     },
@@ -127,14 +119,6 @@ return {
         executeIntent = function(self, world, player)
             if self.currentIntent and self.currentIntent.execute then
                 self.currentIntent.execute(self, world, player)
-            else
-                -- Fallback to simple attack
-                world.queue:push({
-                    type = "ON_ATTACK_DAMAGE",
-                    attacker = self,
-                    defender = player,
-                    card = self
-                })
             end
         end
     },
@@ -234,14 +218,6 @@ return {
         executeIntent = function(self, world, player)
             if self.currentIntent and self.currentIntent.execute then
                 self.currentIntent.execute(self, world, player)
-            else
-                -- Fallback to simple attack
-                world.queue:push({
-                    type = "ON_ATTACK_DAMAGE",
-                    attacker = self,
-                    defender = player,
-                    card = self
-                })
             end
         end
     }
