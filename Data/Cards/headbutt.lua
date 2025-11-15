@@ -60,6 +60,9 @@ return {
                     else
                         table.insert(world.log, player.name .. " placed " .. retrievedCard.name .. " on top of the draw pile.")
                     end
+
+                    -- Clear tempContext after using it (manual cleanup)
+                    world.combat.tempContext = nil
                 end
             })
         end,

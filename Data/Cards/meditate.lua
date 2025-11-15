@@ -36,6 +36,9 @@ return {
                         card.retain = true
                         table.insert(world.log, card.name .. " was placed into hand and will Retain")
                     end
+
+                    -- Clear tempContext after using it (manual cleanup)
+                    world.combat.tempContext = nil
                 end
             })
 

@@ -66,6 +66,9 @@ return {
                             table.remove(player.combatDeck, i)
                         end
                     end
+
+                    -- Clear tempContext after using it (manual cleanup)
+                    world.combat.tempContext = nil
                 end
             })
         end,
