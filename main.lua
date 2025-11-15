@@ -1,96 +1,183 @@
--- MAIN GAME LOOP
--- Demonstrates integrated MapEngine + CombatEngine flow
--- Combat encounters are triggered automatically through map events
+-- LOVE 2D MAIN ENTRY POINT
+-- Simple primitive-based UI for Kill the Tower
 
 local World = require("World")
-local MapCLI = require("MapCLI")
+local CombatLove = require("CombatLove")
+local MapLove = require("MapLove")
 
-local Cards = require("Data.cards")
-local Relics = require("Data.relics")
-local Maps = require("Data.maps")
-local Utils = require("utils")
+-- Game state
+local world = nil
+local gameMode = "menu" -- "menu", "combat", "map"
+local menuSelection = 1
 
--- ============================================================================
--- HELPER FUNCTIONS
--- ============================================================================
-
-local function copyCard(template)
-    return Utils.copyCardTemplate(template)
+function love.load()
+    love.window.setTitle("Kill the Tower - LOVE 2D")
+    love.window.setMode(1024, 768)
+    love.graphics.setBackgroundColor(0.1, 0.1, 0.15)
 end
 
-local function buildStartingDeck()
-    local cards = {}
-
-    -- Starting cards
-    for _ = 1, 5 do
-        table.insert(cards, copyCard(Cards.Strike))
+function love.draw()
+    if gameMode == "menu" then
+        drawMenu()
+    elseif gameMode == "combat" then
+        CombatLove.draw(world)
+    elseif gameMode == "map" then
+        MapLove.draw(world)
     end
-    for _ = 1, 4 do
-        table.insert(cards, copyCard(Cards.Defend))
+end
+
+function love.update(dt)
+    if gameMode == "combat" then
+        CombatLove.update(world, dt)
+    elseif gameMode == "map" then
+        MapLove.update(world, dt)
+    end
+end
+
+function love.keypressed(key)
+    if gameMode == "menu" then
+        handleMenuInput(key)
+    elseif gameMode == "combat" then
+        CombatLove.keypressed(world, key)
+    elseif gameMode == "map" then
+        MapLove.keypressed(world, key)
+    end
+end
+
+function love.textinput(text)
+    if gameMode == "combat" then
+        CombatLove.textinput(world, text)
+    elseif gameMode == "map" then
+        MapLove.textinput(world, text)
+    end
+end
+
+function drawMenu()
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.print("KILL THE TOWER", 50, 50, 0, 2, 2)
+
+    love.graphics.setColor(0.8, 0.8, 0.8)
+    love.graphics.print("Select a mode:", 50, 150)
+
+    -- Menu options
+    local options = {
+        {text = "1. Start Combat (Demo)", action = startCombatDemo},
+        {text = "2. Start Map (Demo)", action = startMapDemo},
+        {text = "3. Quit", action = function() love.event.quit() end}
+    }
+
+    for i, option in ipairs(options) do
+        local y = 200 + (i - 1) * 40
+        if i == menuSelection then
+            love.graphics.setColor(1, 1, 0)
+            love.graphics.rectangle("fill", 40, y - 5, 500, 30)
+            love.graphics.setColor(0, 0, 0)
+        else
+            love.graphics.setColor(0.7, 0.7, 0.7)
+        end
+        love.graphics.print(option.text, 50, y)
     end
 
-    -- Additional test cards
-    table.insert(cards, copyCard(Cards.Bash))
-    table.insert(cards, copyCard(Cards.FlameBarrier))
-    table.insert(cards, copyCard(Cards.Bloodletting))
-    table.insert(cards, copyCard(Cards.BloodForBlood))
-    table.insert(cards, copyCard(Cards.InfernalBlade))
-    table.insert(cards, copyCard(Cards.Corruption))
-    table.insert(cards, copyCard(Cards.Discovery))
-    table.insert(cards, copyCard(Cards.GrandFinale))
-    table.insert(cards, copyCard(Cards.Whirlwind))
-    table.insert(cards, copyCard(Cards.Skewer))
-    table.insert(cards, copyCard(Cards.Intimidate))
-    table.insert(cards, copyCard(Cards.Thunderclap))
-    table.insert(cards, copyCard(Cards.DaggerThrow))
-    table.insert(cards, copyCard(Cards.Headbutt))
-
-    return cards
+    love.graphics.setColor(0.5, 0.5, 0.5)
+    love.graphics.print("Use UP/DOWN arrows to navigate, ENTER to select", 50, 500)
 end
 
--- ============================================================================
--- WORLD SETUP
--- ============================================================================
-
-local testMap = Maps.TestMap
-local world = World.createWorld({
-    id = "IronClad",
-    maxHp = 80,
-    cards = buildStartingDeck(),
-    relics = {Relics.PaperPhrog, Relics.ChemicalX},
-    gold = 99,
-    map = testMap,
-    startNode = testMap and testMap.startNode or nil
-})
-
--- ============================================================================
--- MAIN GAME LOOP
--- ============================================================================
-
-print("=== SLAY THE SPIRE CLONE ===")
-print("Welcome, " .. world.player.name .. "!")
-print("Navigate the map and fight enemies to progress.")
-print("Combat encounters will start automatically at combat nodes.")
-print()
-
--- Run the integrated map + combat loop
--- MapCLI handles both map navigation and combat encounters seamlessly
-MapCLI.play(world)
-
--- ============================================================================
--- POST-GAME SUMMARY
--- ============================================================================
-
-print()
-print("=== GAME OVER ===")
-print("Final Stats:")
-print("  Player HP: " .. world.player.currentHp .. "/" .. world.player.maxHp)
-print("  Gold: " .. world.player.gold)
-print("  Floor Reached: " .. (world.floor or 1))
-print()
-
-if world.player.currentHp > 0 then
-    print("You survived and continue your journey!")
-else
-    print("Your journey ends here...")
+function handleMenuInput(key)
+    if key == "up" then
+        menuSelection = math.max(1, menuSelection - 1)
+    elseif key == "down" then
+        menuSelection = math.min(3, menuSelection + 1)
+    elseif key == "return" then
+        if menuSelection == 1 then
+            startCombatDemo()
+        elseif menuSelection == 2 then
+            startMapDemo()
+        elseif menuSelection == 3 then
+            love.event.quit()
+        end
+    elseif key == "escape" then
+        love.event.quit()
+    end
 end
+
+function startCombatDemo()
+    -- Create a simple combat scenario
+    local Cards = require("Data.cards")
+    local Enemies = require("Data.enemies")
+    local StartCombat = require("Pipelines.StartCombat")
+    local Utils = require("utils")
+
+    local function copyCard(template)
+        return Utils.copyCardTemplate(template)
+    end
+
+    -- Create world with IronClad starter deck
+    world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        currentHp = 80,
+        maxEnergy = 3,
+        masterDeck = {
+            copyCard(Cards.Strike), copyCard(Cards.Strike), copyCard(Cards.Strike),
+            copyCard(Cards.Strike), copyCard(Cards.Strike),
+            copyCard(Cards.Defend), copyCard(Cards.Defend), copyCard(Cards.Defend),
+            copyCard(Cards.Defend),
+            copyCard(Cards.Bash), copyCard(Cards.FlameBarrier), copyCard(Cards.Bloodletting)
+        },
+        relics = {}
+    })
+
+    -- Set up enemies
+    world.enemies = {
+        Enemies.JawWorm()
+    }
+
+    -- Initialize combat
+    StartCombat.execute(world)
+
+    -- Switch to combat mode
+    gameMode = "combat"
+    CombatLove.init(world)
+end
+
+function startMapDemo()
+    -- Create a simple map scenario
+    local MapGenerator = require("MapGenerator")
+    local Utils = require("utils")
+    local Cards = require("Data.cards")
+
+    local function copyCard(template)
+        return Utils.copyCardTemplate(template)
+    end
+
+    world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        currentHp = 80,
+        maxEnergy = 3,
+        masterDeck = {
+            copyCard(Cards.Strike), copyCard(Cards.Strike), copyCard(Cards.Strike),
+            copyCard(Cards.Strike), copyCard(Cards.Strike),
+            copyCard(Cards.Defend), copyCard(Cards.Defend), copyCard(Cards.Defend),
+            copyCard(Cards.Defend),
+            copyCard(Cards.Bash)
+        },
+        relics = {}
+    })
+
+    -- Generate a map
+    world.map = MapGenerator.generate({floors = 15, width = 7})
+
+    -- Switch to map mode
+    gameMode = "map"
+    MapLove.init(world)
+end
+
+function returnToMenu()
+    gameMode = "menu"
+    menuSelection = 1
+    world = nil
+end
+
+-- Export for use by other modules
+_G.returnToMenu = returnToMenu
