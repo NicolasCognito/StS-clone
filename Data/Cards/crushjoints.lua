@@ -32,7 +32,8 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
-                    if world.lastPlayedCard and world.lastPlayedCard.type == "SKILL" then
+                    local cardsPlayed = world.combat.cardsPlayedThisTurn
+                    if #cardsPlayed > 0 and cardsPlayed[#cardsPlayed].type == "SKILL" then
                         local target = world.combat.stableContext
                         if target and target.hp > 0 then
                             local vulnerableStacks = self.vulnerableStacks or 1

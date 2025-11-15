@@ -94,7 +94,7 @@ do
     end
 
     assert(cardsPlayed == 6, "Expected 6 cards played with Velvet Choker, got " .. cardsPlayed)
-    assert(world.combat.cardsPlayedThisTurn == 6, "Counter should show 6 cards played")
+    assert(#world.combat.cardsPlayedThisTurn == 6, "Counter should show 6 cards played")
     print("✓ Velvet Choker test passed: 6 cards played, 7th rejected")
 end
 
@@ -148,7 +148,7 @@ do
     end
 
     assert(cardsPlayed == 3, "Expected 3 cards played with Normality, got " .. cardsPlayed)
-    assert(world.combat.cardsPlayedThisTurn == 3, "Counter should show 3 cards played")
+    assert(#world.combat.cardsPlayedThisTurn == 3, "Counter should show 3 cards played")
     print("✓ Normality test passed: 3 cards played, 4th rejected")
 end
 
@@ -236,15 +236,15 @@ do
         end
     end
 
-    assert(world.combat.cardsPlayedThisTurn == 6, "Turn 1: 6 cards played")
+    assert(#world.combat.cardsPlayedThisTurn == 6, "Turn 1: 6 cards played")
     print("  Turn 1: 6 cards played")
 
     -- Start new turn
     print("Starting turn 2...")
     StartTurn.execute(world, world.player)
 
-    assert(world.combat.cardsPlayedThisTurn == 0, "Counter should reset to 0")
-    print("  Counter reset to: " .. world.combat.cardsPlayedThisTurn)
+    assert(#world.combat.cardsPlayedThisTurn == 0, "Counter should reset to 0")
+    print("  Counter reset to: " .. #world.combat.cardsPlayedThisTurn)
 
     -- Play 6 more cards
     for i = 1, 6 do
@@ -254,7 +254,7 @@ do
         end
     end
 
-    assert(world.combat.cardsPlayedThisTurn == 6, "Turn 2: Should play 6 cards again")
+    assert(#world.combat.cardsPlayedThisTurn == 6, "Turn 2: Should play 6 cards again")
     print("  Turn 2: 6 cards played")
     print("✓ Counter reset test passed")
 end

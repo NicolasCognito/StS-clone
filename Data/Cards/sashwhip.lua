@@ -32,7 +32,8 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
-                    if world.lastPlayedCard and world.lastPlayedCard.type == "ATTACK" then
+                    local cardsPlayed = world.combat.cardsPlayedThisTurn
+                    if #cardsPlayed > 0 and cardsPlayed[#cardsPlayed].type == "ATTACK" then
                         local target = world.combat.stableContext
                         if target and target.hp > 0 then
                             local weakStacks = self.weakStacks or 1

@@ -89,9 +89,10 @@ local enemy = world.enemies[1]
 playCard(world, world.player, strike)
 
 -- Check last played card
-assert(world.lastPlayedCard ~= nil, "lastPlayedCard should be set")
-assert(world.lastPlayedCard.type == "ATTACK", "Last played card should be ATTACK")
-print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
+local cardsPlayed = world.combat.cardsPlayedThisTurn
+assert(#cardsPlayed > 0, "cardsPlayedThisTurn should not be empty")
+assert(cardsPlayed[#cardsPlayed].type == "ATTACK", "Last played card should be ATTACK")
+print("Last played card: " .. cardsPlayed[#cardsPlayed].name .. " (type: " .. cardsPlayed[#cardsPlayed].type .. ")")
 
 -- Record energy before Follow-Up
 local energyBefore = world.player.energy
@@ -130,8 +131,9 @@ StartCombat.execute(world)
 playCard(world, world.player, defend)
 
 -- Check last played card
-assert(world.lastPlayedCard.type == "SKILL", "Last played card should be SKILL")
-print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
+cardsPlayed = world.combat.cardsPlayedThisTurn
+assert(cardsPlayed[#cardsPlayed].type == "SKILL", "Last played card should be SKILL")
+print("Last played card: " .. cardsPlayed[#cardsPlayed].name .. " (type: " .. cardsPlayed[#cardsPlayed].type .. ")")
 
 -- Record energy before Follow-Up
 energyBefore = world.player.energy
@@ -171,7 +173,8 @@ StartCombat.execute(world)
 enemy = world.enemies[1]
 playCard(world, world.player, strike)
 
-print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
+cardsPlayed = world.combat.cardsPlayedThisTurn
+print("Last played card: " .. cardsPlayed[#cardsPlayed].name .. " (type: " .. cardsPlayed[#cardsPlayed].type .. ")")
 
 -- Play Sash Whip
 playCard(world, world.player, sashwhip)
@@ -204,7 +207,8 @@ StartCombat.execute(world)
 -- Play Defend first
 playCard(world, world.player, defend)
 
-print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
+cardsPlayed = world.combat.cardsPlayedThisTurn
+print("Last played card: " .. cardsPlayed[#cardsPlayed].name .. " (type: " .. cardsPlayed[#cardsPlayed].type .. ")")
 
 -- Play Sash Whip
 enemy = world.enemies[1]
@@ -238,7 +242,8 @@ StartCombat.execute(world)
 -- Play Defend first
 playCard(world, world.player, defend)
 
-print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
+cardsPlayed = world.combat.cardsPlayedThisTurn
+print("Last played card: " .. cardsPlayed[#cardsPlayed].name .. " (type: " .. cardsPlayed[#cardsPlayed].type .. ")")
 
 -- Play Crush Joints
 enemy = world.enemies[1]
@@ -273,7 +278,8 @@ StartCombat.execute(world)
 enemy = world.enemies[1]
 playCard(world, world.player, strike)
 
-print("Last played card: " .. world.lastPlayedCard.name .. " (type: " .. world.lastPlayedCard.type .. ")")
+cardsPlayed = world.combat.cardsPlayedThisTurn
+print("Last played card: " .. cardsPlayed[#cardsPlayed].name .. " (type: " .. cardsPlayed[#cardsPlayed].type .. ")")
 
 -- Play Crush Joints
 playCard(world, world.player, crushjoints)
@@ -350,8 +356,8 @@ world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 
 StartCombat.execute(world)
 
--- Check lastPlayedCard is nil
-assert(world.lastPlayedCard == nil, "lastPlayedCard should be nil at start of combat")
+-- Check cardsPlayedThisTurn is empty
+assert(#world.combat.cardsPlayedThisTurn == 0, "cardsPlayedThisTurn should be empty at start of combat")
 
 -- Play Sash Whip as first card
 enemy = world.enemies[1]

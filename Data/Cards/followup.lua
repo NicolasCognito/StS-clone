@@ -32,7 +32,8 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
-                    if world.lastPlayedCard and world.lastPlayedCard.type == "ATTACK" then
+                    local cardsPlayed = world.combat.cardsPlayedThisTurn
+                    if #cardsPlayed > 0 and cardsPlayed[#cardsPlayed].type == "ATTACK" then
                         player.energy = player.energy + 1
                         table.insert(world.log, "Follow-Up grants 1 Energy (last card was an Attack)")
                     end

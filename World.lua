@@ -101,7 +101,7 @@ function World.initCombatState()
     return {
         timesHpLost = 0,
         cardsDiscardedThisTurn = 0,
-        cardsPlayedThisTurn = 0,    -- Track cards played this turn (for Velvet Choker, Normality)
+        cardsPlayedThisTurn = {},   -- Table storing metadata of cards played this turn {type, name, id}
         powersPlayedThisCombat = 0,
         -- Context system
         stableContext = nil,    -- Persists across duplications (e.g., enemy target)

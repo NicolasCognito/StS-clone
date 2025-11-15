@@ -414,6 +414,16 @@ local StatusEffects = {
         debuff = false
     },
 
+    panache = {
+        id = "panache",
+        name = "Panache",
+        description = "Every time you play 5 cards in a single turn, deal damage to ALL enemies.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
     well_laid_plans = {
         id = "well_laid_plans",
         name = "Well-Laid Plans",

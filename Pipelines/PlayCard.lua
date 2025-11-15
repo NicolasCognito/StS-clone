@@ -107,7 +107,6 @@ local function prepareCardPlay(world, player, card, options)
     end
 
     card.energyPaid = true
-    card._previousLastPlayedCard = world.lastPlayedCard  -- Save for restoration if card is canceled
     enterProcessingState(card)
     return true
 end
