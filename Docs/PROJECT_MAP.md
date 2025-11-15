@@ -34,6 +34,7 @@ StS-clone/
 ├── Pipelines/                  # ALL game logic lives here
 │   ├── Combat Pipelines:
 │   │   ├── PlayCard.lua        # Card playing orchestration
+│   │   ├── IsPlayable.lua      # Playability validation
 │   │   ├── ResolveCard.lua     # CardQueue processor
 │   │   ├── ProcessEventQueue.lua # Routes combat events to handlers
 │   │   ├── EventQueue.lua      # FIFO queue for game events
@@ -459,7 +460,8 @@ If validation fails, card execution is cancelled (logged, not error).
 
 | Pipeline | Purpose | Key Responsibilities |
 |----------|---------|---------------------|
-| `PlayCard.lua` | Card execution orchestrator | Energy payment, duplication handling, context management, exhaust/discard, card limit pre-check |
+| `PlayCard.lua` | Card execution orchestrator | Energy payment, duplication handling, context management, exhaust/discard |
+| `IsPlayable.lua` | Playability validation | Entangled check, card limit enforcement, energy check, custom card.isPlayable() |
 | `ProcessEventQueue.lua` | Event router | Routes events to appropriate handlers (two-tier: SpecialBehaviors + DefaultRoutes) |
 | `EventQueueOver.lua` | Queue cleanup | Clear contexts, trigger next card from CardQueue, clear currentExecutingCard |
 | `ResolveCard.lua` | CardQueue processor | Pop and resolve entries from CardQueue, handle separators (clear stable context) |
@@ -1365,6 +1367,7 @@ world.queue:push({
 |------|---------|-------------|
 | `CombatEngine.lua` | Game loop, turn cycle | Adding special mechanics that hijack turn flow (Vault) |
 | `Pipelines/PlayCard.lua` | Card execution | New duplication mechanics, card-play hooks |
+| `Pipelines/IsPlayable.lua` | Playability checks | New play restrictions (status effects, card limits, custom rules) |
 | `Pipelines/ProcessEventQueue.lua` | Event routing | Adding new event types |
 | `Pipelines/DealAttackDamage.lua` | Damage calculation | Effects that modify damage (Strength multipliers, Pen Nib) |
 | `Pipelines/ApplyBlock.lua` | Block calculation | Effects that modify block (Dexterity multipliers, Frail) |
