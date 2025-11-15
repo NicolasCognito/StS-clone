@@ -130,7 +130,7 @@ function startCombatDemo()
 
     -- Set up enemies
     world.enemies = {
-        Enemies.JawWorm()
+        Utils.copyEnemyTemplate(Enemies.SlimeBoss)
     }
 
     -- Initialize combat

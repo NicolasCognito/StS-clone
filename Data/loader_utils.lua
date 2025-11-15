@@ -85,6 +85,33 @@ function LoaderUtils.listLuaFiles(directory)
     if not normalizedDir then
         return nil, "invalid directory"
     end
+
+    -- Try LÖVE filesystem first (if available)
+    if love and love.filesystem then
+        -- LÖVE uses forward slashes and relative paths from the game directory
+        local loveDir = normalizedDir:gsub("\\", "/")
+
+        local success, items = pcall(love.filesystem.getDirectoryItems, loveDir)
+        if not success then
+            -- Try without Data/ prefix in case LÖVE is already in that directory
+            local altDir = loveDir:match("Data/(.+)") or loveDir
+            success, items = pcall(love.filesystem.getDirectoryItems, altDir)
+            if not success then
+                return nil, "LÖVE filesystem error: tried '" .. loveDir .. "' and '" .. altDir .. "': " .. tostring(items)
+            end
+        end
+
+        local files = {}
+        for _, fileName in ipairs(items) do
+            if fileName:sub(-4) == ".lua" then
+                table.insert(files, fileName:sub(1, -5))
+            end
+        end
+        table.sort(files)
+        return files
+    end
+
+    -- Fallback to io.popen for standard Lua
     if not io or not io.popen then
         return nil, "io.popen unavailable in this Lua build"
     end
