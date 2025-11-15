@@ -2,8 +2,8 @@
 -- Simple primitive-based UI for Kill the Tower
 
 local World = require("World")
-local CombatLove = require("CombatLove")
-local MapLove = require("MapLove")
+local CombatLove = require("UIs.love_gui.CombatLove")
+local MapLove = require("UIs.love_gui.MapLove")
 local Cards = require("Data.cards")
 local Enemies = require("Data.enemies")
 local Maps = require("Data.maps")
@@ -59,6 +59,14 @@ function love.textinput(text)
         CombatLove.textinput(world, text)
     elseif gameMode == "map" then
         MapLove.textinput(world, text)
+    end
+end
+
+function love.mousepressed(x, y, button)
+    if gameMode == "combat" then
+        CombatLove.mousepressed(world, x, y, button)
+    elseif gameMode == "map" then
+        -- MapLove.mousepressed could be added later
     end
 end
 
