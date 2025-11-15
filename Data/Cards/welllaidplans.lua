@@ -7,7 +7,8 @@ return {
         character = "SILENT",
         rarity = "UNCOMMON",
         description = "At the end of your turn, Retain up to 1 card.",
-        retainCount = 1,
+	-- Temporary change for testing
+        retainCount = 2,
 
         onPlay = function(self, world, player)
             -- Apply Well-Laid Plans status effect

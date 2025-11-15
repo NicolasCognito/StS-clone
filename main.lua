@@ -130,7 +130,7 @@ function startCombatDemo()
             copyCard(Cards.Strike), copyCard(Cards.Strike), copyCard(Cards.Strike),
             copyCard(Cards.Strike), copyCard(Cards.Strike),
             copyCard(Cards.Defend), copyCard(Cards.Defend), copyCard(Cards.Defend),
-            copyCard(Cards.Defend),
+            copyCard(Cards.Defend), copyCard(Cards.WellLaidPlans),
             copyCard(Cards.Bash), copyCard(Cards.FlameBarrier), copyCard(Cards.Bloodletting)
         },
         relics = {}
