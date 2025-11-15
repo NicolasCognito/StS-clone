@@ -60,6 +60,11 @@ function DrawCard.execute(world, player, count)
             if player.status and player.status.confused and player.status.confused > 0 then
                 card.confused = math.random(0, 3)
             end
+
+            -- Trigger card's onDraw hook (if it has one)
+            if card.onDraw then
+                card:onDraw(world, player)
+            end
         end
     end
 

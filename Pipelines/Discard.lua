@@ -26,6 +26,11 @@ function Discard.execute(world, event)
     card.state = "DISCARD_PILE"
     table.insert(world.log, player.id .. " discarded " .. card.name)
 
+    -- Trigger card's onDiscard hook (if it has one)
+    if card.onDiscard then
+        card:onDiscard(world, player)
+    end
+
     -- TODO: Trigger discard effects (Eviscerate, Tingsha, Tough Bandages, etc.)
 end
 
