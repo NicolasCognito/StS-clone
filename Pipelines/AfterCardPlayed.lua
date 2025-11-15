@@ -6,6 +6,7 @@
 -- - Pen Nib counter reset (when counter reaches trigger threshold)
 -- - Choked status damage
 -- - cardsPlayedThisTurn tracking (stores metadata for each card played)
+-- - Panache trigger (every 5th card deals damage to all enemies)
 -- - Card play limit tracking and enforcement (Velvet Choker, Normality)
 
 local AfterCardPlayed = {}
@@ -57,6 +58,22 @@ function AfterCardPlayed.execute(world, player)
             name = world.combat.currentExecutingCard.name,
             id = world.combat.currentExecutingCard.id
         })
+
+        -- Check for Panache trigger (every 5th card)
+        if Utils.hasPower(player, "Panache") then
+            local panacheDamage = player.status.panache or 0
+            if #world.combat.cardsPlayedThisTurn % 5 == 0 then
+                -- Deal damage to all enemies
+                world.queue:push({
+                    type = "ON_ATTACK_DAMAGE",
+                    attacker = player,
+                    defender = "all",
+                    amount = panacheDamage,
+                    card = nil  -- No card associated with Panache trigger
+                })
+                table.insert(world.log, "Panache! Dealt " .. panacheDamage .. " damage to all enemies")
+            end
+        end
 
         -- Enforce card play limits (Velvet Choker, Normality)
         -- Recalculate limit (Normality might have been played/exhausted this execution!)
