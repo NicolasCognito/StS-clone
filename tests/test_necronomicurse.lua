@@ -59,8 +59,37 @@ end
 
 print("=== Necronomicurse Tests ===\n")
 
--- TEST 1: Necronomicurse is unplayable even with Blue Candle
-print("Test 1: Necronomicurse is unplayable even with Blue Candle")
+-- TEST 1: Necronomicurse is unplayable without Blue Candle
+print("Test 1: Necronomicurse is unplayable without Blue Candle")
+do
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        currentHp = 80,
+        maxEnergy = 6,
+        cards = {Utils.copyCardTemplate(Cards.Necronomicurse)},
+        relics = {}
+    })
+
+    world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
+    world.NoShuffle = true
+    StartCombat.execute(world)
+
+    local necronomicurse = world.player.combatDeck[1]
+    assert(necronomicurse.state == "HAND", "Necronomicurse should be in hand")
+
+    local result = playCardWithAutoContext(world, world.player, necronomicurse)
+
+    -- Should fail to play without Blue Candle
+    assert(result ~= true, "Necronomicurse should not be playable without Blue Candle")
+    assert(necronomicurse.state == "HAND", "Necronomicurse should still be in hand")
+    assert(world.player.hp == 80, "Player HP should be unchanged")
+
+    print("✓ Necronomicurse is unplayable without Blue Candle")
+end
+
+-- TEST 2: Necronomicurse is playable with Blue Candle
+print("Test 2: Necronomicurse is playable with Blue Candle")
 do
     local world = World.createWorld({
         id = "IronClad",
@@ -75,21 +104,29 @@ do
     world.NoShuffle = true
     StartCombat.execute(world)
 
+    local initialHp = world.player.hp
     local necronomicurse = world.player.combatDeck[1]
-    assert(necronomicurse.state == "HAND", "Necronomicurse should be in hand")
 
     local result = playCardWithAutoContext(world, world.player, necronomicurse)
 
-    -- Should fail to play even with Blue Candle
-    assert(result ~= true, "Necronomicurse should not be playable even with Blue Candle")
-    assert(necronomicurse.state == "HAND", "Necronomicurse should still be in hand")
-    assert(world.player.hp == 80, "Player HP should be unchanged")
+    -- Should play successfully with Blue Candle
+    assert(result == true, "Necronomicurse should be playable with Blue Candle")
 
-    print("✓ Necronomicurse is unplayable even with Blue Candle")
+    -- Should lose 1 HP from Blue Candle
+    assert(world.player.hp == initialHp - 1, "Player should lose 1 HP from playing Necronomicurse")
+
+    -- Process event queue to handle the return-to-hand logic
+    local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
+    ProcessEventQueue.execute(world)
+
+    -- Should return to hand after being exhausted
+    assert(necronomicurse.state == "HAND", "Necronomicurse should return to hand after exhaust")
+
+    print("✓ Necronomicurse is playable with Blue Candle and returns to hand")
 end
 
--- TEST 2: Necronomicurse returns to hand when exhausted
-print("Test 2: Necronomicurse returns to hand when exhausted")
+-- TEST 3: Necronomicurse returns to hand when exhausted
+print("Test 3: Necronomicurse returns to hand when exhausted")
 do
     local world = World.createWorld({
         id = "IronClad",
@@ -121,8 +158,8 @@ do
     print("✓ Necronomicurse returns to hand when exhausted")
 end
 
--- TEST 3: Necronomicurse goes to discard pile when hand is full
-print("Test 3: Necronomicurse goes to discard pile when hand is full")
+-- TEST 4: Necronomicurse goes to discard pile when hand is full
+print("Test 4: Necronomicurse goes to discard pile when hand is full")
 do
     -- Create 10 cards to fill hand (max hand size is 10)
     local cards = {}
@@ -164,8 +201,8 @@ do
     print("✓ Necronomicurse goes to discard pile when hand is full")
 end
 
--- TEST 4: Strange Spoon can save Necronomicurse from exhaust
-print("Test 4: Strange Spoon can save Necronomicurse from exhaust")
+-- TEST 5: Strange Spoon can save Necronomicurse from exhaust
+print("Test 5: Strange Spoon can save Necronomicurse from exhaust")
 do
     -- Strange Spoon has 50% chance - with randomseed(1337) we can test this
     -- We'll run multiple times to see if it ever gets saved
@@ -211,8 +248,8 @@ do
     print("✓ Strange Spoon can save Necronomicurse from exhaust")
 end
 
--- TEST 5: Multiple Necronomicurse cards each return independently
-print("Test 5: Multiple Necronomicurse cards each return independently")
+-- TEST 6: Multiple Necronomicurse cards each return independently
+print("Test 6: Multiple Necronomicurse cards each return independently")
 do
     local world = World.createWorld({
         id = "IronClad",
@@ -256,8 +293,8 @@ do
     print("✓ Multiple Necronomicurse cards each return independently")
 end
 
--- TEST 6: Necronomicurse works with Corruption (Skills exhaust)
-print("Test 6: Necronomicurse returns when exhausted by other effects")
+-- TEST 7: Necronomicurse works with Corruption (Skills exhaust)
+print("Test 7: Necronomicurse returns when exhausted by other effects")
 do
     -- Simulate a card that exhausts after play
     local world = World.createWorld({
@@ -288,8 +325,8 @@ do
     print("✓ Necronomicurse returns when exhausted by other effects")
 end
 
--- TEST 7: Verify log messages
-print("Test 7: Verify log messages")
+-- TEST 8: Verify log messages
+print("Test 8: Verify log messages")
 do
     local world = World.createWorld({
         id = "IronClad",
