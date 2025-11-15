@@ -558,6 +558,26 @@ local StatusEffects = {
         debuff = false,
         goesDownOnRoundEnd = true,
         roundEndMode = "TickDown"
+    },
+
+    foresight = {
+        id = "foresight",
+        name = "Foresight",
+        description = "At the start of your turn, Scry N.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    tools_of_the_trade = {
+        id = "tools_of_the_trade",
+        name = "Tools of the Trade",
+        description = "At the start of your turn, draw 1 card and discard 1 card.",
+        minValue = 0,
+        maxValue = 1,
+        stackType = "intensity",
+        debuff = false
     }
 }
 
