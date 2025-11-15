@@ -64,18 +64,12 @@ function AfterCardPlayed.execute(world, player)
             local panacheDamage = player.status.panache or 0
             if #world.combat.cardsPlayedThisTurn % 5 == 0 then
                 -- Deal non-attack damage to all enemies
-                if world.enemies then
-                    for _, enemy in ipairs(world.enemies) do
-                        if enemy.hp > 0 then
-                            world.queue:push({
-                                type = "ON_NON_ATTACK_DAMAGE",
-                                source = player,
-                                target = enemy,
-                                amount = panacheDamage
-                            })
-                        end
-                    end
-                end
+                world.queue:push({
+                    type = "ON_NON_ATTACK_DAMAGE",
+                    source = player,
+                    target = "all",
+                    amount = panacheDamage
+                })
                 table.insert(world.log, "Panache! Dealt " .. panacheDamage .. " damage to all enemies")
             end
         end
