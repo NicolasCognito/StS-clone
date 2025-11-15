@@ -91,10 +91,15 @@ function EndTurn.execute(world, player)
                     card.retainThisTurn = true
                     table.insert(world.log, card.name .. " will be retained (Well-Laid Plans)")
                 end
+                -- Clear tempContext after using it (manual cleanup)
+                world.combat.tempContext = nil
             end
         })
 
-        ProcessEventQueue.execute(world)
+        local result = ProcessEventQueue.execute(world)
+        if result and result.needsContext then
+            return result  -- Return early to let CombatEngine handle context collection
+        end
     end
 
     for _, card in ipairs(player.combatDeck) do

@@ -17,10 +17,12 @@ local function getResolveCard()
 end
 
 function QueueOver.execute(world)
-    -- Temp context should not persist once queue resolves
+    -- Note: tempContext is NOT cleared here - it should be cleared manually by the code
+    -- that created it, after it's done using it. This allows pipelines to set tempContext
+    -- before calling ProcessEventQueue without it being cleared prematurely.
+    -- Stable context is cleared by separators in CardQueue, not here.
     if world.combat then
-        world.combat.tempContext = nil
-        -- Note: Stable context is cleared by separators in CardQueue, not here
+        -- Don't clear tempContext here
     end
 
     -- Process next card in CardQueue if any

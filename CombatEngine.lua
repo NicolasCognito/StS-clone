@@ -233,6 +233,50 @@ local function notifyCombatEnd(handlers, world, result)
     end
 end
 
+-- Generic context handling wrapper
+-- Executes a function that might need context collection, handles the async flow automatically
+-- Usage: local result = executeWithContextHandling(world, handlers, function() return SomePipeline.execute(world, ...) end)
+local function executeWithContextHandling(world, handlers, fn)
+    while true do
+        local result = fn()
+
+        -- Check if function needs context
+        if type(result) == "table" and result.needsContext then
+            -- Handle context request
+            if not world.combat.contextRequest then
+                error("needsContext returned but no contextRequest was set")
+            end
+
+            local request = enrichContextRequest(world, world.combat.contextRequest)
+            local context, control = resolveContext(world, handlers, request)
+
+            if control == "quit" then
+                return nil, "quit"
+            end
+
+            if context == nil then
+                -- User cancelled context selection
+                world.combat.contextRequest = nil
+                world.combat.stableContext = nil
+                world.combat.tempContext = nil
+                return nil, "cancel"
+            else
+                -- Context collected, set it and retry the function
+                if request.stability == "stable" then
+                    world.combat.stableContext = context
+                else
+                    world.combat.tempContext = context
+                end
+                world.combat.contextRequest = nil
+                -- Loop back to retry fn()
+            end
+        else
+            -- Function completed successfully
+            return result, "ok"
+        end
+    end
+end
+
 function CombatEngine.playGame(world, handlers)
     handlers = handlers or {}
     local gameOver = false
@@ -241,61 +285,44 @@ function CombatEngine.playGame(world, handlers)
     while not gameOver do
         notifyRender(handlers, world)
 
-        if world.combat.contextRequest then
-            local request = enrichContextRequest(world, world.combat.contextRequest)
-            local context, control = resolveContext(world, handlers, request)
+        local action, control = getPlayerAction(handlers, world)
+        if control == "quit" then
+            resultToken = "quit"
+            break
+        end
+        if not action then
+            resultToken = "quit"
+            break
+        end
 
-            if control == "quit" then
-                resultToken = "quit"
-                break
-            end
-
-            if context == nil then
-                world.combat.contextRequest = nil
-                world.combat.stableContext = nil
-                world.combat.tempContext = nil
+        if action.type == "play" then
+            local hand = CombatEngine.getCardsByState(world.player, "HAND")
+            local card = action.card or (action.cardIndex and hand[action.cardIndex])
+            if not card then
+                if handlers.onInvalidAction then
+                    handlers.onInvalidAction(world, action)
+                end
             else
-                if request.stability == "stable" then
-                    world.combat.stableContext = context
-                else
-                    world.combat.tempContext = context
-                end
-                world.combat.contextRequest = nil
+                local _, control = executeWithContextHandling(world, handlers, function()
+                    return PlayCard.execute(world, world.player, card)
+                end)
 
-                local result = PlayCard.execute(world, world.player, request.card)
-                if type(result) ~= "table" or not result.needsContext then
+                if control == "quit" then
+                    resultToken = "quit"
+                    gameOver = true
+                elseif control == "ok" then
                     notifyDisplayLog(handlers, world, 3)
-                end
-            end
-        else
-            local action, control = getPlayerAction(handlers, world)
-            if control == "quit" then
-                resultToken = "quit"
-                break
-            end
-            if not action then
-                resultToken = "quit"
-                break
-            end
-
-            if action.type == "play" then
-                local hand = CombatEngine.getCardsByState(world.player, "HAND")
-                local card = action.card or (action.cardIndex and hand[action.cardIndex])
-                if not card then
-                    if handlers.onInvalidAction then
-                        handlers.onInvalidAction(world, action)
-                    end
-                else
-                    local result = PlayCard.execute(world, world.player, card)
-                    if type(result) ~= "table" or not result.needsContext then
-                        notifyDisplayLog(handlers, world, 3)
-                    end
 
                     if world.combat.vaultPlayed then
                         world.combat.vaultPlayed = nil
-                        EndTurn.execute(world, world.player)
+                        local _, vaultControl = executeWithContextHandling(world, handlers, function()
+                            return EndTurn.execute(world, world.player)
+                        end)
 
-                        if not hasLivingEnemies(world) then
+                        if vaultControl == "quit" then
+                            resultToken = "quit"
+                            gameOver = true
+                        elseif not hasLivingEnemies(world) then
                             notifyResult(handlers, world, "victory")
                             resultToken = "victory"
                             gameOver = true
@@ -310,19 +337,27 @@ function CombatEngine.playGame(world, handlers)
                         end
                     end
                 end
-            elseif action.type == "use_potion" then
-                local potion = action.potion or (action.potionIndex and world.player.masterPotions[action.potionIndex])
-                if not potion then
-                    if handlers.onInvalidAction then
-                        handlers.onInvalidAction(world, action)
-                    end
-                else
-                    UsePotion.execute(world, world.player, potion)
-                    notifyDisplayLog(handlers, world, 3)
+            end
+        elseif action.type == "use_potion" then
+            local potion = action.potion or (action.potionIndex and world.player.masterPotions[action.potionIndex])
+            if not potion then
+                if handlers.onInvalidAction then
+                    handlers.onInvalidAction(world, action)
                 end
-            elseif action.type == "end" then
-                EndTurn.execute(world, world.player)
+            else
+                UsePotion.execute(world, world.player, potion)
+                notifyDisplayLog(handlers, world, 3)
+            end
+        elseif action.type == "end" then
+            local _, control = executeWithContextHandling(world, handlers, function()
+                return EndTurn.execute(world, world.player)
+            end)
 
+            if control == "quit" then
+                resultToken = "quit"
+                gameOver = true
+            elseif control == "ok" then
+                -- EndTurn completed successfully, continue to enemy turn
                 if not hasLivingEnemies(world) then
                     notifyResult(handlers, world, "victory")
                     resultToken = "victory"
@@ -345,12 +380,12 @@ function CombatEngine.playGame(world, handlers)
                         StartTurn.execute(world, world.player)
                     end
                 end
+            end
+        else
+            if handlers.onInvalidAction then
+                handlers.onInvalidAction(world, action)
             else
-                if handlers.onInvalidAction then
-                    handlers.onInvalidAction(world, action)
-                else
-                    error("CombatEngine.playGame: unknown action type " .. tostring(action.type))
-                end
+                error("CombatEngine.playGame: unknown action type " .. tostring(action.type))
             end
         end
 
