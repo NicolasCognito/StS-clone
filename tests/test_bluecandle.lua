@@ -226,8 +226,8 @@ do
     print("✓ Multiple Pain cards stack damage")
 end
 
--- TEST 6: Playing Pain with Blue Candle also triggers Pain damage
-print("Test 6: Playing Pain with Blue Candle triggers its own damage")
+-- TEST 6: Playing Pain with Blue Candle does NOT trigger Pain (already in PROCESSING)
+print("Test 6: Playing Pain with Blue Candle does NOT trigger itself")
 do
     local world = World.createWorld({
         id = "IronClad",
@@ -247,10 +247,10 @@ do
 
     playCardWithAutoContext(world, world.player, pain)
 
-    -- Should lose 2 HP total: 1 from Pain triggering (before card resolves), 1 from Blue Candle (card's onPlay)
-    assert(world.player.hp == initialHp - 2, "Playing Pain should deal 2 HP total (expected " .. (initialHp - 2) .. ", got " .. world.player.hp .. ")")
+    -- Should lose 1 HP: only from Blue Candle (Pain is already in PROCESSING when we check for Pain in hand)
+    assert(world.player.hp == initialHp - 1, "Playing Pain should only deal 1 HP from Blue Candle (expected " .. (initialHp - 1) .. ", got " .. world.player.hp .. ")")
 
-    print("✓ Playing Pain with Blue Candle triggers its own damage (2 HP total)")
+    print("✓ Playing Pain with Blue Candle does NOT trigger itself (only 1 HP from Blue Candle)")
 end
 
 -- TEST 7: Multiple Curse cards can be played
