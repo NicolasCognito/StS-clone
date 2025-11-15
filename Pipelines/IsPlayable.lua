@@ -46,7 +46,7 @@ function IsPlayable.execute(world, player, card, options)
     -- Auto-cast cards like Havoc were already validated when played
     if world.combat and not auto then
         local limit = Utils.getCardPlayLimit(world, player)
-        if world.combat.cardsPlayedThisTurn >= limit then
+        if #world.combat.cardsPlayedThisTurn >= limit then
             return false, "Cannot play more than " .. limit .. " cards this turn"
         end
     end

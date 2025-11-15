@@ -12,9 +12,6 @@ local Utils = require("utils")
 function StartCombat.execute(world)
     world.combat = World.initCombatState()
 
-    -- Initialize lastPlayedCard tracking (persists across turns within combat)
-    world.lastPlayedCard = nil
-
     world.queue = EventQueue.new()
     world.cardQueue = CardQueue.new()
     world.DuplicationShadowCards = {}  -- Tracks shadow copies created during duplication, cleared on turn end

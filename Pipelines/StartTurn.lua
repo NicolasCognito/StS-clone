@@ -248,7 +248,7 @@ function StartTurn.execute(world, player)
 
     -- Reset turn counters
     if world.combat then
-        world.combat.cardsPlayedThisTurn = 0
+        world.combat.cardsPlayedThisTurn = {}
     end
 
     -- Exit Divinity stance if player is in it (Divinity only lasts one turn)
