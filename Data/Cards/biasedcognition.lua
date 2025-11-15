@@ -18,7 +18,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "focus",
+                effectType = "focus",
                 amount = focusGain
             })
 
@@ -26,7 +26,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "bias",
+                effectType = "bias",
                 amount = 1  -- Intensity: 1 bias = lose 1 Focus per turn
             })
         end,

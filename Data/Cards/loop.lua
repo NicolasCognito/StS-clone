@@ -15,7 +15,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "loop",
+                effectType = "loop",
                 amount = self.upgraded and 2 or 1
             })
         end,

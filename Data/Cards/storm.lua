@@ -15,7 +15,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "storm",
+                effectType = "storm",
                 amount = 1
             })
         end,

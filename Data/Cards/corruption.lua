@@ -9,12 +9,12 @@ return {
         description = "Skills cost 0. Whenever you play a Skill, Exhaust it.",
 
         onPlay = function(self, world, player, target)
-            -- Apply Corruption power
-            local Powers = require("Data.powers")
+            -- Apply Corruption status effect
             world.queue:push({
-                type = "ON_APPLY_POWER",
+                type = "ON_STATUS_GAIN",
                 target = player,
-                powerTemplate = Powers.Corruption
+                effectType = "corruption",
+                amount = 1
             })
         end,
 

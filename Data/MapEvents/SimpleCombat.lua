@@ -19,34 +19,22 @@ return {
         nodes = {
             start = {
                 onEnter = function(world)
-                    -- Setup enemies based on node difficulty
+                    -- Setup enemies based on encounter name or random
                     local enemies = {}
                     local currentNode = world.map and world.map.nodes[world.currentNode]
-                    local difficulty = currentNode and currentNode.difficulty or "normal"
                     local encounterName = currentNode and currentNode.encounter
 
                     -- Use specific encounter if specified, otherwise random
                     if encounterName then
-                        enemies = Encounters.getEncounter(encounterName, difficulty)
+                        enemies = Encounters.getEncounter(encounterName, "normal")
                     else
-                        enemies = Encounters.getRandomEncounter(difficulty)
+                        enemies = Encounters.getRandomEncounter("normal")
                     end
 
                     -- Fallback to goblins if encounters returns empty
                     if not enemies or #enemies == 0 then
-                        if difficulty == "easy" or difficulty == "normal" then
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        elseif difficulty == "elite" then
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        elseif difficulty == "boss" then
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                            table.insert(enemies, copyEnemy(Enemies.Goblin))
-                        end
+                        table.insert(enemies, copyEnemy(Enemies.Goblin))
+                        table.insert(enemies, copyEnemy(Enemies.Goblin))
                     end
 
                     -- Queue combat start

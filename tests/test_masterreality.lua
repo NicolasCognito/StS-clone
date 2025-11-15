@@ -3,7 +3,6 @@
 
 local World = require("World")
 local Cards = require("Data.cards")
-local Powers = require("Data.powers")
 local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")

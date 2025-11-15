@@ -18,7 +18,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "focus",
+                effectType = "focus",
                 amount = -statGain
             })
 
@@ -26,7 +26,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "strength",
+                effectType = "strength",
                 amount = statGain
             })
 
@@ -34,7 +34,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "dexterity",
+                effectType = "dexterity",
                 amount = statGain
             })
         end,

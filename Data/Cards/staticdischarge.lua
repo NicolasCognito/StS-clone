@@ -15,7 +15,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "static_discharge",
+                effectType = "static_discharge",
                 amount = self.upgraded and 2 or 1
             })
         end,

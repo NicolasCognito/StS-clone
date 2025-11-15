@@ -5,7 +5,6 @@ local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
 local StartTurn = require("Pipelines.StartTurn")
-local ApplyPower = require("Pipelines.ApplyPower")
 local ContextProvider = require("Pipelines.ContextProvider")
 
 math.randomseed(1337)

@@ -29,7 +29,6 @@ local DrawCard = require("Pipelines.DrawCard")
 local Discard = require("Pipelines.Discard")
 local Retain = require("Pipelines.Retain")
 local AcquireCard = require("Pipelines.AcquireCard")
-local ApplyPower = require("Pipelines.ApplyPower")
 local Exhaust = require("Pipelines.Exhaust")
 local CustomEffect = require("Pipelines.CustomEffect")
 local ClearContext = require("Pipelines.ClearContext")
@@ -64,9 +63,6 @@ local DefaultRoutes = {
     end,
     ON_ACQUIRE_CARD = function(world, event)
         AcquireCard.execute(world, event.player, event.cardSource, event.options)
-    end,
-    ON_APPLY_POWER = function(world, event)
-        ApplyPower.execute(world, event)
     end,
     ON_EXHAUST = function(world, event)
         Exhaust.execute(world, event)

@@ -9,11 +9,12 @@ return {
         description = "Whenever a card is created during combat, Upgrade it.",
 
         onPlay = function(self, world, player)
-            local Powers = require("Data.powers")
+            -- Apply Master Reality status effect
             world.queue:push({
-                type = "ON_APPLY_POWER",
+                type = "ON_STATUS_GAIN",
                 target = player,
-                powerTemplate = Powers.MasterReality
+                effectType = "master_reality",
+                amount = 1
             })
         end,
 

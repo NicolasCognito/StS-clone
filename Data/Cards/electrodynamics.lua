@@ -16,7 +16,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "electrodynamics",
+                effectType = "electrodynamics",
                 amount = 1
             })
 

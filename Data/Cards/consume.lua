@@ -18,7 +18,7 @@ return {
             world.queue:push({
                 type = "ON_STATUS_GAIN",
                 target = player,
-                status = "focus",
+                effectType = "focus",
                 amount = focusGain
             })
 

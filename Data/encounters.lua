@@ -153,11 +153,21 @@ function Encounters.getRandomEncounter(difficulty)
 
     if #encounterKeys == 0 then
         -- Fallback to goblin_duo if no encounters found
-        return Encounters.goblin_duo[difficulty]()
+        local fallbackEncounter = Encounters.goblin_duo[difficulty]
+        if not fallbackEncounter then
+            print("WARNING: Unsupported difficulty '" .. difficulty .. "', defaulting to 'normal'")
+            fallbackEncounter = Encounters.goblin_duo["normal"]
+        end
+        return fallbackEncounter()
     end
 
     local randomKey = encounterKeys[math.random(#encounterKeys)]
-    return Encounters[randomKey][difficulty]()
+    local encounterGenerator = Encounters[randomKey][difficulty]
+    if not encounterGenerator then
+        print("WARNING: Encounter '" .. randomKey .. "' has no '" .. difficulty .. "' difficulty, defaulting to 'normal'")
+        encounterGenerator = Encounters[randomKey]["normal"]
+    end
+    return encounterGenerator()
 end
 
 -- Helper function to get a specific encounter by name

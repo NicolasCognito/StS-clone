@@ -222,7 +222,7 @@ function MapEngine.resolveContextRequest(world, options)
     assert(context ~= nil, ("MapEngine failed to resolve %s context"):format(mode))
     storeContext(world, request, context, mode)
     if mode ~= WAIT_MODES.CARDS then
-        mapEvent.pendingSelection = context
+        world.mapEvent.pendingSelection = context
     end
     world.mapEvent.contextRequest = nil
     return context

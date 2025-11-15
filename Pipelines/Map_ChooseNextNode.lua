@@ -7,9 +7,6 @@ local MapEngine = require("MapEngine")
 
 local function displayNodeInfo(node)
     local nodeDesc = node.id .. " - Floor " .. node.floor .. " - " .. node.type:upper()
-    if node.type == "combat" and node.difficulty then
-        nodeDesc = nodeDesc .. " (" .. node.difficulty .. ")"
-    end
     print("  - " .. nodeDesc)
 end
 

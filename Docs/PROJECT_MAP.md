@@ -970,10 +970,10 @@ EndRound.lua:
         ["node-id"] = {
             id = "node-id",
             type = "combat" | "rest" | "merchant" | "treasure" | "mystery" | "boss",
-            difficulty = "normal" | "easy" | "elite" | "boss",
             floor = 1,
             connections = {"next-node-1", "next-node-2"},
-            event = "SimpleCombat" | "Campfire" | "Merchant" | ...
+            event = "SimpleCombat" | "Campfire" | "Merchant" | ...,
+            encounter = "slime_boss"  -- Optional: named encounter (for bosses/specific fights)
         }
     }
 }
