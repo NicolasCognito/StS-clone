@@ -288,11 +288,27 @@ When applying this pattern:
 
 ---
 
+## Applications
+
+This pattern has been applied to these pipelines:
+
+### 1. EndTurn with Well-Laid Plans
+- **Pattern:** Context collection mid-execution
+- **Challenge:** Needed to select cards to retain before discarding hand
+- **Solution:** Queue continuation after context collection
+
+### 2. StartTurn with Multiple Context Collections
+- **Pattern:** Sequential context collections
+- **Challenge:** Foresight (scry before draw), Tools of Trade (draw+discard after draw), Gambling Chip (mulligan first turn)
+- **Solution:** Queue ALL work up front with multiple COLLECT_CONTEXT events, each pauses in sequence
+- **Implementation:** `Pipelines/StartTurn.lua:124-236` (queueTurnStartWithContext)
+
+**Key Insight:** Multiple COLLECT_CONTEXT events in the queue will pause sequentially, with ProcessEventQueue resuming after each context is collected.
+
 ## Future Applications
 
 This pattern can be applied to any pipeline needing mid-execution context:
 
-- **Scry:** "Show top N cards, let user discard some, then draw"
 - **Discovery:** "Generate 3 cards, let user pick 1, then add to hand"
 - **Custom Events:** "Show options, wait for choice, then execute effects"
 

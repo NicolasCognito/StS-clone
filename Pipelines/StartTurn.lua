@@ -5,11 +5,14 @@
 -- Handles:
 -- - Clear turn-based player flags (cannotDraw from Bullet Time)
 -- - Reset block to 0
+-- - Turn-start powers that need context (Foresight, Tools of the Trade)
 -- - Draw cards (5 base + Snecko Eye bonus)
+-- - Gambling Chip relic (first turn only)
 -- - Trigger any start-of-turn power effects
 -- - Combat logging
 --
 -- This centralizes all turn-start logic in one place
+-- Uses Queue as Continuation pattern for context collection
 
 local StartTurn = {}
 
@@ -18,6 +21,228 @@ local ChangeStance = require("Pipelines.ChangeStance")
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local Utils = require("utils")
 
+-- Helper: Calculate number of cards to draw
+function StartTurn.calculateCardsToDraw(world, player)
+    local baseDraw = 5  -- Base starting hand size
+    local relicBonus = 0
+
+    -- Calculate relic bonuses
+    if player.relics then
+        for _, relic in ipairs(player.relics) do
+            if relic.id == "Snecko_Eye" then
+                relicBonus = relicBonus + 2
+            elseif relic.id == "RingOfTheSnake" or relic.id == "Ring_of_the_Snake" then
+                relicBonus = relicBonus + 2
+            elseif relic.id == "RingOfTheSerpent" or relic.id == "Ring_of_the_Serpent" then
+                relicBonus = relicBonus + 1
+            elseif relic.id == "BagOfPreparation" or relic.id == "Bag_of_Preparation" then
+                relicBonus = relicBonus + 2
+            end
+        end
+    end
+
+    local cardsToDraw = baseDraw + relicBonus
+
+    -- First turn only: Handle Innate cards
+    -- If Innate count exceeds base draw, draw all Innate cards + relic bonuses
+    if world.combat.turnCounter == 0 then
+        local innateCount = 0
+        for _, card in ipairs(player.combatDeck) do
+            if card.state == "DECK" and card.innate then
+                innateCount = innateCount + 1
+            end
+        end
+
+        if innateCount > baseDraw then
+            -- Draw all Innate cards + relic bonuses
+            cardsToDraw = innateCount + relicBonus
+        end
+        -- else: use normal draw (baseDraw + relicBonus)
+    end
+
+    -- Cap at max hand size (10)
+    local maxHandSize = player.maxHandSize or 10
+    cardsToDraw = math.min(cardsToDraw, maxHandSize)
+
+    local status = player.status or {}
+    if status.draw_reduction and status.draw_reduction > 0 then
+        local reduction = status.draw_reduction
+        cardsToDraw = math.max(0, cardsToDraw - reduction)
+        status.draw_reduction = nil
+        local playerName = player.name or player.id or "Player"
+        table.insert(world.log, playerName .. " draw reduced by " .. reduction .. " (" .. cardsToDraw .. " card(s) this turn)")
+    end
+
+    return cardsToDraw
+end
+
+-- Helper: Final cleanup (NIGHTMARE cards, Fasting, enemies select intents)
+function StartTurn.finishTurnStart(world, player)
+    local status = player.status or {}
+    local playerName = player.name or player.id or "Player"
+
+    -- Process NIGHTMARE state cards (from Nightmare card)
+    -- Move NIGHTMARE cards to hand, respecting max hand size (default 10)
+    -- If hand is full, Nightmare cards are removed entirely
+    local maxHandSize = player.maxHandSize or 10
+
+    for i = #player.combatDeck, 1, -1 do
+        local card = player.combatDeck[i]
+        if card.state == "NIGHTMARE" then
+            local handSize = Utils.getCardCountByState(player.combatDeck, "HAND")
+
+            if handSize < maxHandSize then
+                card.state = "HAND"
+                table.insert(world.log, card.name .. " added to hand from Nightmare")
+            else
+                -- Hand full - card is lost (removed from deck entirely)
+                table.remove(player.combatDeck, i)
+                table.insert(world.log, card.name .. " lost (hand full)")
+            end
+        end
+    end
+
+    if status.fasting and status.fasting > 0 then
+        local penalty = math.min(status.fasting, player.energy)
+        if penalty > 0 then
+            player.energy = player.energy - penalty
+            table.insert(world.log, playerName .. " lost " .. penalty .. " energy to Fasting")
+        end
+    end
+
+    -- Enemies select their intents for the upcoming round
+    -- This happens right after player gains energy
+    if world.enemies then
+        for _, enemy in ipairs(world.enemies) do
+            if enemy.hp > 0 and enemy.selectIntent then
+                enemy:selectIntent(world, player)
+            end
+        end
+    end
+end
+
+-- Helper: Queue all turn-start work with context collections
+function StartTurn.queueTurnStartWithContext(world, player, needsForesight, needsToolsOfTrade, needsGamblingChip)
+    local status = player.status or {}
+
+    -- PHASE 1: Foresight - Scry BEFORE drawing
+    if needsForesight then
+        local scryAmount = status.foresight
+
+        world.queue:push({
+            type = "COLLECT_CONTEXT",
+            contextProvider = {
+                type = "cards",
+                stability = "temp",
+                scry = scryAmount,
+                count = {min = 0, max = scryAmount}
+            }
+        }, "FIRST")
+
+        world.queue:push({type = "ON_SCRY"})
+    end
+
+    -- PHASE 2: Normal draw
+    world.queue:push({
+        type = "ON_CUSTOM_EFFECT",
+        effect = function()
+            local cardsToDraw = StartTurn.calculateCardsToDraw(world, player)
+            DrawCard.execute(world, player, cardsToDraw)
+        end
+    })
+
+    -- PHASE 3: Tools of the Trade - Draw 1, discard 1 AFTER normal draw
+    if needsToolsOfTrade then
+        -- Draw 1 extra card
+        world.queue:push({type = "ON_DRAW"})
+
+        -- Request discard context
+        world.queue:push({
+            type = "COLLECT_CONTEXT",
+            contextProvider = {
+                type = "cards",
+                stability = "temp",
+                source = "combat",
+                count = {min = 1, max = 1},
+                filter = function(w, p, card, candidate)
+                    return candidate.state == "HAND"
+                end
+            }
+        }, "FIRST")
+
+        -- Discard selected card
+        world.queue:push({
+            type = "ON_CUSTOM_EFFECT",
+            effect = function()
+                local cardsToDiscard = world.combat.tempContext or {}
+                if #cardsToDiscard > 0 then
+                    local card = cardsToDiscard[1]
+                    world.queue:push({type = "ON_DISCARD", card = card})
+                    ProcessEventQueue.execute(world)
+                end
+            end
+        })
+    end
+
+    -- PHASE 4: Gambling Chip - Discard any number, draw that many (first turn only)
+    if needsGamblingChip then
+        -- Request discard context
+        world.queue:push({
+            type = "COLLECT_CONTEXT",
+            contextProvider = {
+                type = "cards",
+                stability = "temp",
+                source = "combat",
+                count = {min = 0, max = 10},  -- Can discard 0-10 cards
+                filter = function(w, p, card, candidate)
+                    return candidate.state == "HAND"
+                end
+            }
+        }, "FIRST")
+
+        -- Discard selected cards and draw that many
+        world.queue:push({
+            type = "ON_CUSTOM_EFFECT",
+            effect = function()
+                local cardsToDiscard = world.combat.tempContext or {}
+                local count = #cardsToDiscard
+
+                -- Discard selected cards
+                for _, card in ipairs(cardsToDiscard) do
+                    world.queue:push({type = "ON_DISCARD", card = card})
+                end
+
+                ProcessEventQueue.execute(world)
+
+                -- Draw that many cards
+                for i = 1, count do
+                    world.queue:push({type = "ON_DRAW"})
+                end
+
+                ProcessEventQueue.execute(world)
+
+                table.insert(world.log, "Gambling Chip: Discarded " .. count .. " card(s), drew " .. count .. " card(s)")
+            end
+        })
+    end
+
+    -- PHASE 5: Final cleanup
+    world.queue:push({
+        type = "ON_CUSTOM_EFFECT",
+        effect = function()
+            StartTurn.finishTurnStart(world, player)
+        end
+    })
+end
+
+-- Helper: Normal path (no context needed)
+function StartTurn.drawCardsAndFinish(world, player)
+    local cardsToDraw = StartTurn.calculateCardsToDraw(world, player)
+    DrawCard.execute(world, player, cardsToDraw)
+    StartTurn.finishTurnStart(world, player)
+end
+
+-- Main entry point
 function StartTurn.execute(world, player)
     table.insert(world.log, "--- Start of Player Turn ---")
 
@@ -220,97 +445,25 @@ function StartTurn.execute(world, player)
     -- Reset block
     player.block = 0
 
-    -- Calculate number of cards to draw
-    local baseDraw = 5  -- Base starting hand size
-    local relicBonus = 0
+    -- Check for turn-start effects that need context collection
+    local needsForesight = player.status and player.status.foresight and player.status.foresight > 0
+    local needsToolsOfTrade = player.status and player.status.tools_of_the_trade and player.status.tools_of_the_trade > 0
+    local needsGamblingChip = world.combat.turnCounter == 0 and Utils.hasRelic(player, "GamblingChip")
 
-    -- Calculate relic bonuses
-    if player.relics then
-        for _, relic in ipairs(player.relics) do
-            if relic.id == "Snecko_Eye" then
-                relicBonus = relicBonus + 2
-            elseif relic.id == "RingOfTheSnake" or relic.id == "Ring_of_the_Snake" then
-                relicBonus = relicBonus + 2
-            elseif relic.id == "RingOfTheSerpent" or relic.id == "Ring_of_the_Serpent" then
-                relicBonus = relicBonus + 1
-            elseif relic.id == "BagOfPreparation" or relic.id == "Bag_of_Preparation" then
-                relicBonus = relicBonus + 2
-            end
+    if needsForesight or needsToolsOfTrade or needsGamblingChip then
+        -- Queue all the work including multiple context collections
+        StartTurn.queueTurnStartWithContext(world, player, needsForesight, needsToolsOfTrade, needsGamblingChip)
+
+        -- Process queue (will pause at first context request)
+        local result = ProcessEventQueue.execute(world)
+        if type(result) == "table" and result.needsContext then
+            return result  -- Propagate pause to CombatEngine
         end
+        return  -- All context collected, everything completed
     end
 
-    local cardsToDraw = baseDraw + relicBonus
-
-    -- First turn only: Handle Innate cards
-    -- If Innate count exceeds base draw, draw all Innate cards + relic bonuses
-    if world.combat.turnCounter == 0 then
-        local innateCount = 0
-        for _, card in ipairs(player.combatDeck) do
-            if card.state == "DECK" and card.innate then
-                innateCount = innateCount + 1
-            end
-        end
-
-        if innateCount > baseDraw then
-            -- Draw all Innate cards + relic bonuses
-            cardsToDraw = innateCount + relicBonus
-        end
-        -- else: use normal draw (baseDraw + relicBonus)
-    end
-
-    -- Cap at max hand size (10)
-    local maxHandSize = player.maxHandSize or 10
-    cardsToDraw = math.min(cardsToDraw, maxHandSize)
-
-    if status.draw_reduction and status.draw_reduction > 0 then
-        local reduction = status.draw_reduction
-        cardsToDraw = math.max(0, cardsToDraw - reduction)
-        status.draw_reduction = nil
-        table.insert(world.log, playerName .. " draw reduced by " .. reduction .. " (" .. cardsToDraw .. " card(s) this turn)")
-    end
-
-    -- Draw cards
-    DrawCard.execute(world, player, cardsToDraw)
-
-    -- Process NIGHTMARE state cards (from Nightmare card)
-    -- Move NIGHTMARE cards to hand, respecting max hand size (default 10)
-    -- If hand is full, Nightmare cards are removed entirely
-    local Utils = require("utils")
-    local maxHandSize = player.maxHandSize or 10
-
-    for i = #player.combatDeck, 1, -1 do
-        local card = player.combatDeck[i]
-        if card.state == "NIGHTMARE" then
-            local handSize = Utils.getCardCountByState(player.combatDeck, "HAND")
-
-            if handSize < maxHandSize then
-                card.state = "HAND"
-                table.insert(world.log, card.name .. " added to hand from Nightmare")
-            else
-                -- Hand full - card is lost (removed from deck entirely)
-                table.remove(player.combatDeck, i)
-                table.insert(world.log, card.name .. " lost (hand full)")
-            end
-        end
-    end
-
-    if status.fasting and status.fasting > 0 then
-        local penalty = math.min(status.fasting, player.energy)
-        if penalty > 0 then
-            player.energy = player.energy - penalty
-            table.insert(world.log, playerName .. " lost " .. penalty .. " energy to Fasting")
-        end
-    end
-
-    -- Enemies select their intents for the upcoming round
-    -- This happens right after player gains energy
-    if world.enemies then
-        for _, enemy in ipairs(world.enemies) do
-            if enemy.hp > 0 and enemy.selectIntent then
-                enemy:selectIntent(world, player)
-            end
-        end
-    end
+    -- Normal path (no context needed)
+    StartTurn.drawCardsAndFinish(world, player)
 end
 
 return StartTurn
