@@ -31,7 +31,9 @@ return {
                     local PlayCard = require("Pipelines.PlayCard")
                     local ClearContext = require("Pipelines.ClearContext")
 
-                    local selection = world.combat.tempContext and world.combat.tempContext[1]
+                    -- Read from indexed tempContext
+                    local contextCards = world.combat.tempContext[self] or {}
+                    local selection = contextCards[1]
                     if not selection then
                         table.insert(world.log, "Omniscience had no card to target.")
                         return
@@ -62,7 +64,7 @@ return {
                         end
                     end
 
-                    ClearContext.execute(world, {clearTemp = true, clearStable = false})
+                    -- No manual clearing needed with indexed tempContext
                 end
             })
         end,

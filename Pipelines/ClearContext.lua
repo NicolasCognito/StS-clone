@@ -3,8 +3,11 @@
 --
 -- Event/options table fields:
 -- - clearStable (bool, default true)
--- - clearTemp (bool, default true)
+-- - clearTemp (bool, default false) -- deprecated with indexed tempContext
 -- - clearRequest (bool, default true)
+--
+-- Note: With indexed tempContext, manual clearing is no longer needed.
+-- tempContext is cleared automatically at turn boundaries.
 --
 -- This pipeline can be invoked directly or through the event queue via
 --   { type = "CLEAR_CONTEXT", ...options }
@@ -25,7 +28,7 @@ function ClearContext.execute(world, options)
 
     local clearTemp = options.clearTemp
     if clearTemp == nil then
-        clearTemp = true
+        clearTemp = false  -- Default to false with indexed tempContext
     end
 
     local clearRequest = options.clearRequest
@@ -38,7 +41,7 @@ function ClearContext.execute(world, options)
     end
 
     if clearTemp then
-        world.combat.tempContext = nil
+        world.combat.tempContext = {}  -- Reset to empty indexed table
     end
 
     if clearRequest then

@@ -19,10 +19,10 @@ function ResolveCard.execute(world)
     if entry.type == "SEPARATOR" then
         table.insert(world.log, "--- New Card ---")
 
-        -- Clear context when transitioning between different cards
+        -- Clear stable context when transitioning between different cards
+        -- (tempContext is indexed and doesn't need manual clearing)
         if world.combat then
             world.combat.stableContext = nil
-            world.combat.tempContext = nil
         end
 
         -- Continue to next entry if queue isn't empty

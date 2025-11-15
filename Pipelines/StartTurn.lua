@@ -63,6 +63,11 @@ function StartTurn.execute(world, player)
     -- Clear turn-based player flags
     player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
 
+    -- Clear all temp contexts (indexed table reset)
+    if world.combat then
+        world.combat.tempContext = {}
+    end
+
     -- Clear temporary retention flags from all cards
     for _, card in ipairs(player.combatDeck) do
         card.retainThisTurn = nil

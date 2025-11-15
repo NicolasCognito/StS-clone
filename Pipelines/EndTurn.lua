@@ -69,9 +69,11 @@ function EndTurn.execute(world, player)
     -- Well-Laid Plans: Let player choose cards to retain
     if player.status and player.status.well_laid_plans and player.status.well_laid_plans > 0 then
         local retainCount = player.status.well_laid_plans
+        local contextId = "well_laid_plans"  -- Unique ID for this context
 
         world.queue:push({
             type = "COLLECT_CONTEXT",
+            contextId = contextId,  -- Use string ID since no card is associated
             contextProvider = {
                 type = "cards",
                 stability = "temp",
@@ -86,13 +88,13 @@ function EndTurn.execute(world, player)
         world.queue:push({
             type = "ON_CUSTOM_EFFECT",
             effect = function()
-                local selectedCards = world.combat.tempContext or {}
+                -- Read from indexed tempContext
+                local selectedCards = world.combat.tempContext[contextId] or {}
                 for _, card in ipairs(selectedCards) do
                     card.retainThisTurn = true
                     table.insert(world.log, card.name .. " will be retained (Well-Laid Plans)")
                 end
-                -- Clear tempContext after using it (manual cleanup)
-                world.combat.tempContext = nil
+                -- No manual clearing needed - will be cleared at start of turn
             end
         })
 

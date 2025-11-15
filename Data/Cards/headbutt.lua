@@ -48,7 +48,9 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
-                    local retrievedCard = world.combat.tempContext and world.combat.tempContext[1]
+                    -- Read from indexed tempContext
+                    local contextCards = world.combat.tempContext[self] or {}
+                    local retrievedCard = contextCards[1]
                     if not retrievedCard then
                         table.insert(world.log, "Headbutt could not find a card to place on top of the draw pile.")
                         return
@@ -60,9 +62,7 @@ return {
                     else
                         table.insert(world.log, player.name .. " placed " .. retrievedCard.name .. " on top of the draw pile.")
                     end
-
-                    -- Clear tempContext after using it (manual cleanup)
-                    world.combat.tempContext = nil
+                    -- No manual clearing needed
                 end
             })
         end,

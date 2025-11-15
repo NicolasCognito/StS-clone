@@ -51,7 +51,9 @@ local function fulfillContext(world, player, override)
     if request.stability == "stable" then
         world.combat.stableContext = context
     else
-        world.combat.tempContext = context
+        -- Use indexed tempContext
+                local contextId = request.contextId
+                world.combat.tempContext[contextId] = context
     end
 
     world.combat.contextRequest = nil

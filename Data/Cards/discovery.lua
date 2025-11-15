@@ -49,7 +49,8 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
-                    local selectedCards = world.combat.tempContext or {}
+                    -- Read from indexed tempContext
+                    local selectedCards = world.combat.tempContext[self] or {}
                     local chosenCard = selectedCards[1]
                     if not chosenCard then
                         table.insert(world.log, "Discovery had no cards to choose from.")
@@ -66,9 +67,7 @@ return {
                             table.remove(player.combatDeck, i)
                         end
                     end
-
-                    -- Clear tempContext after using it (manual cleanup)
-                    world.combat.tempContext = nil
+                    -- No manual clearing needed
                 end
             })
         end,

@@ -53,7 +53,11 @@ return {
             -- Push discard event with lazy-evaluated card
             world.queue:push({
                 type = "ON_DISCARD",
-                card = function() return world.combat.tempContext[1] end,
+                card = function()
+                    -- Read from indexed tempContext
+                    local contextCards = world.combat.tempContext[self] or {}
+                    return contextCards[1]
+                end,
                 player = player
             })
         end,

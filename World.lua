@@ -105,7 +105,7 @@ function World.initCombatState()
         powersPlayedThisCombat = 0,
         -- Context system
         stableContext = nil,    -- Persists across duplications (e.g., enemy target)
-        tempContext = nil,      -- Re-collected on duplications (e.g., card discard)
+        tempContext = {},       -- Indexed by card/contextId - never manually cleared
         contextRequest = nil,   -- Request for context collection: {contextProvider, stability}
         deferStableContextClear = false,
         -- Death tracking
@@ -136,7 +136,7 @@ function World.initMapEventState(eventKey, eventDef)
         event = eventDef or nil,
         currentNodeId = eventDef and eventDef.entryNode or nil,
         stableContext = nil,
-        tempContext = nil,
+        tempContext = {},       -- Indexed by contextId - never manually cleared
         contextRequest = nil,
         deferStableContextClear = false,
         pendingSelection = nil

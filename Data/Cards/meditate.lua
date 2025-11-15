@@ -29,16 +29,15 @@ return {
             world.queue:push({
                 type = "ON_CUSTOM_EFFECT",
                 effect = function()
-                    local selectedCards = world.combat.tempContext or {}
+                    -- Read from indexed tempContext
+                    local selectedCards = world.combat.tempContext[self] or {}
 
                     for _, card in ipairs(selectedCards) do
                         card.state = "HAND"
                         card.retain = true
                         table.insert(world.log, card.name .. " was placed into hand and will Retain")
                     end
-
-                    -- Clear tempContext after using it (manual cleanup)
-                    world.combat.tempContext = nil
+                    -- No manual clearing needed
                 end
             })
 

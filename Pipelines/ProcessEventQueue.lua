@@ -104,18 +104,22 @@ function ProcessEventQueue.execute(world)
         -- SPECIAL BEHAVIORS (curated list)
 
         if event.type == "COLLECT_CONTEXT" then
-            -- Check if context already exists (for stable context reuse)
+            -- Determine contextId (for indexed tempContext)
+            local contextId = event.contextId or event.card
+
+            -- Check if context already exists
             local stability = event.stability
                 or (event.contextProvider and event.contextProvider.stability)
                 or "temp"
             local contextExists = (stability == "stable" and world.combat.stableContext ~= nil) or
-                                 (stability == "temp" and world.combat.tempContext ~= nil)
+                                 (stability == "temp" and world.combat.tempContext[contextId] ~= nil)
 
             if not contextExists then
                 -- Context not yet collected - put event back and pause processing
                 world.queue:push(event, "FIRST")
                 world.combat.contextRequest = {
                     card = event.card,  -- Card that needs context (for CombatEngine to resume)
+                    contextId = contextId,  -- Where to store the context
                     contextProvider = event.contextProvider,
                     stability = stability
                 }

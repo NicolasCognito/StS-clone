@@ -258,14 +258,19 @@ local function executeWithContextHandling(world, handlers, fn)
                 -- User cancelled context selection
                 world.combat.contextRequest = nil
                 world.combat.stableContext = nil
-                world.combat.tempContext = nil
+                -- Don't clear entire tempContext table, just this entry
+                if request.contextId then
+                    world.combat.tempContext[request.contextId] = nil
+                end
                 return nil, "cancel"
             else
                 -- Context collected, set it and retry the function
                 if request.stability == "stable" then
                     world.combat.stableContext = context
                 else
-                    world.combat.tempContext = context
+                    -- Store at indexed location
+                    local contextId = request.contextId
+                    world.combat.tempContext[contextId] = context
                 end
                 world.combat.contextRequest = nil
                 -- Loop back to retry fn()

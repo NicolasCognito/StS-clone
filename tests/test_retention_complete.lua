@@ -40,7 +40,9 @@ local function playCardWithAutoContext(world, player, card)
             if request.stability == "stable" then
                 world.combat.stableContext = context
             else
-                world.combat.tempContext = context
+                -- Use indexed tempContext
+                local contextId = request.contextId
+                world.combat.tempContext[contextId] = context
             end
             world.combat.contextRequest = nil
         end
@@ -216,8 +218,8 @@ assert(world4.player.status.well_laid_plans == 1, "Well-Laid Plans status should
 strike4.state = "HAND"
 defend4.state = "HAND"
 
--- Mock context selection by setting tempContext directly
-world4.combat.tempContext = {strike4}  -- Select Strike to retain
+-- Mock context selection by setting tempContext directly (indexed pattern)
+world4.combat.tempContext["well_laid_plans"] = {strike4}  -- Select Strike to retain
 
 EndTurn.execute(world4, world4.player)
 
@@ -273,8 +275,8 @@ playCardWithAutoContext(world5, world5.player, wlp)
 -- Put a Strike in hand
 strikes[1].state = "HAND"
 
--- Select it for retention via Well-Laid Plans
-world5.combat.tempContext = {strikes[1]}
+-- Select it for retention via Well-Laid Plans (indexed pattern)
+world5.combat.tempContext["well_laid_plans"] = {strikes[1]}
 EndTurn.execute(world5, world5.player)
 
 -- Strike should be retained and cost reduced
@@ -317,7 +319,7 @@ eth.state = "HAND"
 
 -- Try to select ethereal card (should be filtered out)
 -- The filter in EndTurn should exclude it
-world6.combat.tempContext = {}  -- Empty selection (ethereal was filtered)
+world6.combat.tempContext["well_laid_plans"] = {}  -- Empty selection (indexed pattern)
 EndTurn.execute(world6, world6.player)
 
 -- Ethereal card should have exhausted (its normal behavior)
