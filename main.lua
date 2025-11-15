@@ -4,6 +4,16 @@
 local World = require("World")
 local CombatLove = require("CombatLove")
 local MapLove = require("MapLove")
+local Cards = require("Data.cards")
+local Enemies = require("Data.enemies")
+local Maps = require("Data.maps")
+local Utils = require("utils")
+local StartCombat = require("Pipelines.StartCombat")
+
+-- Helper function
+local function copyCard(template)
+    return Utils.copyCardTemplate(template)
+end
 
 -- Game state
 local world = nil
@@ -102,15 +112,6 @@ end
 
 function startCombatDemo()
     -- Create a simple combat scenario
-    local Cards = require("Data.cards")
-    local Enemies = require("Data.enemies")
-    local StartCombat = require("Pipelines.StartCombat")
-    local Utils = require("utils")
-
-    local function copyCard(template)
-        return Utils.copyCardTemplate(template)
-    end
-
     -- Create world with IronClad starter deck
     world = World.createWorld({
         id = "IronClad",
@@ -142,14 +143,6 @@ end
 
 function startMapDemo()
     -- Create a simple map scenario
-    local Maps = require("Data.maps")
-    local Utils = require("utils")
-    local Cards = require("Data.cards")
-
-    local function copyCard(template)
-        return Utils.copyCardTemplate(template)
-    end
-
     world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
