@@ -17,6 +17,69 @@ local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local OrbPassive = require("Pipelines.OrbPassive")
 local Utils = require("utils")
 
+-- Helper function: Discard hand and cleanup turn state
+-- Extracted to support "queue as continuation" pattern for Well-Laid Plans
+function EndTurn.discardHandAndCleanup(world, player)
+    local hasEstablishment = Utils.hasPower(player, "Establishment")
+
+    -- Process each card in hand: retain or discard
+    for _, card in ipairs(player.combatDeck) do
+        if card.state == "HAND" then
+            -- Check if card has Retain keyword (permanent or temporary)
+            if card.retain or card.retainThisTurn then
+                -- Don't discard, but trigger retain effects
+                card.timesRetained = (card.timesRetained or 0) + 1
+
+                -- Establishment power: reduce cost by 1 for each turn retained
+                if hasEstablishment then
+                    card.retainCostReduction = (card.retainCostReduction or 0) + 1
+                end
+
+                -- Push ON_RETAIN event to trigger retention effects
+                world.queue:push({
+                    type = "ON_RETAIN",
+                    card = card,
+                    player = player
+                })
+
+                -- Card stays in hand (don't change state)
+                table.insert(world.log, card.name .. " was retained")
+            else
+                -- Normal discard via event queue
+                world.queue:push({
+                    type = "ON_DISCARD",
+                    card = card,
+                    player = player
+                })
+            end
+        end
+    end
+
+    -- Process all discard/retain events
+    ProcessEventQueue.execute(world)
+
+    -- Clear temporary turn-based flags from ALL cards
+    for _, card in ipairs(player.combatDeck) do
+        -- Clear "this turn" effects
+        if card.costsZeroThisTurn then
+            card.costsZeroThisTurn = nil
+        end
+        if card.enlightenedThisTurn then
+            card.enlightenedThisTurn = nil
+        end
+    end
+
+    -- Reset turn-based combat trackers
+    world.combat.cardsDiscardedThisTurn = 0
+
+    -- Reset energy for next turn
+    player.energy = player.maxEnergy
+
+    -- Clear shadow copies created during duplication
+    -- Shadows have already been discarded/exhausted, so just clear the table
+    world.DuplicationShadowCards = {}
+end
+
 function EndTurn.execute(world, player)
     table.insert(world.log, "--- End of Player Turn ---")
 
@@ -67,9 +130,11 @@ function EndTurn.execute(world, player)
     local hasEstablishment = Utils.hasPower(player, "Establishment")
 
     -- Well-Laid Plans: Let player choose cards to retain
+    -- Use "queue as continuation" pattern to ensure discard happens AFTER context collection
     if player.status and player.status.well_laid_plans and player.status.well_laid_plans > 0 then
         local retainCount = player.status.well_laid_plans
 
+        -- Step 1: Request context (FIRST priority - executes immediately)
         world.queue:push({
             type = "COLLECT_CONTEXT",
             contextProvider = {
@@ -83,6 +148,7 @@ function EndTurn.execute(world, player)
             }
         }, "FIRST")
 
+        -- Step 2: Mark selected cards as retained (runs AFTER context collected)
         world.queue:push({
             type = "ON_CUSTOM_EFFECT",
             effect = function()
@@ -94,65 +160,28 @@ function EndTurn.execute(world, player)
             end
         })
 
-        ProcessEventQueue.execute(world)
-    end
-
-    for _, card in ipairs(player.combatDeck) do
-        if card.state == "HAND" then
-            -- Check if card has Retain keyword (permanent or temporary)
-            if card.retain or card.retainThisTurn then
-                -- Don't discard, but trigger retain effects
-                card.timesRetained = (card.timesRetained or 0) + 1
-
-                -- Establishment power: reduce cost by 1 for each turn retained
-                if hasEstablishment then
-                    card.retainCostReduction = (card.retainCostReduction or 0) + 1
-                end
-
-                -- Push ON_RETAIN event to trigger retention effects
-                world.queue:push({
-                    type = "ON_RETAIN",
-                    card = card,
-                    player = player
-                })
-
-                -- Card stays in hand (don't change state)
-                table.insert(world.log, card.name .. " was retained")
-            else
-                -- Normal discard via event queue
-                world.queue:push({
-                    type = "ON_DISCARD",
-                    card = card,
-                    player = player
-                })
+        -- Step 3: Queue the rest of EndTurn logic to run AFTER context is collected
+        -- This ensures cards aren't discarded before user makes selection
+        world.queue:push({
+            type = "ON_CUSTOM_EFFECT",
+            effect = function()
+                EndTurn.discardHandAndCleanup(world, player)
             end
+        })
+
+        -- Process queue - might pause for context collection
+        local result = ProcessEventQueue.execute(world)
+        if type(result) == "table" and result.needsContext then
+            return result  -- Propagate to CombatEngine
         end
+
+        -- Queue fully processed - EndTurn complete
+        table.insert(world.log, player.id .. " ended turn")
+        return
     end
 
-    -- Process all discard events
-    ProcessEventQueue.execute(world)
-
-    -- Clear temporary turn-based flags from ALL cards
-    for _, card in ipairs(player.combatDeck) do
-        -- Clear "this turn" effects
-        if card.costsZeroThisTurn then
-            card.costsZeroThisTurn = nil
-        end
-        if card.enlightenedThisTurn then
-            card.enlightenedThisTurn = nil
-        end
-    end
-
-    -- Reset turn-based combat trackers
-    world.combat.cardsDiscardedThisTurn = 0
-
-    -- Reset energy for next turn
-    player.energy = player.maxEnergy
-
-    -- Clear shadow copies created during duplication
-    -- Shadows have already been discarded/exhausted, so just clear the table
-    world.DuplicationShadowCards = {}
-
+    -- Normal path (no Well-Laid Plans active)
+    EndTurn.discardHandAndCleanup(world, player)
     table.insert(world.log, player.id .. " ended turn")
 end
 
