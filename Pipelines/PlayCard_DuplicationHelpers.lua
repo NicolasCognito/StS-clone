@@ -1,6 +1,13 @@
 -- PLAY CARD DUPLICATION HELPERS
 -- Centralized logic for all card duplication mechanics
 --
+-- HOW IT WORKS:
+-- - Builds a duplication plan (array of source names: "Double Tap", "Echo Form", etc.)
+-- - PlayCard.lua creates shadow copies (real card instances) for each source
+-- - Shadow copies are stored in world.DuplicationShadowCards (not in player.combatDeck)
+-- - Each shadow executes independently with full game mechanics
+-- - All shadows purged at end of turn
+--
 -- Duplication sources (in priority order):
 -- 1. Duplication Potion - next N cards (any type)
 -- 2. Double Tap - next N Attacks
@@ -26,9 +33,11 @@ local function ensureStatus(player)
     return player.status
 end
 
--- BUILD REPLAY PLAN
--- Returns an ordered array of source names that should replay the card once each.
+-- BUILD DUPLICATION PLAN (creates shadow copies)
+-- Returns an ordered array of source names, one shadow copy will be created for each.
+-- Each shadow copy is a real card instance that executes independently.
 -- Sources are consumed immediately to make sequencing deterministic.
+-- Note: Function name is "buildReplayPlan" for legacy compatibility, but it creates shadow copies.
 function DuplicationHelpers.buildReplayPlan(world, player, card)
     local plan = {}
     local status = ensureStatus(player)
