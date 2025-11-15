@@ -262,9 +262,64 @@ function CombatEngine.playGame(world, handlers)
                 end
                 world.combat.contextRequest = nil
 
-                local result = PlayCard.execute(world, world.player, request.card)
-                if type(result) ~= "table" or not result.needsContext then
+                -- Resume execution based on who requested context:
+                -- - If request.card exists: context was requested by PlayCard (card needs target)
+                -- - If request.card is nil: context was requested by another pipeline (e.g., EndTurn for Well-Laid Plans)
+                if request.card then
+                    -- Resume card play with collected context
+                    local result = PlayCard.execute(world, world.player, request.card)
+                    if type(result) ~= "table" or not result.needsContext then
+                        notifyDisplayLog(handlers, world, 3)
+                    end
+                else
+                    -- Resume queue processing (continuation pattern)
+                    -- The queue still has pending events from the pipeline that requested context
+                    local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
+                    ProcessEventQueue.execute(world)
                     notifyDisplayLog(handlers, world, 3)
+
+                    -- Check if this was EndTurn with Vault active
+                    if world.combat.vaultPlayed then
+                        world.combat.vaultPlayed = nil
+                        -- EndTurn completed, handle Vault effect (skip enemy turns)
+                        if not hasLivingEnemies(world) then
+                            notifyResult(handlers, world, "victory")
+                            resultToken = "victory"
+                            gameOver = true
+                        elseif world.player.hp <= 0 then
+                            notifyResult(handlers, world, "defeat")
+                            resultToken = "defeat"
+                            gameOver = true
+                        else
+                            table.insert(world.log, "--- Enemies' turns skipped (Vault) ---")
+                            StartTurn.execute(world, world.player)
+                            notifyDisplayLog(handlers, world, 5)
+                        end
+                    else
+                        -- Normal EndTurn (not Vault), proceed with enemy turns
+                        if not hasLivingEnemies(world) then
+                            notifyResult(handlers, world, "victory")
+                            resultToken = "victory"
+                            gameOver = true
+                        else
+                            for _, enemy in ipairs(world.enemies or {}) do
+                                if enemy.hp > 0 then
+                                    EnemyTakeTurn.execute(world, enemy, world.player)
+                                end
+                            end
+
+                            EndRound.execute(world, world.player, world.enemies)
+                            notifyDisplayLog(handlers, world, 5)
+
+                            if world.player.hp <= 0 then
+                                notifyResult(handlers, world, "defeat")
+                                resultToken = "defeat"
+                                gameOver = true
+                            else
+                                StartTurn.execute(world, world.player)
+                            end
+                        end
+                    end
                 end
             end
         else
@@ -292,14 +347,17 @@ function CombatEngine.playGame(world, handlers)
                     end
 
                     if world.combat.vaultPlayed then
-                        world.combat.vaultPlayed = nil
                         local vaultResult = EndTurn.execute(world, world.player)
 
                         -- Check if EndTurn paused for context (unlikely with Vault, but handle it)
                         if type(vaultResult) == "table" and vaultResult.needsContext then
                             -- Context request will be handled on next loop iteration
-                            -- Note: Vault state will be handled after context is resolved
+                            -- Keep vaultPlayed flag set so we handle it after context is resolved
                         else
+                            -- EndTurn completed, clear the Vault flag
+                            world.combat.vaultPlayed = nil
+
+
                             -- EndTurn completed normally, skip enemy turns (Vault effect)
                             if not hasLivingEnemies(world) then
                                 notifyResult(handlers, world, "victory")
