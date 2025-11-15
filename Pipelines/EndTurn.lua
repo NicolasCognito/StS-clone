@@ -127,10 +127,9 @@ function EndTurn.execute(world, player)
     -- effects, not "End of Turn" effects.
 
     -- Handle Retain mechanics and discard hand
-    local hasEstablishment = Utils.hasPower(player, "Establishment")
+    -- Always use "queue as continuation" pattern for consistency
 
     -- Well-Laid Plans: Let player choose cards to retain
-    -- Use "queue as continuation" pattern to ensure discard happens AFTER context collection
     if player.status and player.status.well_laid_plans and player.status.well_laid_plans > 0 then
         local retainCount = player.status.well_laid_plans
 
@@ -159,30 +158,22 @@ function EndTurn.execute(world, player)
                 end
             end
         })
-
-        -- Step 3: Queue the rest of EndTurn logic to run AFTER context is collected
-        -- This ensures cards aren't discarded before user makes selection
-        world.queue:push({
-            type = "ON_CUSTOM_EFFECT",
-            effect = function()
-                EndTurn.discardHandAndCleanup(world, player)
-            end
-        })
-
-        -- Process queue - might pause for context collection
-        local result = ProcessEventQueue.execute(world)
-        if type(result) == "table" and result.needsContext then
-            return result  -- Propagate to CombatEngine
-        end
-
-        -- Queue fully processed - EndTurn complete
-        table.insert(world.log, player.id .. " ended turn")
-        return
     end
 
-    -- Normal path (no Well-Laid Plans active)
-    EndTurn.discardHandAndCleanup(world, player)
-    table.insert(world.log, player.id .. " ended turn")
+    -- Always queue cleanup and completion (runs immediately if no context needed)
+    world.queue:push({
+        type = "ON_CUSTOM_EFFECT",
+        effect = function()
+            EndTurn.discardHandAndCleanup(world, player)
+            table.insert(world.log, player.id .. " ended turn")
+            -- Signal completion to CombatEngine
+            world.combat.endTurnComplete = true
+        end
+    })
+
+    -- Process queue - might pause for context collection
+    local result = ProcessEventQueue.execute(world)
+    return result  -- {needsContext=true} or nil
 end
 
 return EndTurn
