@@ -20,6 +20,9 @@ return {
                     count = {min = 1, max = 1},
                     filter = function(_, _, _, candidateCard)
                         return candidateCard.state == "DECK"
+                            and candidateCard.type ~= "STATUS"
+                            and candidateCard.type ~= "CURSE"
+                            and type(candidateCard.onPlay) == "function"
                     end
                 }
             }, "FIRST")
