@@ -110,6 +110,13 @@ function StartTurn.finishTurnStart(world, player)
         end
     end
 
+    -- Check for Mayhem power - auto-cast top cards from deck
+    if status.mayhem and status.mayhem > 0 then
+        local stacks = status.mayhem
+        world.combat.autocastingNextTopCards = (world.combat.autocastingNextTopCards or 0) + stacks
+        table.insert(world.log, "Mayhem (" .. stacks .. ")! Will play top " .. stacks .. " card(s).")
+    end
+
     -- Enemies select their intents for the upcoming round
     -- This happens right after player gains energy
     if world.enemies then

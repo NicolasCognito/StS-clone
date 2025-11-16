@@ -119,7 +119,9 @@ function World.initCombatState()
         lastTurnLostHp = false,
         hpAtTurnStart = nil,
         -- Inserter relic tracking
-        turnCounter = 0
+        turnCounter = 0,
+        -- Auto-casting tracking (for Mayhem, Distilled Chaos)
+        autocastingNextTopCards = 0  -- Counter for auto-playing top cards from deck
     }
 end
 
