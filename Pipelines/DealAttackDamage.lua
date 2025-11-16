@@ -161,25 +161,21 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
 
     local damageDealt = damage
 
+    -- Calculate actual HP that will be lost (accounting for 0 cap, no overkill)
+    -- This is useful for effects like Reaper that care about real HP lost
+    local actualHpLost = math.min(damage, defender.hp)
+
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
 
     -- Reaper effect: Heal attacker for actual HP lost by defender
-    -- This calculates the real HP lost (accounting for 0 cap) and heals accordingly
-    -- Blocked damage doesn't count, and overkill doesn't give extra healing
-    if card and card.reaperEffect and attacker then
-        local hpBefore = defender.hp + damage  -- HP before we applied damage
-        local hpAfter = math.max(0, defender.hp)  -- HP after damage (simulating ApplyCaps behavior)
-        local actualHpLost = hpBefore - hpAfter
-
-        if actualHpLost > 0 then
-            world.queue:push({
-                type = "ON_HEAL",
-                target = attacker,
-                amount = actualHpLost,
-                source = card
-            })
-        end
+    if card and card.reaperEffect and attacker and actualHpLost > 0 then
+        world.queue:push({
+            type = "ON_HEAL",
+            target = attacker,
+            amount = actualHpLost,
+            source = card
+        })
     end
 
     -- Allow enemies to change intent on damage (e.g., Slime Boss splitting)
