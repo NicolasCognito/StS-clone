@@ -377,8 +377,8 @@ do
     local havoc = findCardById(player.combatDeck, "Havoc")
     playCardWithAutoContext(world, player, havoc)
 
-    assert(topCard.state == "DISCARD_PILE", "Top draw pile card should have been played")
-    assert(secondCard.state == "DISCARD_PILE", "Second draw pile card should have been played by Havoc duplication")
+    assert(topCard.state == "EXHAUSTED_PILE", "Top draw pile card should have been played and exhausted by Havoc")
+    assert(secondCard.state == "EXHAUSTED_PILE", "Second draw pile card should have been played by Havoc duplication and exhausted")
     assert(countLogEntries(world.log, "Burst triggers!") == 2, "Burst should trigger for Havoc and the first auto-played skill")
     assert((player.status.burst or 0) == 0, "Burst stacks should be fully consumed by Havoc chain")
 end

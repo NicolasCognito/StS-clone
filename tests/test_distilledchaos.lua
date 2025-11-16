@@ -23,16 +23,18 @@ end
 
 print("=== Test 1: Distilled Chaos plays top 3 cards ===")
 do
-    local strike1 = Utils.copyCardTemplate(Cards.Strike)
-    local strike2 = Utils.copyCardTemplate(Cards.Strike)
-    local strike3 = Utils.copyCardTemplate(Cards.Strike)
-    local defend = Utils.copyCardTemplate(Cards.Defend)
+    -- Create enough cards so some remain in deck after initial draw (5 cards)
+    local cards = {}
+    for i = 1, 10 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    end
+    table.insert(cards, Utils.copyCardTemplate(Cards.Defend))
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {strike1, strike2, strike3, defend},
+        cards = cards,
         masterPotions = {Potions.DistilledChaos}
     })
 
@@ -48,7 +50,7 @@ do
     world.log = {}
 
     -- Use Distilled Chaos potion
-    UsePotion.execute(world, world.player, 1)
+    UsePotion.execute(world, world.player, world.player.masterPotions[1])
 
     -- Verify potion effect triggered
     assert(countLogEntries(world.log, "Distilled Chaos") > 0, "Distilled Chaos should trigger")
@@ -68,14 +70,17 @@ end
 
 print("\n=== Test 2: Distilled Chaos with fewer than 3 cards ===")
 do
-    local strike1 = Utils.copyCardTemplate(Cards.Strike)
-    local strike2 = Utils.copyCardTemplate(Cards.Strike)
+    -- Create 7 cards total: 5 will be drawn, leaving 2 in deck (fewer than 3)
+    local cards = {}
+    for i = 1, 7 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    end
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {strike1, strike2},
+        cards = cards,
         masterPotions = {Potions.DistilledChaos}
     })
 
@@ -91,7 +96,7 @@ do
     world.log = {}
 
     -- Use Distilled Chaos (should play only 2 cards, not crash)
-    UsePotion.execute(world, world.player, 1)
+    UsePotion.execute(world, world.player, world.player.masterPotions[1])
 
     -- Verify it played what it could
     local strikeCount = countLogEntries(world.log, "dealt 6 damage")
@@ -105,13 +110,11 @@ end
 
 print("\n=== Test 3: Distilled Chaos with Sacred Bark (plays 6 cards) ===")
 do
-    -- Create 6 Strikes
+    -- Create enough cards: 5 drawn + 6 to autocast + 1 extra
     local strikes = {}
-    for i = 1, 6 do
+    for i = 1, 12 do
         table.insert(strikes, Utils.copyCardTemplate(Cards.Strike))
     end
-    local defend = Utils.copyCardTemplate(Cards.Defend)
-    table.insert(strikes, defend)
 
     -- Create Sacred Bark relic
     local Relics = require("Data.relics")
@@ -142,7 +145,7 @@ do
     world.log = {}
 
     -- Use Distilled Chaos (should play 6 cards with Sacred Bark)
-    UsePotion.execute(world, world.player, 1)
+    UsePotion.execute(world, world.player, world.player.masterPotions[1])
 
     -- Verify Sacred Bark triggered
     assert(countLogEntries(world.log, "Sacred Bark") > 0, "Sacred Bark should trigger")
@@ -159,14 +162,19 @@ end
 
 print("\n=== Test 4: Distilled Chaos plays X-cost card ===")
 do
-    local whirlwind = Utils.copyCardTemplate(Cards.Whirlwind)
-    local strike = Utils.copyCardTemplate(Cards.Strike)
+    -- Create enough cards: 5 drawn, then Whirlwind should be top of remaining deck
+    local cards = {}
+    for i = 1, 5 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Defend))
+    end
+    table.insert(cards, Utils.copyCardTemplate(Cards.Whirlwind))
+    table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {whirlwind, strike},
+        cards = cards,
         masterPotions = {Potions.DistilledChaos}
     })
 
@@ -185,7 +193,7 @@ do
     world.log = {}
 
     -- Use Distilled Chaos
-    UsePotion.execute(world, world.player, 1)
+    UsePotion.execute(world, world.player, world.player.masterPotions[1])
 
     -- Verify Whirlwind was played
     assert(countLogEntries(world.log, "Whirlwind") > 0 or countLogEntries(world.log, "dealt 5 damage") > 0,

@@ -16,20 +16,29 @@ local Utils = require("utils")
 -- and queues the appropriate event.
 --
 -- Exhaust conditions:
--- 1. Card has exhausts = true
--- 2. Card is a Skill and player has Corruption power
+-- 1. options.forcedExhaust is set (e.g., Havoc forces exhaust)
+-- 2. Card has exhausts = true
+-- 3. Card is a Skill and player has Corruption power
 --
 -- Parameters:
 --   world: game state
 --   player: the player
 --   card: the card being cleaned up
+--   options: play options (may contain forcedExhaust)
 --
 -- Returns:
 --   true on success
 --   {needsContext = true} if context is required (rare for cleanup, but possible)
-function PlayCard_Helpers.handleCardCleanup(world, player, card)
+function PlayCard_Helpers.handleCardCleanup(world, player, card, options)
+    options = options or {}
     local shouldExhaust = false
     local exhaustSource = nil
+
+    -- Check if forced exhaust (e.g., Havoc played this card)
+    if options.forcedExhaust then
+        shouldExhaust = true
+        exhaustSource = options.forcedExhaust  -- Source name (e.g., "Havoc")
+    end
 
     -- Check if card self-exhausts
     if card.exhausts then

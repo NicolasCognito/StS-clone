@@ -44,10 +44,47 @@ return {
                     selection.state = "PROCESSING"
                     PlayCard.queueForcedReplay(selection, "Omniscience", 1)
 
+                    -- OLD IMPLEMENTATION (before forcedExhaust pattern):
+                    -- Played card without forcedExhaust option, then manually checked if card
+                    -- was already exhausted and queued exhaust event if needed:
+                    --
+                    -- local success = PlayCard.execute(world, player, selection, {
+                    --     auto = true,
+                    --     playSource = "Omniscience",
+                    --     energySpentOverride = 0
+                    -- })
+                    --
+                    -- if not success then
+                    --     selection.state = selection._previousState or "DECK"
+                    --     selection._previousState = nil
+                    --     selection._forcedReplays = nil
+                    --     table.insert(world.log, "Omniscience failed to resolve " .. selection.name .. ".")
+                    -- else
+                    --     if selection.state ~= "EXHAUSTED_PILE" then
+                    --         world.queue:push({
+                    --             type = "ON_EXHAUST",
+                    --             card = selection,
+                    --             source = "Omniscience"
+                    --         })
+                    --     end
+                    -- end
+
+                    -- NEW IMPLEMENTATION (using forcedExhaust pattern like Havoc):
+                    -- This is cleaner and consistent with Havoc's approach
+                    --
+                    -- NOTE: Card text says "Play it twice, THEN exhaust" which implies the card
+                    -- should be exhausted after all duplications complete. However, the current
+                    -- forcedExhaust implementation exhausts after each individual play (including
+                    -- shadow copies). This works correctly because:
+                    -- 1. The first play moves card to EXHAUSTED_PILE
+                    -- 2. Shadow copies don't change the original card's state
+                    -- 3. End result is the same: card ends up exhausted after all plays
+                    -- This is a technical implementation detail that doesn't affect gameplay.
                     local success = PlayCard.execute(world, player, selection, {
                         auto = true,
                         playSource = "Omniscience",
-                        energySpentOverride = 0
+                        energySpentOverride = 0,
+                        forcedExhaust = "Omniscience"  -- Force card to exhaust after play
                     })
 
                     if not success then
@@ -55,14 +92,6 @@ return {
                         selection._previousState = nil
                         selection._forcedReplays = nil
                         table.insert(world.log, "Omniscience failed to resolve " .. selection.name .. ".")
-                    else
-                        if selection.state ~= "EXHAUSTED_PILE" then
-                            world.queue:push({
-                                type = "ON_EXHAUST",
-                                card = selection,
-                                source = "Omniscience"
-                            })
-                        end
                     end
 
                     ClearContext.execute(world, {clearTemp = true, clearStable = false})

@@ -1,6 +1,6 @@
 -- RESOLVE CARD PIPELINE
 -- Pops the next scheduled card execution from the card queue and resolves it.
--- Also handles auto-casting top cards from deck (Mayhem, Distilled Chaos)
+-- Note: Autocasting (Mayhem, Distilled Chaos) is now handled by Autocast pipeline
 
 local ResolveCard = {}
 
@@ -11,62 +11,8 @@ function ResolveCard.execute(world)
         return nil
     end
 
-    -- If CardQueue is empty, check for autocasting
+    -- Return if queue is empty
     if world.cardQueue:isEmpty() then
-        if world.combat and world.combat.autocastingNextTopCards and world.combat.autocastingNextTopCards > 0 then
-            local Utils = require("utils")
-            local player = world.player
-
-            -- Get current top card
-            local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
-            local topCard = deckCards[1]
-
-            if topCard then
-                -- Decrement counter BEFORE playing (in case card triggers more autocasts)
-                world.combat.autocastingNextTopCards = world.combat.autocastingNextTopCards - 1
-
-                table.insert(world.log, "Auto-casting: " .. topCard.name .. " (" .. world.combat.autocastingNextTopCards .. " remaining)")
-
-                -- Check if card has onPlay function
-                if not topCard.onPlay or type(topCard.onPlay) ~= "function" then
-                    -- Card is unplayable (no onPlay function) - skip execution entirely
-                    table.insert(world.log, topCard.name .. " has no effect (Unplayable)")
-
-                    -- Move directly to discard pile
-                    topCard.state = "DISCARD_PILE"
-
-                    -- Don't call PlayCard.autoExecute, just continue to next card
-                    -- ResolveCard will be called again for next autocast
-                    return
-                end
-
-                -- Save state
-                topCard._previousState = topCard.state
-                topCard.state = "PROCESSING"
-
-                -- Auto-play
-                local success = PlayCard.autoExecute(world, player, topCard, {
-                    skipEnergyCost = true,
-                    playSource = "Mayhem",
-                    energySpentOverride = player.energy  -- X-cost uses current energy
-                })
-
-                -- Restore on failure
-                if not success then
-                    topCard.state = topCard._previousState or "DECK"
-                    topCard._previousState = nil
-                    table.insert(world.log, "Failed to auto-cast " .. topCard.name)
-                end
-
-                -- ResolveCard will be called again after this card finishes
-                return
-            else
-                -- No more cards in deck, clear counter
-                table.insert(world.log, "Auto-casting: No more cards in draw pile.")
-                world.combat.autocastingNextTopCards = 0
-            end
-        end
-
         return nil
     end
 
@@ -85,11 +31,8 @@ function ResolveCard.execute(world)
             world.combat.tempContext = nil
         end
 
-        -- Continue to next entry if queue isn't empty
-        if not world.cardQueue:isEmpty() then
-            return ResolveCard.execute(world)
-        end
-        return nil
+        -- Continue processing (check queue or autocasting)
+        return ResolveCard.execute(world)
     end
 
     return PlayCard.resolveQueuedEntry(world, entry)

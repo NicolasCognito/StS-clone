@@ -187,7 +187,9 @@ end
 -- EXECUTE CARD EFFECT
 -- Executes a card's effect. Works with both original cards and shadow copies.
 -- Each card (original or shadow) is executed independently with full game mechanics.
-function PlayCard.executeCardEffect(world, player, card)
+function PlayCard.executeCardEffect(world, player, card, options)
+    options = options or {}
+
     -- Only execute effect and push events if not already initialized
     -- This prevents duplicate event pushing when resuming after context collection
     if not card._effectInitialized then
@@ -228,8 +230,8 @@ function PlayCard.executeCardEffect(world, player, card)
 
     -- CARD CLEANUP
     -- Determine if card should exhaust or discard and handle it
-    -- Exhaust conditions: card.exhausts = true OR (Corruption power + Skill card)
-    return Helpers.handleCardCleanup(world, player, card)
+    -- Exhaust conditions: forcedExhaust, card.exhausts = true, or (Corruption power + Skill card)
+    return Helpers.handleCardCleanup(world, player, card, options)
 end
 
 local function resolveEntry(world, entry)
@@ -275,7 +277,8 @@ local function resolveEntry(world, entry)
     end
 
     -- Execute the card effect
-    local result = PlayCard.executeCardEffect(world, player, card)
+    local options = entry.options or {}
+    local result = PlayCard.executeCardEffect(world, player, card, options)
     if type(result) == "table" and result.needsContext then
         -- Need context - push entry back to queue to resume later
         entry.resuming = true

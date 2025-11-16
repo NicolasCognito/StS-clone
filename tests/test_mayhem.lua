@@ -47,14 +47,17 @@ end
 
 print("=== Test 1: Mayhem (1 stack) plays top card at start of turn ===")
 do
-    local strike = Utils.copyCardTemplate(Cards.Strike)
-    local defend = Utils.copyCardTemplate(Cards.Defend)
+    -- Need enough cards: 5 drawn at combat start + 5 drawn at turn start + 1 for Mayhem
+    local cards = {}
+    for i = 1, 12 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    end
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {strike, defend}
+        cards = cards
     })
 
     world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
@@ -90,15 +93,17 @@ end
 
 print("\n=== Test 2: Mayhem (2 stacks) plays top 2 cards in sequence ===")
 do
-    local strike1 = Utils.copyCardTemplate(Cards.Strike)
-    local strike2 = Utils.copyCardTemplate(Cards.Strike)
-    local defend = Utils.copyCardTemplate(Cards.Defend)
+    -- Need enough cards: 5 drawn at combat start + 5 drawn at turn start + 2 for Mayhem
+    local cards = {}
+    for i = 1, 13 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    end
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {strike1, strike2, defend}
+        cards = cards
     })
 
     world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
@@ -133,14 +138,19 @@ end
 
 print("\n=== Test 3: Mayhem with X-cost card uses current energy ===")
 do
-    local whirlwind = Utils.copyCardTemplate(Cards.Whirlwind)
-    local strike = Utils.copyCardTemplate(Cards.Strike)
+    -- Need enough cards: 5 at start + 5 at turn + then whirlwind on top
+    local cards = {}
+    for i = 1, 10 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    end
+    table.insert(cards, Utils.copyCardTemplate(Cards.Whirlwind))
+    table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {whirlwind, strike}
+        cards = cards
     })
 
     world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
@@ -207,15 +217,21 @@ end
 
 print("\n=== Test 5: Mayhem plays card that draws more cards ===")
 do
-    local pommelStrike = Utils.copyCardTemplate(Cards.PommelStrike)
-    local strike = Utils.copyCardTemplate(Cards.Strike)
-    local defend = Utils.copyCardTemplate(Cards.Defend)
+    -- Need enough cards for combat start (5) + turn start (5) + Mayhem (2) + drawn card
+    local cards = {}
+    for i = 1, 10 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    end
+    -- Dagger Throw will be on top of deck after initial draws
+    table.insert(cards, Utils.copyCardTemplate(Cards.DaggerThrow))
+    table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {pommelStrike, strike, defend}
+        cards = cards
     })
 
     world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
@@ -233,13 +249,13 @@ do
     world.log = {}
 
     -- Start turn
-    -- First auto-cast: Pommel Strike (draws 1 card)
+    -- First auto-cast: Dagger Throw (draws 1 card)
     -- Second auto-cast: Should get the NEW top card
     StartTurn.execute(world, world.player)
 
-    -- Verify Pommel Strike was played
-    assert(countLogEntries(world.log, "Pommel Strike") > 0 or countLogEntries(world.log, "dealt 9 damage") > 0,
-        "Pommel Strike should be auto-played")
+    -- Verify Dagger Throw was played
+    assert(countLogEntries(world.log, "Dagger Throw") > 0 or countLogEntries(world.log, "dealt 9 damage") > 0,
+        "Dagger Throw should be auto-played")
 
     -- Verify a second card was played
     local autocastCount = countLogEntries(world.log, "Auto%-casting")
@@ -250,10 +266,13 @@ end
 
 print("\n=== Test 6: Mayhem with unplayable card (no onPlay) ===")
 do
-    local strike = Utils.copyCardTemplate(Cards.Strike)
-    local defend = Utils.copyCardTemplate(Cards.Defend)
+    -- Need enough cards for combat start (5) + turn start (5) + Mayhem (2)
+    local cards = {}
+    for i = 1, 10 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
+    end
 
-    -- Create an unplayable card (no onPlay function)
+    -- Create an unplayable card (no onPlay function) - will be on top after draws
     local unplayableCard = {
         id = "Unplayable_Test",
         name = "Unplayable Test Card",
@@ -262,12 +281,14 @@ do
         -- No onPlay function!
         state = "DECK"
     }
+    table.insert(cards, unplayableCard)
+    table.insert(cards, Utils.copyCardTemplate(Cards.Strike))
 
     local world = World.createWorld({
         id = "IronClad",
         maxHp = 80,
         maxEnergy = 6,
-        cards = {unplayableCard, strike, defend}
+        cards = cards
     })
 
     world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
@@ -309,6 +330,66 @@ do
     assert(discardCount == 1, "Unplayable card should be in discard pile")
 
     print("✓ Mayhem correctly handles unplayable cards (no onPlay)")
+end
+
+print("\n=== Test 7: Nested autocasting - Mayhem → Havoc → Havoc → Strike ===")
+do
+    -- Need enough cards: 5 at combat start + 5 at turn start + cards for autocasting
+    local cards = {}
+    for i = 1, 10 do
+        table.insert(cards, Utils.copyCardTemplate(Cards.Defend))
+    end
+
+    -- Set up the chain: Havoc1 (top after draws) -> Havoc2 -> Strike
+    table.insert(cards, Utils.copyCardTemplate(Cards.Havoc))  -- This will be played by Mayhem
+    table.insert(cards, Utils.copyCardTemplate(Cards.Havoc))  -- This will be played by first Havoc
+    table.insert(cards, Utils.copyCardTemplate(Cards.Strike)) -- This will be played by second Havoc
+
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        maxEnergy = 6,
+        cards = cards
+    })
+
+    world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
+    world.NoShuffle = true
+    StartCombat.execute(world)
+
+    -- Set enemy HP
+    world.enemies[1].hp = 50
+    world.enemies[1].maxHp = 50
+
+    -- Apply Mayhem (1 stack)
+    world.player.status.mayhem = 1
+
+    -- Clear log
+    world.log = {}
+
+    -- Start turn
+    -- Mayhem should autocast first Havoc
+    -- First Havoc should play second Havoc (from top of deck)
+    -- Second Havoc should play Strike (from top of deck)
+    StartTurn.execute(world, world.player)
+
+    -- Verify the chain
+    assert(countLogEntries(world.log, "Mayhem") > 0, "Mayhem should trigger")
+
+    -- Should see "Auto-casting: Havoc" from Mayhem
+    assert(countLogEntries(world.log, "Auto%-casting: Havoc") > 0, "Mayhem should autocast Havoc")
+
+    -- Should see Havoc played twice (once by Mayhem, once by first Havoc)
+    local havocPlayCount = countLogEntries(world.log, "played Havoc")
+    assert(havocPlayCount >= 2, "Should play Havoc twice (found " .. havocPlayCount .. ")")
+
+    -- Should see Strike played by second Havoc
+    assert(countLogEntries(world.log, "played Strike") > 0, "Second Havoc should play Strike")
+
+    -- Verify Strike dealt damage
+    assert(countLogEntries(world.log, "dealt 6 damage") > 0, "Strike should deal damage")
+    assert(world.enemies[1].hp == 44, "Enemy should take 6 damage (50 - 6 = 44)")
+
+    print("✓ Nested autocasting works correctly (Mayhem → Havoc → Havoc → Strike)")
 end
 
 print("\n=== All Mayhem tests passed! ===")

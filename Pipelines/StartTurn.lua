@@ -110,13 +110,6 @@ function StartTurn.finishTurnStart(world, player)
         end
     end
 
-    -- Check for Mayhem power - auto-cast top cards from deck
-    if status.mayhem and status.mayhem > 0 then
-        local stacks = status.mayhem
-        world.combat.autocastingNextTopCards = (world.combat.autocastingNextTopCards or 0) + stacks
-        table.insert(world.log, "Mayhem (" .. stacks .. ")! Will play top " .. stacks .. " card(s).")
-    end
-
     -- Enemies select their intents for the upcoming round
     -- This happens right after player gains energy
     if world.enemies then
@@ -233,7 +226,15 @@ function StartTurn.queueTurnStartWithContext(world, player, needsForesight, need
         })
     end
 
-    -- PHASE 5: Final cleanup
+    -- PHASE 5: Trigger Mayhem AFTER all drawing
+    world.queue:push({
+        type = "ON_CUSTOM_EFFECT",
+        effect = function()
+            StartTurn.triggerMayhem(world, player)
+        end
+    })
+
+    -- PHASE 6: Final cleanup
     world.queue:push({
         type = "ON_CUSTOM_EFFECT",
         effect = function()
@@ -242,10 +243,25 @@ function StartTurn.queueTurnStartWithContext(world, player, needsForesight, need
     })
 end
 
+-- Helper: Trigger Mayhem autocasting AFTER draw
+function StartTurn.triggerMayhem(world, player)
+    local status = player.status or {}
+    if status.mayhem and status.mayhem > 0 then
+        local Autocast = require("Pipelines.Autocast")
+        local stacks = status.mayhem
+        world.combat.autocastingNextTopCards = (world.combat.autocastingNextTopCards or 0) + stacks
+        table.insert(world.log, "Mayhem (" .. stacks .. ")! Will play top " .. stacks .. " card(s).")
+
+        -- Trigger autocasting
+        Autocast.execute(world)
+    end
+end
+
 -- Helper: Normal path (no context needed)
 function StartTurn.drawCardsAndFinish(world, player)
     local cardsToDraw = StartTurn.calculateCardsToDraw(world, player)
     DrawCard.execute(world, player, cardsToDraw)
+    StartTurn.triggerMayhem(world, player)  -- Trigger AFTER draw
     StartTurn.finishTurnStart(world, player)
 end
 

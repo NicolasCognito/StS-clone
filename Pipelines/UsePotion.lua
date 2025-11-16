@@ -18,6 +18,7 @@
 local UsePotion = {}
 
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
+local Autocast = require("Pipelines.Autocast")
 
 local function removePotion(player, potion)
     for i, p in ipairs(player.masterPotions) do
@@ -54,6 +55,11 @@ function UsePotion.execute(world, player, potion)
 
     -- STEP 4: REMOVE POTION (consumed)
     removePotion(player, potion)
+
+    -- STEP 5: TRIGGER AUTOCASTING (for Distilled Chaos and similar potions)
+    if world.combat and world.combat.autocastingNextTopCards and world.combat.autocastingNextTopCards > 0 then
+        Autocast.execute(world)
+    end
 
     return true
 end

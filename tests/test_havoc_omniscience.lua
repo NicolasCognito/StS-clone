@@ -93,7 +93,7 @@ do
 
     assert(PlayCard.execute(world, player, havoc) == true, "Havoc should resolve successfully")
     assert(havoc.state == "EXHAUSTED_PILE", "Havoc should exhaust after play")
-    assert(topCard.state == "DISCARD_PILE", "Top draw card should have been played and discarded")
+    assert(topCard.state == "EXHAUSTED_PILE", "Top draw card should have been played and exhausted by Havoc")
     assert(enemy.hp == initialHp - topCard.damage, "Enemy should take damage from the Havoc play")
 end
 
@@ -173,8 +173,8 @@ do
 
     assert(PlayCard.execute(world, player, havoc) == true, "Havoc should resolve successfully under Burst")
 
-    assert(topDefend.state == "DISCARD_PILE", "First draw pile card should have been played and discarded")
-    assert(secondDefend.state == "DISCARD_PILE", "Second draw pile card should have been played by duplicated Havoc")
+    assert(topDefend.state == "EXHAUSTED_PILE", "First draw pile card should have been played and exhausted by Havoc")
+    assert(secondDefend.state == "EXHAUSTED_PILE", "Second draw pile card should have been played by duplicated Havoc and exhausted")
     assert((player.status.burst or 0) == 0, "Burst stacks should be consumed after Havoc chain")
     assert(player.block == 15, "First Defend should be duplicated (10 block) and second played once (5 block)")
 end
@@ -225,13 +225,73 @@ do
 
     assert(strikeTarget.state == "DISCARD_PILE", "Strike drawn by Dagger Throw should have been discarded")
 
-    local daggerDiscardCount = 0
+    -- Dagger Throw should be exhausted by Havoc (not discarded)
+    assert(dagger.state == "EXHAUSTED_PILE", "Dagger Throw should be exhausted by Havoc")
+
+    local daggerExhaustCount = 0
     for _, entry in ipairs(world.log) do
-        if entry == (player.id .. " discarded Dagger Throw") then
-            daggerDiscardCount = daggerDiscardCount + 1
+        if string.find(entry, "Dagger Throw") and string.find(entry, "exhausted") then
+            daggerExhaustCount = daggerExhaustCount + 1
         end
     end
-    assert(daggerDiscardCount == 1, "Dagger Throw should only be discarded once during cleanup")
+    assert(daggerExhaustCount == 1, "Dagger Throw should only be exhausted once by Havoc")
+end
+
+-- Test 5: Havoc should exhaust unplayable cards (cards without onPlay)
+do
+    -- Create an unplayable card (no onPlay function)
+    local unplayableCard = {
+        id = "UnplayableTest",
+        name = "Unplayable Card",
+        cost = 1,
+        type = "SKILL",
+        character = "IRONCLAD",
+        rarity = "SPECIAL",
+        description = "This card has no effect.",
+        -- No onPlay function
+    }
+
+    local deck = {
+        copyCard(Cards.Havoc),
+        Utils.copyCardTemplate(unplayableCard)
+    }
+
+    local world = createWorldWithDeck(deck)
+    local player = world.player
+
+    local havoc = findCard(player.combatDeck, "Havoc")
+    local unplayable = findCard(player.combatDeck, "UnplayableTest")
+
+    -- Reset all cards to controlled state
+    for _, card in ipairs(player.combatDeck) do
+        card.state = "EXHAUSTED_PILE"
+    end
+
+    -- Place Havoc in hand and unplayable card on top of deck
+    havoc.state = "HAND"
+    unplayable.state = "DECK"
+
+    -- Verify setup
+    local deckCards = Utils.getCardsByState(player.combatDeck, "DECK")
+    assert(#deckCards == 1, "Expected only unplayable card in deck")
+    assert(deckCards[1] == unplayable, "Unplayable card should be on top")
+
+    -- Play Havoc
+    assert(PlayCard.execute(world, player, havoc) == true, "Havoc should resolve successfully")
+
+    -- Verify unplayable card was exhausted by Havoc's forcedExhaust
+    assert(unplayable.state == "EXHAUSTED_PILE", "Unplayable card should be exhausted by Havoc's forcedExhaust option")
+    assert(havoc.state == "EXHAUSTED_PILE", "Havoc should exhaust itself")
+
+    -- Verify log messages
+    local foundUnplayableMessage = false
+    for _, entry in ipairs(world.log) do
+        if string.find(entry, "Unplayable Card") and string.find(entry, "exhausted") then
+            foundUnplayableMessage = true
+            break
+        end
+    end
+    assert(foundUnplayableMessage, "Log should contain exhaust message for unplayable card")
 end
 
 print("Havoc and Omniscience tests passed.")

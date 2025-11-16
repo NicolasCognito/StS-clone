@@ -9,7 +9,7 @@ return {
         character = "IRONCLAD",
         rarity = "UNCOMMON",
         exhausts = true,
-        description = "Play the top card of your draw pile. Exhaust.",
+        description = "Play the top card of your draw pile and Exhaust it.",
 
         onPlay = function(self, world, player)
             world.queue:push({
@@ -32,7 +32,8 @@ return {
                     local success = PlayCard.execute(world, player, topCard, {
                         auto = true,
                         playSource = "Havoc",
-                        energySpentOverride = 0
+                        energySpentOverride = 0,
+                        forcedExhaust = "Havoc"  -- Force card to exhaust after play
                     })
 
                     if not success then
@@ -47,7 +48,7 @@ return {
 
         onUpgrade = function(self)
             self.cost = 0
-            self.description = "Play the top card of your draw pile. Exhaust."
+            self.description = "Play the top card of your draw pile and Exhaust it."
         end
     }
 }
