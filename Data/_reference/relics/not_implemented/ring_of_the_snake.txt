@@ -1,0 +1,7 @@
+{Name = "Ring of the Snake",
+    Rarity = "Starter",
+	Character = "Silent",
+    Description = "At the start of each combat, draw 2 additional cards.",
+    Flavor = "Made from a fossilized snake. Represents great skill as a huntress.",
+    Image = "RingoftheSnake.png",
+    Traits = {},

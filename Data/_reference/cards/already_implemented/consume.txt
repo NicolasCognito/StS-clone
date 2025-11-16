@@ -1,0 +1,8 @@
+{Name = "Consume",
+    Image = "Consume.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Gain [2|3] #Focus.\nLose 1 Orb Slot.",
+    Traits = {},

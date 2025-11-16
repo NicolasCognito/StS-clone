@@ -1,0 +1,6 @@
+{Name = "Ink Bottle",
+    Rarity = "Uncommon",
+    Description = "Whenever you play 10 cards, draw 1 card.",
+    Flavor = "Once exhausted, appears to refill itself in a different color.",
+    Image = "InkBottle.png",
+    Traits = {},

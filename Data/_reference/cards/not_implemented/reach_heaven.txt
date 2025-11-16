@@ -1,0 +1,8 @@
+{Name = "Reach Heaven",
+    Image = "ReachHeaven.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [10|15] damage. Shuffle a [[Through Violence]] into your draw pile.",
+    Traits = {},

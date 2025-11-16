@@ -1,0 +1,8 @@
+{Name = "Conjure Blade",
+    Image = "ConjureBlade.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = X,
+    Text = "Shuffle an #Expunger| with X+1] into your draw pile. #Exhaust.",
+    Traits = {},

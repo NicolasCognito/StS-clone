@@ -1,0 +1,7 @@
+{Name = "Perseverance",
+    Image = "Perseverance.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Text = "#Retain. Gain [5|7] #Block. Whenever this card is #Retained, increase its #Block by [2|3].",
+    Traits = {},

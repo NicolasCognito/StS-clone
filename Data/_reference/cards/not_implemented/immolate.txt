@@ -1,0 +1,8 @@
+{Name = "Immolate",
+    Image = "Immolate.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [21|28] damage to ALL enemies.\nAdd a #Burn into your discard pile.",
+    Traits = {},

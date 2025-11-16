@@ -1,0 +1,7 @@
+{Name = "Hauntings",
+    Rarity = "Blight",
+    Character = "Blight Chest",
+    Description = "Enemies start combat with 1 [[File:Icon_Intangible.png|20px|middle]] '''Intangible'''.",
+    Image = "Hauntings.png",
+    Link = "Blights",
+    Traits = {},

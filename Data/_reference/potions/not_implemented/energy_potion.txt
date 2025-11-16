@@ -1,0 +1,7 @@
+{Name = "Energy Potion",
+        Rarity = "Common",
+        Text = "Gain 2 ([[File:SacredBark.png|20px|middle]] 4) '''Energy'''.",
+        Image = "EnergyPotion.png",
+        Code = "#Energy Potion",
+        Link = "Potions",
+        },

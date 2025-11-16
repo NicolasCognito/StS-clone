@@ -1,0 +1,7 @@
+{Name = "Black Blood",
+    Rarity = "Boss",
+	Character = "Ironclad",
+    Description = "Replaces [[File:BurningBlood.png|20px|middle]] '''Burning Blood'''. <br>At the end of combat, heal 12 HP.",
+    Flavor = "The rage grows darker.",
+    Image = "BlackBlood.png",
+    Traits = {},

@@ -1,0 +1,6 @@
+{Name = "Unceasing Top",
+    Rarity = "Rare",
+    Description = "Whenever you have no cards in hand during your turn, draw a card.",
+    Flavor = "The top continues to spin effortlessly as if you were in a dream.",
+    Image = "UnceasingTop.png",
+    Traits = {},

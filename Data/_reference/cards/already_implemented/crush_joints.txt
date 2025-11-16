@@ -1,0 +1,8 @@
+{Name = "Crush Joints",
+    Image = "CrushJoints.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|10] damage. If the previous card played was a Skill, apply [1|2] #Vulnerable.",
+    Traits = {},

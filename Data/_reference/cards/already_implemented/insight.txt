@@ -1,0 +1,8 @@
+{Name = "Insight",
+    Image = "Insight.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Skill",
+    Cost = 0,
+    Text = "#Retain. Draw [2|3] cards. #Exhaust.",
+    Traits = {},

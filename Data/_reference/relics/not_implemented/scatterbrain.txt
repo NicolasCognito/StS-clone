@@ -1,0 +1,7 @@
+{Name = "Scatterbrain",
+    Rarity = "Blight",
+    Character = "Blight Chest",
+    Description = "Draw 1 less card a turn.",
+    Image = "Scatter.png",
+    Link = "Blights",
+    Traits = {},

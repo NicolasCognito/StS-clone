@@ -1,0 +1,7 @@
+{Name = "Mark of Pain",
+    Rarity = "Boss",
+	Character = "Ironclad",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>Start combats with 2 '''Wounds''' in your draw pile.",
+    Flavor = "This brand was used by the northern tribes to signify warriors who had mastered pain in battle.",
+    Image = "MarkofPain.png",
+    Traits = {},

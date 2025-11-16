@@ -1,0 +1,8 @@
+{Name = "Footwork",
+    Image = "Footwork.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Gain [2|3] #Dexterity.",
+    Traits = {},

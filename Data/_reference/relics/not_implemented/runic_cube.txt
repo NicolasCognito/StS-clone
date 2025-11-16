@@ -1,0 +1,7 @@
+{Name = "Runic Cube",
+    Rarity = "Boss",
+	Character = "Ironclad",
+    Description = "Whenever you lose HP, draw 1 card.",
+    Flavor = "The runes are indecipherable.",
+    Image = "RunicCube.png",
+    Traits = {},

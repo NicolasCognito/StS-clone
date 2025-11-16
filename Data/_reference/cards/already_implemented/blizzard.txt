@@ -1,0 +1,8 @@
+{Name = "Blizzard",
+    Image = "Blizzard.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal damage equal to [2|3] times the number of #Frost #Channeled this combat to ALL enemies.",
+    Traits = {},

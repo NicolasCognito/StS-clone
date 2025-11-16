@@ -1,0 +1,6 @@
+{Name = "Empty Cage",
+    Rarity = "Boss",
+    Description = "Upon pickup, remove 2 cards from your deck.",
+    Flavor = '"How unusual to cage that which you worship." - Ranwid',
+    Image = "EmptyCage.png",
+    Traits = {},

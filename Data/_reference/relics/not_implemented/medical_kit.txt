@@ -1,0 +1,6 @@
+{Name = "Medical Kit",
+    Rarity = "Shop",
+    Description = "'''Status''' cards can now be played. Playing a '''Status''' will Exhaust the card.",
+    Flavor = '"Has everything you need! Anti-itch, anti-burn, anti-venom, and more!"',
+    Image = "MedicalKit.png",
+    Traits = {},

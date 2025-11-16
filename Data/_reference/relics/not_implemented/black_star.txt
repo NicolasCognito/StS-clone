@@ -1,0 +1,6 @@
+{Name = "Black Star",
+    Rarity = "Boss",
+    Description = "Elites now drop 2 Relics when defeated.",
+    Flavor = "Originally discovered in the town of the serpent, aside a solitary candle.",
+    Image = "BlackStar.png",
+    Traits = {},

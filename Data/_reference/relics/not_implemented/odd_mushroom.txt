@@ -1,0 +1,8 @@
+{Name = "Odd Mushroom",
+    Rarity = "Event",
+	EventName = "Hypnotizing Colored Mushroom",
+	EventIcon = "HypnotizeMushroomIcon.png",
+    Description = "When [[File:Icon_Vulnerable.png|20px|middle]] '''Vulnerable''', take 25% more damage rather than 50%.",
+    Flavor = '"After consuming trichella parastius I felt larger and less... susceptible." - Ranwid ',
+    Image = "OddMushroom.png",
+    Traits = {},

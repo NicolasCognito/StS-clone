@@ -1,0 +1,8 @@
+{Name = "Seek",
+    Image = "Seek.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Put [1|2] [card|cards] from your draw pile into your hand.\n#Exhaust.",
+    Traits = {},

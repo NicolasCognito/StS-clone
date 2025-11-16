@@ -1,0 +1,8 @@
+{Name = "Darkness",
+    Image = "Darkness.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "#Channel 1 #Dark.|\nTrigger the passive ability of all #Dark orbs.]",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Mutagenic Strength",
+    Rarity = "Event",
+	EventName = "Augmenter",
+	EventIcon = "AugmenterIcon.png",
+    Description = "Start each combat with 3 [[File:Icon_Strength.png|20px|middle]] '''Strength''' that is lost at the end of your turn.",
+    Flavor = '"The results seem fleeting, triggering when the subject is in danger." - Unknown',
+    Image = "MutagenicStrength.png",
+    Traits = {},

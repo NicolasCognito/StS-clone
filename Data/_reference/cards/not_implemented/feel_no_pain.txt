@@ -1,0 +1,8 @@
+{Name = "Feel No Pain",
+    Image = "FeelNoPain.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever a card is #Exhausted,\ngain [3|4] #Block.",
+    Traits = {},

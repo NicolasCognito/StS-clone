@@ -1,0 +1,8 @@
+{Name = "Meteor Strike",
+    Image = "MeteorStrike.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 5,
+    Text = "Deal [24|30] damage.\n#Channel 3 #Plasma.",
+    Traits = {},

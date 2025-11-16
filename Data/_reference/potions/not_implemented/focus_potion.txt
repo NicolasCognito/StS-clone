@@ -1,0 +1,8 @@
+{Name = "Focus Potion",
+        Rarity = "Common",
+		Character = "Defect",
+        Text = "Gain 2 ([[File:SacredBark.png|20px|middle]] 4) [[File:Icon_Focus.png|20px|middle]] '''Focus'''.",
+        Image = "FocusPotion.png",
+        Code = "#Focus Potion",
+        Link = "Potions",
+        },

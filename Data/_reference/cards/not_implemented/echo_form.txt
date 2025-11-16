@@ -1,0 +1,8 @@
+{Name = "Echo Form",
+    Image = "EchoForm.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 3,
+    Text = "[#Ethereal.| \nThe first card you play each turn is played twice.",
+    Traits = {},

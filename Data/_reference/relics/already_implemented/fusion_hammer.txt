@@ -1,0 +1,6 @@
+{Name = "Fusion Hammer",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>You can no longer Smith at Rest Sites.",
+    Flavor = "Once wielded, the owner can never let go.",
+    Image = "FusionHammer.png",
+    Traits = {},

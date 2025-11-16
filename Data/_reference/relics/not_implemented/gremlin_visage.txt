@@ -1,0 +1,8 @@
+{Name = "Gremlin Visage",
+    Rarity = "Event",
+	EventName = "Face Trader",
+	EventIcon = "FaceTraderIcon.png",
+    Description = "Start each combat with 1 [[File:Icon_Weak.png|20px|middle]] '''Weak'''.",
+    Flavor = "Time to run.",
+    Image = "GremlinMask.png",
+    Traits = {},

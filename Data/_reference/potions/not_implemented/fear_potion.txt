@@ -1,0 +1,7 @@
+{Name = "Fear Potion",
+        Rarity = "Common",
+        Text = "Apply 3 ([[File:SacredBark.png|20px|middle]] 6) [[File:Icon_Vulnerable.png|20px|middle]] '''Vulnerable''' to target enemy.",
+        Image = "FearPotion.png",
+        Code = "#Fear Potion",
+        Link = "Potions",
+        },

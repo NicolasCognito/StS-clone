@@ -1,0 +1,8 @@
+{Name = "Nirvana",
+    Image = "Nirvana.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you #Scry, gain [3|4] #Block.",
+    Traits = {},

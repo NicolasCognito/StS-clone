@@ -1,0 +1,7 @@
+{Name = "Essence of Steel",
+        Rarity = "Uncommon",
+        Text = "Gain 4 ([[File:SacredBark.png|20px|middle]] 8) [[File:Icon_PlatedArmor.png|20px|middle]] '''Plated Armor'''.",
+        Image = "EssenceOfSteel.png",
+        Code = "#Essence of Steel",
+        Link = "Potions",
+        },

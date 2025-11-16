@@ -1,0 +1,8 @@
+{Name = "Poison Potion",
+        Rarity = "Common",
+		Character = "Silent",
+        Text = "Apply 6 ([[File:SacredBark.png|20px|middle]] 12) [[File:Icon_Poison.png|20px|middle]] '''Poison''' to target enemy.",
+        Image = "PoisonPotion.png",
+        Code = "#Poison Potion",
+        Link = "Potions",
+        },

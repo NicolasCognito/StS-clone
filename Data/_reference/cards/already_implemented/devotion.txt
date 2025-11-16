@@ -1,0 +1,8 @@
+{Name = "Devotion",
+    Image = "Devotion.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the start of your turn, gain [2|3] #Mantra.",
+    Traits = {},

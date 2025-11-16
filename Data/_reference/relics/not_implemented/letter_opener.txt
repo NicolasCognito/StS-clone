@@ -1,0 +1,6 @@
+{Name = "Letter Opener",
+    Rarity = "Uncommon",
+    Description = "Every time you play 3 Skills in a single turn, deal 5 damage to ALL enemies.",
+    Flavor = "Unnaturally sharp.",
+    Image = "LetterOpener.png",
+    Traits = {},

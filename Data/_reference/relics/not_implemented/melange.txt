@@ -1,0 +1,7 @@
+{Name = "Melange",
+    Rarity = "Shop",
+	Character = "Watcher",
+    Description = "Whenever you shuffle your draw pile, '''Scry''' 3.",
+    Flavor = "Mysterious sands from an unknown origin. Smells of cinnamon.",
+    Image = "Melange.png",
+    Traits = {},

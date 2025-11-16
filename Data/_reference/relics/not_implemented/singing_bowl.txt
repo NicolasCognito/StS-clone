@@ -1,0 +1,6 @@
+{Name = "Singing Bowl",
+    Rarity = "Uncommon",
+    Description = "When adding cards to your deck, you may gain +2 Max HP instead.",
+    Flavor = "This well-used artifact rings out with a beautiful melody when struck.",
+    Image = "SingingBowl.png",
+    Traits = {},

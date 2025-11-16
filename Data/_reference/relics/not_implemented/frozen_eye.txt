@@ -1,0 +1,7 @@
+{Name = "Frozen Eye",
+    ID = "Frozen Eye",
+    Rarity = "Shop",
+    Description = "When viewing your Draw Pile, the cards are now shown in order.",
+    Flavor = "Staring into the eye, you see a glimpse of your future.",
+    Image = "FrozenEye.png",
+    Traits = {},

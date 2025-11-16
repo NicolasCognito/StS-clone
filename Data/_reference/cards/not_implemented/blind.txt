@@ -1,0 +1,8 @@
+{Name = "Blind",
+    Image = "Blind.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Apply 2 #Weak| to ALL enemies].",
+    Traits = {},

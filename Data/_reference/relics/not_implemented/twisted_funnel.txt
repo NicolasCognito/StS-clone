@@ -1,0 +1,8 @@
+{Name = "Twisted Funnel",
+    ID = "Funnel",
+    Rarity = "Shop",
+	Character = "Silent",
+    Description = "At the start of each combat, apply 4 [[File:Icon_Poison.png|20px|middle]] '''Poison''' to ALL enemies.",
+    Flavor = "I wouldn't drink out of it.",
+    Image = "TwistedFunnel.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Calculated Gamble",
+    Image = "CalculatedGamble.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Discard your hand,\nthen draw that many cards. [\n#Exhaust.|",
+    Traits = {},

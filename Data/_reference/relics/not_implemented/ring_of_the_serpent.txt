@@ -1,0 +1,7 @@
+{Name = "Ring of the Serpent",
+    Rarity = "Boss",
+	Character = "Silent",
+    Description = "Replaces [[File:RingoftheSnake.png|20px|middle]] '''Ring of the Snake'''.<br>At the start of your turn, draw 1 additional card.",
+    Flavor = "Your ring has morphed and changed forms.",
+    Image = "RingoftheSerpent.png",
+    Traits = {},

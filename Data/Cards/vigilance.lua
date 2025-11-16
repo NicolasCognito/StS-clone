@@ -14,7 +14,8 @@ return {
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                amount = self.block
+                amount = self.block,
+                source = self
             })
 
             -- Enter Calm stance

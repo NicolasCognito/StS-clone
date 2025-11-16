@@ -79,7 +79,8 @@ function OrbPassive.executeSingle(world, orb)
         world.queue:push({
             type = "ON_BLOCK",
             target = player,
-            amount = passiveBlock
+            amount = passiveBlock,
+            source = "Frost Orb"
         })
 
     elseif orb.id == "Dark" then

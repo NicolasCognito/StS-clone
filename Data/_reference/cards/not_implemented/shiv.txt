@@ -1,0 +1,8 @@
+{Name = "Shiv",
+    Image = "Shiv.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [4|6] damage.\n#Exhaust.",
+    Traits = {},

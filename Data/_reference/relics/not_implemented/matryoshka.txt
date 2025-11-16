@@ -1,0 +1,6 @@
+{Name = "Matryoshka",
+    Rarity = "Uncommon",
+    Description = "The next 2 non-boss chests you open contain 2 Relics.",
+    Flavor = "A stackable set of painted dolls. The paint depicts an unknown bird with white eyes and blue feathers.",
+    Image = "Matryoshka.png",
+    Traits = {},

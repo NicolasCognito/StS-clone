@@ -1,0 +1,7 @@
+{Name = "Power Potion",
+        Rarity = "Common",
+        Text = "Choose 1 of 3 random Power cards to add ([[File:SacredBark.png|20px|middle]] 2 copies of it) to your hand. It cost ([[File:SacredBark.png|20px|middle]] They cost) 0 this turn.",
+        Image = "PowerPotion.png",
+        Code = "#Power Potion",
+        Link = "Potions",
+        },

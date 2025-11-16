@@ -1,0 +1,8 @@
+{Name = "Power Through",
+    Image = "PowerThrough.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Add 2 #Wounds into your hand.\nGain [15|20] #Block.",
+    Traits = {},

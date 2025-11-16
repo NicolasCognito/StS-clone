@@ -1,0 +1,7 @@
+{Name = "Runic Capacitor",
+    Rarity = "Shop",
+	Character = "Defect",
+    Description = "Start each combat with 3 additional Orb slots.",
+    Flavor = "More is better.",
+    Image = "RunicCapacitor.png",
+    Traits = {},

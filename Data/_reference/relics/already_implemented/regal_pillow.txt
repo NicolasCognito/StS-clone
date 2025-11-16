@@ -1,0 +1,6 @@
+{Name = "Regal Pillow",
+    Rarity = "Common",
+    Description = "Heal an additional 15 HP when you Rest.",
+    Flavor = "Now you can get a proper night's rest.",
+    Image = "RegalPillow.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Predator",
+    Image = "Predator.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [15|20] damage.\nNext turn, draw 2 additional cards.",
+    Traits = {},

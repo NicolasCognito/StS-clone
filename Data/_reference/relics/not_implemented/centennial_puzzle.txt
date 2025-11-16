@@ -1,0 +1,6 @@
+{Name = "Centennial Puzzle",
+    Rarity = "Common",
+    Description = "The first time you lose HP each combat, draw 3 cards.",
+    Flavor = "Upon solving the puzzle you feel a powerful warmth in your chest.",
+    Image = "CentennialPuzzle.png",
+    Traits = {},

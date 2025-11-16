@@ -1,0 +1,7 @@
+{Name = "Strength Potion",
+        Rarity = "Common",
+        Text = "Gain 2 ([[File:SacredBark.png|20px|middle]] 4) [[File:Icon_Strength.png|20px|middle]] '''Strength''' (for this combat only).",
+        Image = "StrengthPotion.png",
+        Code = "#Strength Potion",
+        Link = "Potions",
+        },

@@ -1,0 +1,8 @@
+{Name = "Burn",
+    Image = "Burn.png",
+    Color = "Colorless",
+    Rarity = "Common",
+    Type = "Status",
+    Cost = -2,
+    Text = "#Unplayable.\nAt the end of your turn, take [2|4] damage.",
+    Traits = {"Unplayable", "Self-Damage"},

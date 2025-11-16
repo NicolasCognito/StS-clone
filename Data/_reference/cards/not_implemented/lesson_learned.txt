@@ -1,0 +1,8 @@
+{Name = "Lesson Learned",
+    Image = "LessonLearned.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [10|13] damage. If #Fatal, #Upgrade a random card in your deck. #Exhaust.",
+    Traits = {},

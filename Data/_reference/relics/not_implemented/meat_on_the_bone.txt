@@ -1,0 +1,6 @@
+{Name = "Meat on the Bone",
+    Rarity = "Uncommon",
+    Description = "If your HP is at or below 50% at the end of combat, heal 12 HP.",
+    Flavor = "The meat keeps replenishing, never seeming to fully run out.",
+    Image = "MeatontheBone.png",
+    Traits = {},

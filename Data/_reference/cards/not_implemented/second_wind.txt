@@ -1,0 +1,8 @@
+{Name = "Second Wind",
+    Image = "SecondWind.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "#Exhaust all non-Attack cards in your hand. Gain [5|7] #Block for each card #Exhausted.",
+    Traits = {},

@@ -1,0 +1,7 @@
+{Name = "Distilled Chaos",
+        Rarity = "Uncommon",
+        Text = "Play the top 3 ([[File:SacredBark.png|20px|middle]] 6) cards of your draw pile.",
+        Image = "DistilledChaos_Potion_Static.png",
+        Code = "#Distilled Chaos",
+        Link = "Potions",
+        },

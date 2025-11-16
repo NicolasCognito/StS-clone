@@ -424,6 +424,26 @@ local StatusEffects = {
         debuff = false
     },
 
+    a_thousand_cuts = {
+        id = "a_thousand_cuts",
+        name = "A Thousand Cuts",
+        description = "Whenever you play a card, deal damage to ALL enemies.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    after_image = {
+        id = "after_image",
+        name = "After Image",
+        description = "Whenever you play a card, gain Block.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
     well_laid_plans = {
         id = "well_laid_plans",
         name = "Well-Laid Plans",
@@ -542,6 +562,26 @@ local StatusEffects = {
         id = "devotion",
         name = "Devotion",
         description = "At the start of your turn, gain Mantra equal to stacks",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    deva = {
+        id = "deva",
+        name = "Deva Form",
+        description = "At the start of your turn, gain Energy equal to stacks",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
+    deva_growth = {
+        id = "deva_growth",
+        name = "Deva Growth",
+        description = "Increase Deva Form's Energy gain by this amount each turn",
         minValue = 0,
         maxValue = 999,
         stackType = "intensity",

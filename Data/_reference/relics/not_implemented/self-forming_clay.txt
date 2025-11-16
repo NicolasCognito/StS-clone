@@ -1,0 +1,8 @@
+{Name = "Self-Forming Clay",
+    ID = "Self Forming Clay",
+    Rarity = "Uncommon",
+	Character = "Ironclad",
+    Description = "Whenever you lose HP in combat, gain 3 [[File:Icon_Block.png|20px|middle]] '''Block''' next turn.",
+    Flavor = '"Most curious! It appears to form itself loosely on my thoughts! Tele-clay?" - Ranwid',
+    Image = "SelfFormingClay.png",
+    Traits = {},

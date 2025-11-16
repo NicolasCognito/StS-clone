@@ -1,0 +1,8 @@
+{Name = "Leg Sweep",
+    Image = "LegSweep.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Apply [2|3] #Weak.\nGain [11|14] #Block.",
+    Traits = {},

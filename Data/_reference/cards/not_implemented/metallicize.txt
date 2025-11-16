@@ -1,0 +1,8 @@
+{Name = "Metallicize",
+    Image = "Metallicize.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the end of your turn, gain [3|4] #Block.",
+    Traits = {},

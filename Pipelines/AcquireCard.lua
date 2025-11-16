@@ -50,6 +50,7 @@
 -- Returns: array of created card instances
 
 local AcquireCard = {}
+local UpgradeCard = require("Pipelines.UpgradeCard")
 
 local Utils = require("utils")
 local Cards = require("Data.cards")
@@ -246,9 +247,8 @@ function AcquireCard.execute(world, player, cardSource, options)
 
             -- Check for Master Reality power: auto-upgrade created cards
             if not skipMasterReality and Utils.hasPower(player, "MasterReality") then
-                if not newCard.upgraded and type(newCard.onUpgrade) == "function" then
-                    newCard:onUpgrade()
-                    newCard.upgraded = true
+                if UpgradeCard.canUpgrade(newCard) then
+                    UpgradeCard.execute(world, newCard, {source = "Master Reality"})
                 end
             end
 

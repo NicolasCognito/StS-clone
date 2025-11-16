@@ -1,0 +1,8 @@
+{Name = "Coolheaded",
+    Image = "Coolheaded.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "#Channel 1 #Frost.\nDraw [1|2] [card|cards].",
+    Traits = {},

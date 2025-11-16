@@ -1,0 +1,8 @@
+{Name = "Hello World",
+    Image = "HelloWorld.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "|#Innate.] \nAt the start of your turn, add a random Common card into your hand.",
+    Traits = {},

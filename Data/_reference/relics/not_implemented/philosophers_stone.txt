@@ -1,0 +1,6 @@
+{Name = "Philosopher's Stone",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>ALL enemies start with 1 [[File:Icon_Strength.png|20px|middle]] '''Strength'''.",
+    Flavor = "Raw energy emanates from the stone, empowering all nearby.",
+    Image = "PhilosophersStone.png",
+    Traits = {},

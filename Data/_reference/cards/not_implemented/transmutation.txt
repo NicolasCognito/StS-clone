@@ -1,0 +1,8 @@
+{Name = "Transmutation",
+    Image = "Transmutation.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = X,
+    Text = "Add X random| #upgraded] Colorless cards into your hand. They cost 0 this turn.\n#Exhaust.",
+    Traits = {},

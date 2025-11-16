@@ -1,0 +1,8 @@
+{Name = "Heavy Blade",
+    Image = "HeavyBlade.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal 14 damage.\n#Strength affects this card [3|5] times.",
+    Traits = {},

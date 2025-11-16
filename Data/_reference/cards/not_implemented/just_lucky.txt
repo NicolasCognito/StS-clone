@@ -1,0 +1,8 @@
+{Name = "Just Lucky",
+    Image = "JustLucky.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "#Scry [1|2]. Gain [2|3] #Block. Deal [3|4] damage.",
+    Traits = {},

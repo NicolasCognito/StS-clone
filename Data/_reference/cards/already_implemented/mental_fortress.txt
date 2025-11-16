@@ -1,0 +1,8 @@
+{Name = "Mental Fortress",
+    Image = "MentalFortress.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you switch #Stances, gain [4|6] #Block.",
+    Traits = {},

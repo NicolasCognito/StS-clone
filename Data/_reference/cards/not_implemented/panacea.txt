@@ -1,0 +1,8 @@
+{Name = "Panacea",
+    Image = "Panacea.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Gain [1|2] #Artifact.\n#Exhaust.",
+    Traits = {},

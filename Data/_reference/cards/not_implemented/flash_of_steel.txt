@@ -1,0 +1,8 @@
+{Name = "Flash of Steel",
+    Image = "FlashofSteel.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [3|6] damage.\nDraw 1 card.",
+    Traits = {},

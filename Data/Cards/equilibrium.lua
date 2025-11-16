@@ -14,7 +14,8 @@ return {
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                amount = self.block
+                amount = self.block,
+                source = self
             })
 
             -- Retain entire hand this turn (except self and ethereal cards)

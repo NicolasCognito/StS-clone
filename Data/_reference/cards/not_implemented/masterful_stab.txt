@@ -1,0 +1,8 @@
+{Name = "Masterful Stab",
+    Image = "MasterfulStab.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Costs 1 additional <G>\nfor each time you lose HP this combat.\nDeal [12|16] damage.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Cultist Headpiece",
+    Rarity = "Event",
+	EventName = "Face Trader",
+	EventIcon = "FaceTraderIcon.png",
+    Description = "You feel more talkative.<br>CAW! CAAAW",
+    Flavor = "Part of the Flock!",
+    Image = "CultistMask.png",
+    Traits = {},

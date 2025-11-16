@@ -1,0 +1,7 @@
+{Name = "Void Essence",
+    Rarity = "Blight",
+    Character = "Blight Chest",
+    Description = "	Lose 1 '''Energy''' permanently.",
+    Image = "Void_essence.png",
+    Link = "Blights",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Outmaneuver",
+    Image = "Outmaneuver.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Next turn,\ngain <G> <G>| <G>].",
+    Traits = {},

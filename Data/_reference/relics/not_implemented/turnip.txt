@@ -1,0 +1,6 @@
+{Name = "Turnip",
+    Rarity = "Rare",
+    Description = "You can no longer become [[File:Icon_Frail.png|20px|middle]] '''Frail'''.",
+    Flavor = "Best with Ginger.",
+    Image = "Turnip.png",
+    Traits = {},

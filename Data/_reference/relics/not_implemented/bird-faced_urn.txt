@@ -1,0 +1,7 @@
+{Name = "Bird-Faced Urn",
+    ID = "Bird Faced Urn",
+    Rarity = "Rare",
+    Description = "Whenever you play a Power, heal 2 HP.",
+    Flavor = "This urn shows the crow god Mazaleth looking mischievous.",
+    Image = "BirdFacedUrn.png",
+    Traits = {},

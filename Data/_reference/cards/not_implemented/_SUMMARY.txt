@@ -1,0 +1,774 @@
+================================================================================
+CARDS SUMMARY - Name and Effect Only
+================================================================================
+
+A Thousand Cuts
+  Whenever you play a card, deal [1|2] damage to ALL enemies.
+
+Accuracy
+  #Shivs deal [4|6] additional damage.
+
+Acrobatics
+  Draw [3|4] cards.\nDiscard 1 card.
+
+Adrenaline
+  Gain <G>| <G>].\nDraw 2 cards.\n#Exhaust.
+
+After Image
+  |#Innate.] \nWhenever you play a card, gain 1 #Block.
+
+Aggregate
+  Gain <B> for every [4|3] cards in your draw pile.
+
+Alchemize
+  Obtain a random potion.\n#Exhaust.
+
+All-Out Attack
+  Deal [10|14] damage to ALL enemies.\nDiscard 1 card at random.
+
+All for One
+  Deal [10|14] damage.\nPut all cost 0 cards from your discard pile into your hand.
+
+Alpha
+  |#Innate. ]Shuffle a #Beta into your draw pile. #Exhaust.
+
+Anger
+  Deal [6|8] damage.\nAdd a copy of this card into your discard pile.
+
+Apotheosis
+  #Upgrade ALL your cards for the rest of combat.\n#Exhaust.
+
+Apparition
+  [#Ethereal.|\nGain 1 #Intangible. \n#Exhaust.
+
+Armaments
+  Gain 5 #Block.\n#Upgrade [a card|all cards] in your hand for the rest of combat.
+
+Ascender's Bane
+  #Unplayable.
+
+Auto-Shields
+  If you have no #Block, gain [11|15] #Block.
+
+Backflip
+  Gain [5|8] #Block.\nDraw 2 cards.
+
+Ball Lightning
+  Deal [7|10] damage. #Channel 1 #Lightning.
+
+Bandage Up
+  Heal [4|6] HP.\n#Exhaust.
+
+Bane
+  Deal [7|10] damage.\nIf the enemy has #Poison, deal [7|10] damage again.
+
+Barricade
+  #Block is not removed at the start of your turn.
+
+Battle Hymn
+  |#Innate. ]At the start of each turn add a #Smite into your hand.
+
+Battle Trance
+  Draw [3|4] cards.\nYou cannot draw additional cards this turn.
+
+Beam Cell
+  Deal [3|4] damage.\nApply [1|2] #Vulnerable.
+
+Berserk
+  Gain [2|1] #Vulnerable.\nAt the start of your turn, gain <R>.
+
+Beta
+  Shuffle an #Omega into draw pile. \n#Exhaust.
+
+Bite
+  Deal [7|8] damage.\nHeal [2|3] HP.
+
+Blade Dance
+  Add [3|4] #Shivs into your hand.
+
+Blind
+  Apply 2 #Weak| to ALL enemies].
+
+Bludgeon
+  Deal [32|42] damage.
+
+Blur
+  Gain [5|8] #Block.\n#Block is not removed at the start of your next turn.
+
+Body Slam
+  Deal damage equal to your #Block.
+
+Boot Sequence
+  #Innate.\nGain [10|13] #Block.\n#Exhaust.
+
+Bouncing Flask
+  Apply 3 #Poison to a random enemy [3|4] times.
+
+Bowling Bash
+  Deal [7|10] damage for each enemy in combat.
+
+Brutality
+  |#Innate.] \nAt the start of your turn, lose 1 HP and draw 1 card.
+
+Buffer
+  Prevent the next [time|2 times] you would lose HP.
+
+Bullet Time
+  You cannot draw additional cards this turn. Reduce the cost of all cards in your hand to 0 this turn.
+
+Bullseye
+  Deal [8|11] damage.\nApply [2|3] #Lock-On.
+
+Burn
+  #Unplayable.\nAt the end of your turn, take [2|4] damage.
+
+Burning Pact
+  #Exhaust 1 card.\nDraw [2|3] cards.
+
+Calculated Gamble
+  Discard your hand,\nthen draw that many cards. [\n#Exhaust.|
+
+Caltrops
+  Whenever you are attacked, deal [3|5] damage back.
+
+Carnage
+  #Ethereal.\nDeal [20|28] damage.
+
+Carve Reality
+  Deal [6|10] damage. Add a #Smite into your hand.
+
+Charge Battery
+  Gain [7|10] #Block.\nNext turn, gain <B>.
+
+Choke
+  Deal 12 damage.\nWhenever you play a card this turn, the enemy loses [3|5] HP.
+
+Chrysalis
+  Shuffle [3|5] random Skills into your draw pile. They cost 0 this combat.\n#Exhaust.
+
+Clash
+  Can only be played if every card in your hand is an Attack.\nDeal [14|18] damage.
+
+Claw
+  Deal [3|5] damage.\nIncrease the damage of ALL Claw cards by 2 this combat.
+
+Cleave
+  Deal [8|11] damage to ALL enemies.
+
+Cloak and Dagger
+  Gain 6 #Block.\nAdd [1|2] [#Shiv|#Shivs] into your hand.
+
+Clothesline
+  Deal [12|14] damage.\nApply [2|3] #Weak.
+
+Cold Snap
+  Deal [6|9] damage. #Channel 1 #Frost.
+
+Collect
+  Put an Upgraded #Miracle into your hand at the start of your next [X|X+1] turns. #Exhaust
+
+Combust
+  At the end of your turn, lose 1 HP and deal [5|7] damage to ALL enemies.
+
+Concentrate
+  Discard [3|2] cards.\nGain <G> <G>.
+
+Conclude
+  Deal [12|16] damage to ALL enemies. End your turn.
+
+Conjure Blade
+  Shuffle an #Expunger| with X+1] into your draw pile. #Exhaust.
+
+Consecrate
+  Deal [5|8] damage to ALL enemies.
+
+Core Surge
+  Deal [11|15] damage.\nGain 1 #Artifact.\n#Exhaust.
+
+Corpse Explosion
+  Apply [6|9] #Poison.\nWhen the enemy dies, deal damage equal to its max HP to ALL enemies.
+
+Creative AI
+  At the start of your turn, add a random Power card into your hand.
+
+Crippling Cloud
+  Apply [4|7] #Poison and 2 #Weak to ALL enemies.\n#Exhaust.
+
+Curse of the Bell
+  #Unplayable. Cannot be removed from your deck.
+
+Dagger Spray
+  Deal [4|6] damage to ALL enemies twice.
+
+Dark Embrace
+  Whenever a card is #Exhausted,\ndraw 1 card.
+
+Dark Shackles
+  Enemy loses [9|15] #Strength this turn.\n#Exhaust.
+
+Dash
+  Gain [10|13] #Block.\nDeal [10|13] damage.
+
+Dazed
+  #Unplayable.\n#Ethereal.
+
+Deadly Poison
+  Apply [5|7] #Poison.
+
+Deceive Reality
+  Gain [4|7] #Block. Add a #Safety into your hand.
+
+Deep Breath
+  Shuffle your discard pile into your draw pile.\nDraw [1|2] [card|cards].
+
+Deflect
+  Gain [4|7] #Block.
+
+Demon Form
+  At the start of your turn, gain [2|3] #Strength.
+
+Deva Form
+  [#Ethereal. |At the start of your turn, gain <P> and increase this gain by 1.
+
+Die Die Die
+  Deal [13|17] damage to ALL enemies.\n#Exhaust.
+
+Disarm
+  Enemy loses [2|3] #Strength.\n#Exhaust.
+
+Distraction
+  Add a random Skill into your hand.\nIt costs 0 this turn.\n#Exhaust.
+
+Dodge and Roll
+  Gain [4|6] #Block.\nNext turn, gain [4|6] #Block.
+
+Doppelganger
+  Next turn, draw [X|X+1] cards and gain [X|X+1] <G>.\n#Exhaust.
+
+Double Energy
+  Double your #Energy.\n#Exhaust.
+
+Doubt
+  #Unplayable.\nAt the end of your turn, gain 1 #Weak.
+
+Dramatic Entrance
+  #Innate.\nDeal [8|12] damage to ALL enemies.\n#Exhaust.
+
+Dropkick
+  Deal [5|8] damage.\nIf the enemy has #Vulnerable, gain <R> and draw 1 card.
+
+Dual Wield
+  Choose an Attack or Power card. Add [a copy|2 copies] of that card into your hand.
+
+Echo Form
+  [#Ethereal.| \nThe first card you play each turn is played twice.
+
+Endless Agony
+  Whenever you draw this card, add a copy of it into your hand.\nDeal [4|6] damage.\n#Exhaust.
+
+Enlightenment
+  Reduce the cost of all cards in your hand to 1 this [turn|combat].
+
+Entrench
+  Double your #Block.
+
+Envenom
+  Whenever an Attack deals unblocked damage, apply 1 #Poison.
+
+Escape Plan
+  Draw 1 card.\nIf you draw a Skill, gain [3|5] #Block.
+
+Evaluate
+  Gain [6|10] #Block. Shuffle an #Insight into your draw pile.
+
+Eviscerate
+  Costs 1 less <G>\nfor each card discarded this turn.\nDeal [7|9] damage 3 times.
+
+Evolve
+  Whenever you draw a #Status card, draw [1|2] [card|cards].
+
+Exhume
+  Put a card from your #Exhaust pile into your hand.\n#Exhaust.
+
+Expertise
+  Draw cards until you have [6|7] in your hand.
+
+Expunger
+  Deal [9|15] damage X times.
+
+Fasting
+  Gain [3|4] #Strength. \nGain [3|4] #Dexterity. \nGain 1 less <P> at the start of each turn.
+
+Feel No Pain
+  Whenever a card is #Exhausted,\ngain [3|4] #Block.
+
+Fiend Fire
+  #Exhaust all cards in your hand.\nDeal [7|10] damage for each #Exhausted card.\n#Exhaust.
+
+Finesse
+  Gain [2|4] #Block.\nDraw 1 card.
+
+Finisher
+  Deal [6|8] damage for each Attack played this turn.
+
+Fire Breathing
+  Whenever you draw a #Status or #Curse card, deal [6|10] damage to ALL enemies.
+
+Flash of Steel
+  Deal [3|6] damage.\nDraw 1 card.
+
+Flechettes
+  Deal [4|6] damage for each Skill in your hand.
+
+Flex
+  Gain [2|4] #Strength.\nAt the end of this turn, lose [2|4] #Strength.
+
+Flying Knee
+  Deal [8|11] damage.\nNext turn, gain <G>.
+
+Flying Sleeves
+  #Retain. Deal [4|6] damage twice.
+
+Footwork
+  Gain [2|3] #Dexterity.
+
+Force Field
+  Costs 1 less <B> for each Power card played this combat.\nGain [12|16] #Block.
+
+Foreign Influence
+  Choose 1 of 3 Attacks of any color to add to your hand. |It costs 0 this turn.] #Exhaust.
+
+Forethought
+  Put [a card|any number of cards] from your hand to the bottom of your draw pile. [It costs|They cost] 0 until played.
+
+FTL
+  Deal [5|6] damage. If you have played less than [3|4] cards this turn, draw 1 card.
+
+Fusion
+  #Channel 1 #Plasma.
+
+Genetic Algorithm
+  Gain 1 #Block. Permanently increase this card\'s #Block by [2|3].\n#Exhaust.
+
+Ghostly Armor
+  #Ethereal.\nGain [10|13] #Block.
+
+Glass Knife
+  Deal [8|12] damage twice. Decrease the damage of this card by 2 this combat.
+
+Go for the Eyes
+  Deal [3|4] damage.\nIf the enemy intends to attack, apply [1|2] #Weak.
+
+Good Instincts
+  Gain [6|9] #Block.
+
+Hand of Greed
+  Deal [20|25] damage.\nIf #Fatal, gain [20|25] Gold.
+
+Heatsinks
+  Whenever you play a Power card, draw [1|2] [card|cards].
+
+Heel Hook
+  Deal [5|8] damage. \nIf the enemy has #Weak, \ngain <G> and \ndraw 1 card.
+
+Hello World
+  |#Innate.] \nAt the start of your turn, add a random Common card into your hand.
+
+Hemokinesis
+  Lose 2 HP.\nDeal [15|20] damage.
+
+Hologram
+  Gain [3|5] #Block.\nPut a card from your discard pile into your hand. [\n#Exhaust.|
+
+Immolate
+  Deal [21|28] damage to ALL enemies.\nAdd a #Burn into your discard pile.
+
+Impatience
+  If you have no Attacks in your hand, draw [2|3] cards.
+
+Impervious
+  Gain [30|40] #Block.\n#Exhaust.
+
+Infinite Blades
+  |#Innate. ]At the start of your turn, add a #Shiv into your hand.
+
+Inflame
+  Gain [2|3] #Strength.
+
+Injury
+  #Unplayable.
+
+Iron Wave
+  Gain [5|7] #Block.\nDeal [5|7] damage.
+
+Jack of All Trades
+  Add [1|2] random Colorless [card|cards] into your hand.\n#Exhaust.
+
+J.A.X.
+  Lose 3 HP.\nGain [2|3] #Strength.
+
+Juggernaut
+  Whenever you gain #Block, deal [5|7] damage to a random enemy.
+
+Just Lucky
+  #Scry [1|2]. Gain [2|3] #Block. Deal [3|4] damage.
+
+Leap
+  Gain [9|12] #Block.
+
+Leg Sweep
+  Apply [2|3] #Weak.\nGain [11|14] #Block.
+
+Lesson Learned
+  Deal [10|13] damage. If #Fatal, #Upgrade a random card in your deck. #Exhaust.
+
+Limit Break
+  Double your #Strength. [\n#Exhaust.|
+
+Machine Learning
+  |#Innate.] \nAt the start of your turn, draw 1 additional card.
+
+Madness
+  Reduce the cost of a random card in your hand to 0 this combat.\n#Exhaust.
+
+Magnetism
+  At the start of your turn, add a random Colorless card into your hand.
+
+Malaise
+  Enemy loses [X|X+1] #Strength. Apply [X|X+1] #Weak.\n#Exhaust.
+
+Master of Strategy
+  Draw [3|4] cards.\n#Exhaust.
+
+Masterful Stab
+  Costs 1 additional <G>\nfor each time you lose HP this combat.\nDeal [12|16] damage.
+
+Melter
+  Remove all #Block from the enemy.\nDeal [10|14] damage.
+
+Metallicize
+  At the end of your turn, gain [3|4] #Block.
+
+Metamorphosis
+  Shuffle [3|5] random Attacks into your draw pile. They cost 0 this combat.\n#Exhaust.
+
+Mind Blast
+  #Innate.\nDeal damage equal to the number of cards in your draw pile.
+
+Necronomicurse
+  #Unplayable.\nThere is no escape from this curse.
+
+Neutralize
+  Deal [3|4] damage.\nApply [1|2] #Weak.
+
+Nirvana
+  Whenever you #Scry, gain [3|4] #Block.
+
+Noxious Fumes
+  At the start of your turn, apply [2|3] #Poison to ALL enemies.
+
+Offering
+  Lose 6 HP.\nGain <R> <R>.\nDraw [3|5] cards.\n#Exhaust.
+
+Omega
+  At the end of your turn, deal [50|60] damage to ALL enemies.
+
+Outmaneuver
+  Next turn,\ngain <G> <G>| <G>].
+
+Overclock
+  Draw [2|3] cards.\nAdd a #Burn into your discard pile.
+
+Panacea
+  Gain [1|2] #Artifact.\n#Exhaust.
+
+Panic Button
+  Gain [30|40] #Block. You cannot gain #Block from cards for 2 turns.\n#Exhaust.
+
+Parasite
+  #Unplayable.\nIf transformed or removed from your deck, lose 3 Max HP.
+
+Perfected Strike
+  Deal 6 damage.\nDeals [2|3] additional damage for ALL your cards containing \
+
+Piercing Wail
+  ALL enemies lose [6|8] #Strength this turn.\n#Exhaust.
+
+Poisoned Stab
+  Deal [6|8] damage.\nApply [3|4] #Poison.
+
+Pommel Strike
+  Deal [9|10] damage.\nDraw [1|2] [card|cards].
+
+Power Through
+  Add 2 #Wounds into your hand.\nGain [15|20] #Block.
+
+Pray
+  Gain [3|4] #Mantra. Shuffle an #Insight into your draw pile.
+
+Predator
+  Deal [15|20] damage.\nNext turn, draw 2 additional cards.
+
+Prepared
+  Draw [1|2] [card|cards].\nDiscard [1|2] [card|cards].
+
+Pride
+  #Innate.\nAt the end of your turn, put a copy of this card on top of your draw pile.\n#Exhaust.
+
+Protect
+  #Retain. Gain [12|16] #Block.
+
+Pummel
+  Deal 2 damage [4|5] times.\n#Exhaust.
+
+Purity
+  #Exhaust up to [3|5] cards in your hand.\n#Exhaust.
+
+Quick Slash
+  Deal [8|12] damage.\nDraw 1 card.
+
+Rage
+  Whenever you play an Attack this turn, gain [3|5] #Block.
+
+Ragnarok
+  Deal [5|6] damage to a random enemy [5|6] times.
+
+Rampage
+  Deal 8 damage.\nIncrease this card\'s damage by [5|8] this combat.
+
+Reach Heaven
+  Deal [10|15] damage. Shuffle a [[Through Violence]] into your draw pile.
+
+Reaper
+  Deal [4|5] damage to ALL enemies. Heal HP equal to unblocked damage.\n#Exhaust.
+
+Reboot
+  Shuffle ALL your cards into your draw pile.\nDraw [4|6] cards.\n#Exhaust.
+
+Rebound
+  Deal [9|12] damage.\nPut the next card you play this turn on top of your draw pile.
+
+Reckless Charge
+  Deal [7|10] damage.\nShuffle a #Dazed into your draw pile.
+
+Recycle
+  #Exhaust a card.\nGain <B> equal to its cost.
+
+Regret
+  #Unplayable.\nAt the end of your turn, lose 1 HP for each card in your hand.
+
+Reinforced Body
+  Gain [7|9] #Block X times.
+
+Riddle with Holes
+  Deal [3|4] damage 5 times.
+
+Rip and Tear
+  Deal [7|9] damage to a random enemy twice.
+
+Ritual Dagger
+  Deal 15 damage. If #Fatal, permanently increase this card\'s damage by [3|5].\n#Exhaust.
+
+Rupture
+  Whenever you lose HP from a card,\ngain [1|2] #Strength.
+
+Sadistic Nature
+  Whenever you apply a debuff to an enemy, they take [5|7] damage.
+
+Safety
+  #Retain. Gain [12|16] #Block. #Exhaust.
+
+Sanctity
+  Gain [6|9] #Block. If the previous card played was a Skill, draw 2 cards.
+
+Scrape
+  Deal [7|10] damage.\nDraw [4|5] cards.\nDiscard all cards drawn this way that do not cost 0.
+
+Scrawl
+  Draw cards until your hand is full. #Exhaust.
+
+Searing Blow
+  Deal [12|16] damage.\nCan be #Upgraded any number of times.
+
+Second Wind
+  #Exhaust all non-Attack cards in your hand. Gain [5|7] #Block for each card #Exhausted.
+
+Secret Technique
+  Put a Skill from your draw pile into your hand. [\n#Exhaust.|
+
+Secret Weapon
+  Put an Attack from your draw pile into your hand. [\n#Exhaust.|
+
+Seeing Red
+  Gain <R> <R>.\n#Exhaust.
+
+Seek
+  Put [1|2] [card|cards] from your draw pile into your hand.\n#Exhaust.
+
+Self Repair
+  At the end of combat, heal [7|10] HP.
+
+Sentinel
+  Gain [5|8] #Block.\nIf this card is #Exhausted,\ngain <R> <R>| <R>].
+
+Setup
+  Put a card from your hand on top of your draw pile.\nIt costs 0 until played.
+
+Sever Soul
+  #Exhaust all non-Attack cards in your hand.\nDeal [16|22] damage.
+
+Shame
+  #Unplayable.\n#At the end of your turn, gain 1 Frail.
+
+Shiv
+  Deal [4|6] damage.\n#Exhaust.
+
+Shockwave
+  Apply [3|5] #Weak and #Vulnerable to ALL enemies.\n#Exhaust.
+
+Shrug It Off
+  Gain [8|11] #Block.\nDraw 1 card.
+
+Signature Move
+  Can only be played if this is the only attack in your hand. Deal [30|40] damage.
+
+Skim
+  Draw [3|4] cards.
+
+Slice
+  Deal [6|9] damage.
+
+Slimed
+  #Exhaust.
+
+Smite
+  #Retain. Deal [12|16] damage. #Exhaust.
+
+Sneaky Strike
+  Deal [12|16] damage.\nIf you have discarded a card this turn,\ngain <G> <G>.
+
+Spirit Shield
+  Gain [3|4] #Block for each card in your hand.
+
+Spot Weakness
+  If the enemy intends to attack, gain [3|4] #Strength.
+
+Stack
+  Gain #Block equal to the number of cards in your discard pile| +3].
+
+Steam Barrier
+  Gain [6|8] #Block. Decrease this card\'s #Block by 1 this combat.
+
+Storm of Steel
+  Discard your hand.\nAdd 1 #Shiv|+] into your hand for each card discarded.
+
+Streamline
+  Deal [15|20] damage.\nReduce this card\'s cost by 1 this combat.
+
+Study
+  At the end of your turn, shuffle an #Insight into your draw pile.
+
+Sucker Punch
+  Deal [7|9] damage.\nApply [1|2] #Weak.
+
+Sunder
+  Deal [24|32] damage.\nIf this kills an enemy, gain <B> <B> <B>.
+
+Survivor
+  Gain [8|11] #Block.\nDiscard 1 card.
+
+Sweeping Beam
+  Deal [6|9] damage to ALL enemies.\nDraw 1 card.
+
+Swift Strike
+  Deal [7|10] damage.
+
+Swivel
+  Gain [8|11] #Block. The next Attack you play costs 0.
+
+Sword Boomerang
+  Deal 3 damage to a random enemy [3|4] times.
+
+Talk to the Hand
+  Deal [5|7] damage. Whenever you attack this enemy, gain [2|3] #Block. #Exhaust.
+
+Tantrum
+  Deal 3 damage [3|4] times. Enter #Wrath. Shuffle this card into your draw pile.
+
+Terror
+  Apply 99 #Vulnerable.\n#Exhaust.
+
+The Bomb
+  At the end of 3 turns, deal [40|50] damage to ALL enemies.
+
+Thinking Ahead
+  Draw 2 cards.\nPut a card from your hand on top of your draw pile. [\n#Exhaust.|
+
+Through Violence
+  #Retain. Deal [20|30] damage. #Exhaust.
+
+Transmutation
+  Add X random| #upgraded] Colorless cards into your hand. They cost 0 this turn.\n#Exhaust.
+
+Trip
+  Apply 2 #Vulnerable| to ALL enemies].
+
+True Grit
+  Gain [7|9] #Block.\n#Exhaust a [random|] card in your hand.
+
+TURBO
+  Gain <B> <B>| <B>].\nAdd a #Void into your discard pile.
+
+Twin Strike
+  Deal [5|7] damage twice.
+
+Unload
+  Deal [14|18] damage.\nDiscard all non-Attack cards in your hand.
+
+Uppercut
+  Deal 13 damage.\nApply [1|2] #Weak.\nApply [1|2] #Vulnerable.
+
+Violence
+  Put [3|4] random Attacks from your draw pile into your hand.\n#Exhaust.
+
+Void
+  #Unplayable.\nWhenever this card is drawn, lose 1 Energy.\n#Ethereal.
+
+Wallop
+  Deal [9|12] damage. Gain #Block equal to unblocked damage dealt.
+
+Warcry
+  Draw [1|2] [card|cards].\nPut a card from your hand onto the top of your draw pile.\n#Exhaust.
+
+Wave of the Hand
+  Whenever you gain #Block this turn, apply [1|2] #Weak to ALL enemies.
+
+Weave
+  Deal [4|6] damage. Whenever you #Scry, return this from the discard pile to your hand.
+
+Wheel Kick
+  Deal [15|20] damage. Draw 2 cards.
+
+White Noise
+  Add a random Power card into your hand.\nIt costs 0 this turn.\n#Exhaust.
+
+Wild Strike
+  Deal [12|17] damage.\nShuffle a #Wound into your draw pile.
+
+Wish
+  Choose one: Gain [6|8] #Plated Armor, [3|4] #Strength, or [25|30] Gold. #Exhaust.
+
+Wound
+  #Unplayable.
+
+Wraith Form
+  Gain [2|3] #Intangible.\nAt the end of your turn, lose 1 #Dexterity.
+
+Wreath of Flame
+  Your next Attack deals [5|8] additional damage.
+
+Writhe
+  #Unplayable.\n#Innate.
+
+
+Total cards: 256

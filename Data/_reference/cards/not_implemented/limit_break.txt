@@ -1,0 +1,8 @@
+{Name = "Limit Break",
+    Image = "LimitBreak.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Double your #Strength. [\n#Exhaust.|",
+    Traits = {},

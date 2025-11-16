@@ -1,0 +1,8 @@
+{Name = "Infinite Blades",
+    Image = "InfiniteBlades.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "|#Innate. ]At the start of your turn, add a #Shiv into your hand.",
+    Traits = {"Innate"},

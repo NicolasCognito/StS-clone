@@ -1,0 +1,8 @@
+{Name = "Fasting",
+    Image = "Fasting.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 2,
+    Text = "Gain [3|4] #Strength. \nGain [3|4] #Dexterity. \nGain 1 less <P> at the start of each turn.",
+    Traits = {},

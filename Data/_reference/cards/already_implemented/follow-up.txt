@@ -1,0 +1,8 @@
+{Name = "Follow-Up",
+    Image = "Follow-Up.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|11] damage. If the previous card played was an Attack, gain <P>.",
+    Traits = {},

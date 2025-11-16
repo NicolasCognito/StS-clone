@@ -1,0 +1,8 @@
+{Name = "Storm",
+    Image = "Storm.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "|#Innate.] \nWhenever you play a Power card, #Channel 1 #Lightning.",
+    Traits = {},

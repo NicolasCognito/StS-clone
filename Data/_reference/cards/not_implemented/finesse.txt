@@ -1,0 +1,8 @@
+{Name = "Finesse",
+    Image = "Finesse.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Gain [2|4] #Block.\nDraw 1 card.",
+    Traits = {},

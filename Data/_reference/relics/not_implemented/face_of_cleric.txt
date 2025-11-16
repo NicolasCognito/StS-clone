@@ -1,0 +1,8 @@
+{Name = "Face of Cleric",
+    Rarity = "Event",
+	EventName = "Face Trader",
+	EventIcon = "FaceTraderIcon.png",
+    Description = "Raise your Max HP by 1 after each combat.",
+    Flavor = "Everyone loves Cleric.",
+    Image = "FaceOfCleric.png",
+    Traits = {},

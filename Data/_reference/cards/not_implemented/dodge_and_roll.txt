@@ -1,0 +1,8 @@
+{Name = "Dodge and Roll",
+    Image = "DodgeandRoll.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [4|6] #Block.\nNext turn, gain [4|6] #Block.",
+    Traits = {},

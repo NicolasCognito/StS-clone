@@ -1,0 +1,6 @@
+{Name = "Incense Burner",
+    Rarity = "Rare",
+    Description = "	Every 6 turns, gain 1 [[File:Icon_Intangible.png|20px|middle]] '''Intangible'''.",
+    Flavor = "The smoke imbues its owner with the spirit of the burned.",
+    Image = "IncenseBurner.png",
+    Traits = {},

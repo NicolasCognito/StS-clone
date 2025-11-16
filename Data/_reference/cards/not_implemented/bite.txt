@@ -1,0 +1,8 @@
+{Name = "Bite",
+    Image = "Bite.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|8] damage.\nHeal [2|3] HP.",
+    Traits = {},

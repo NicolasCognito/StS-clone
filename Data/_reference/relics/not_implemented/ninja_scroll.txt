@@ -1,0 +1,7 @@
+{Name = "Ninja Scroll",
+    Rarity = "Uncommon",
+	Character = "Silent",
+    Description = "Start each combat with 3 '''Shivs''' in hand.",
+    Flavor = "Contains the secrets of assassination.",
+    Image = "NinjaScroll.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Sneaky Strike",
+    Image = "SneakyStrike.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [12|16] damage.\nIf you have discarded a card this turn,\ngain <G> <G>.",
+    Traits = {},

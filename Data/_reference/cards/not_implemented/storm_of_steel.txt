@@ -1,0 +1,8 @@
+{Name = "Storm of Steel",
+    Image = "StormofSteel.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Discard your hand.\nAdd 1 #Shiv|+] into your hand for each card discarded.",
+    Traits = {},

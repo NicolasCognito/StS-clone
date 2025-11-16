@@ -1,0 +1,7 @@
+{Name = "Fairy in a Bottle",
+        Rarity = "Rare",
+        Text = "When you would die, heal to 30% ([[File:SacredBark.png|20px|middle]] 60%) of your Max HP instead and discard this potion.",
+        Image = "FairyinaBottle.png",
+        Code = "#Fairy in a Bottle",
+        Link = "Potions",
+        },

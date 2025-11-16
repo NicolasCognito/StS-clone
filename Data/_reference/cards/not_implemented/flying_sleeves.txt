@@ -1,0 +1,8 @@
+{Name = "Flying Sleeves",
+    Image = "FlyingSleeves.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "#Retain. Deal [4|6] damage twice.",
+    Traits = {},

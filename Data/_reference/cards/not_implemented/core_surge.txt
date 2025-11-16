@@ -1,0 +1,8 @@
+{Name = "Core Surge",
+    Image = "CoreSurge.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [11|15] damage.\nGain 1 #Artifact.\n#Exhaust.",
+    Traits = {},

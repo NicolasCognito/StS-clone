@@ -1,0 +1,8 @@
+{Name = "Vigilance",
+    Image = "Vigilance.png",
+    Color = "Purple",
+    Rarity = "Basic",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Enter #Calm. Gain [8|12] #Block.",
+    Traits = {},

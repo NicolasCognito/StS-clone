@@ -1,0 +1,8 @@
+{Name = "Berserk",
+    Image = "Berserk.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 0,
+    Text = "Gain [2|1] #Vulnerable.\nAt the start of your turn, gain <R>.",
+    Traits = {},

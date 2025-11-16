@@ -1,0 +1,8 @@
+{Name = "Doppelganger",
+    Image = "Doppelganger.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = X,
+    Text = "Next turn, draw [X|X+1] cards and gain [X|X+1] <G>.\n#Exhaust.",
+    Traits = {},

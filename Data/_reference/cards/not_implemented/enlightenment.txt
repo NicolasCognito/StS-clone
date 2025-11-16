@@ -1,0 +1,8 @@
+{Name = "Enlightenment",
+    Image = "Enlightenment.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Reduce the cost of all cards in your hand to 1 this [turn|combat].",
+    Traits = {},

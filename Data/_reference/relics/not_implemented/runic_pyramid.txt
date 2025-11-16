@@ -1,0 +1,6 @@
+{Name = "Runic Pyramid",
+    Rarity = "Boss",
+    Description = "At the end of your turn, you no longer discard your hand.",
+    Flavor = "The runes are indecipherable.",
+    Image = "RunicPyramid.png",
+    Traits = {},

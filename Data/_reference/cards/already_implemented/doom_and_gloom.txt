@@ -1,0 +1,8 @@
+{Name = "Doom and Gloom",
+    Image = "DoomandGloom.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [10|14] damage to ALL enemies.\n#Channel 1 #Dark.",
+    Traits = {},

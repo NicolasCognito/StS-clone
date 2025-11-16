@@ -1,0 +1,8 @@
+{Name = "Endless Agony",
+    Image = "EndlessAgony.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Whenever you draw this card, add a copy of it into your hand.\nDeal [4|6] damage.\n#Exhaust.",
+    Traits = {},

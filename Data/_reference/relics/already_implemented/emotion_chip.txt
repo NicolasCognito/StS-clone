@@ -1,0 +1,7 @@
+{Name = "Emotion Chip",
+    Rarity = "Rare",
+	Character = "Defect",
+    Description = "If you lost HP during the previous turn, trigger the passive ability of all Orbs at the start of your turn.",
+    Flavor = "...<3...?",
+    Image = "EmotionChip.png",
+    Traits = {},

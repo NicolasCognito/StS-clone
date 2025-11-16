@@ -1,0 +1,8 @@
+{Name = "Grand Finale",
+    Image = "GrandFinale.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Can only be played if there are no cards in your draw pile.\nDeal [50|60] damage to ALL enemies.",
+    Traits = {},

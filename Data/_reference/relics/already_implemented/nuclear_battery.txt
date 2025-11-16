@@ -1,0 +1,7 @@
+{Name = "Nuclear Battery",
+    Rarity = "Boss",
+	Character = "Defect",
+    Description = "At the start of each combat, Channel 1 [[File:Plasma.png|20px|middle]] '''Plasma''' orb",
+    Flavor = "Ooooh...",
+    Image = "NuclearBattery.png",
+    Traits = {},

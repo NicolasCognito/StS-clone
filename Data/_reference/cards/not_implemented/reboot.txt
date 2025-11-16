@@ -1,0 +1,8 @@
+{Name = "Reboot",
+    Image = "Reboot.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Shuffle ALL your cards into your draw pile.\nDraw [4|6] cards.\n#Exhaust.",
+    Traits = {},

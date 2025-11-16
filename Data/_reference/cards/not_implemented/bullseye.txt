@@ -1,0 +1,8 @@
+{Name = "Bullseye",
+    Image = "Bullseye.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|11] damage.\nApply [2|3] #Lock-On.",
+    Traits = {},

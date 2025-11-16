@@ -1,0 +1,6 @@
+{Name = "Meal Ticket",
+    Rarity = "Common",
+    Description = "Whenever you enter a shop, heal 15 HP.",
+    Flavor = "Complimentary meatballs with every visit!",
+    Image = "MealTicket.png",
+    Traits = {},

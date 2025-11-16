@@ -1,0 +1,8 @@
+{Name = "Glacier",
+    Image = "Glacier.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Gain [7|10] #Block.\n#Channel 2 #Frost.",
+    Traits = {},

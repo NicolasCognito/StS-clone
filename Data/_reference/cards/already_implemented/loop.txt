@@ -1,0 +1,8 @@
+{Name = "Loop",
+    Image = "Loop.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the start of your turn, trigger the passive ability of your next Orb| [1|2] times].",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Wraith Form",
+    Image = "WraithForm.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 3,
+    Text = "Gain [2|3] #Intangible.\nAt the end of your turn, lose 1 #Dexterity.",
+    Traits = {},

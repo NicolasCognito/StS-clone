@@ -1,0 +1,8 @@
+{Name = "Like Water",
+    Image = "LikeWater.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the end of your turn, if you are in #Calm, gain [5|7] #Block.",
+    Traits = {},

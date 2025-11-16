@@ -1,0 +1,8 @@
+{Name = "Tantrum",
+    Image = "Tantrum.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal 3 damage [3|4] times. Enter #Wrath. Shuffle this card into your draw pile.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Signature Move",
+    Image = "SignatureMove.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Can only be played if this is the only attack in your hand. Deal [30|40] damage.",
+    Traits = {},

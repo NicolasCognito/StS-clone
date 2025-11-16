@@ -1,0 +1,8 @@
+{Name = "After Image",
+    Image = "AfterImage.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 1,
+    Text = "|#Innate.] \nWhenever you play a card, gain 1 #Block.",
+    Traits = {},

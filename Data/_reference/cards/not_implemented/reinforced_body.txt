@@ -1,0 +1,8 @@
+{Name = "Reinforced Body",
+    Image = "ReinforcedBody.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = X,
+    Text = "Gain [7|9] #Block X times.",
+    Traits = {},

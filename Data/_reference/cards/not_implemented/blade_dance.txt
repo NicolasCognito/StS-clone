@@ -1,0 +1,8 @@
+{Name = "Blade Dance",
+    Image = "BladeDance.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Add [3|4] #Shivs into your hand.",
+    Traits = {},

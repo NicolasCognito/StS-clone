@@ -1,0 +1,7 @@
+{Name = "Stone Calendar",
+    ID = "Calendar",
+    Rarity = "Rare",
+    Description = "At the end of turn 7, deal 52 damage to ALL enemies.",
+    Flavor = "The passage of time is imperceptible in the Spire.",
+    Image = "StoneCalendar.png",
+    Traits = {},

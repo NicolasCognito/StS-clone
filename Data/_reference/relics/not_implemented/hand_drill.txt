@@ -1,0 +1,6 @@
+{Name = "Hand Drill",
+    Rarity = "Shop",
+    Description = "Whenever you break an enemy's [[File:Icon_Block.png|20px|middle]] '''Block''', apply 2 [[File:Icon_Vulnerable.png|20px|middle]] '''Vulnerable'''.",
+    Flavor = "Spirals are dangerous.",
+    Image = "HandDrill.png",
+    Traits = {},

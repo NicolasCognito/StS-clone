@@ -1,0 +1,8 @@
+{Name = "Battle Trance",
+    Image = "BattleTrance.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Draw [3|4] cards.\nYou cannot draw additional cards this turn.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Through Violence",
+    Image = "ThroughViolence.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Attack",
+    Cost = 0,
+    Text = "#Retain. Deal [20|30] damage. #Exhaust.",
+    Traits = {},

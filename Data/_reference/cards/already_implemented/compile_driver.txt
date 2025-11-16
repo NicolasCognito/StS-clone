@@ -1,0 +1,8 @@
+{Name = "Compile Driver",
+    Image = "CompileDriver.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|10] damage.\nDraw 1 card for each unique Orb you have.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Beam Cell",
+    Image = "BeamCell.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [3|4] damage.\nApply [1|2] #Vulnerable.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Evaluate",
+    Image = "Evaluate.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [6|10] #Block. Shuffle an #Insight into your draw pile.",
+    Traits = {},

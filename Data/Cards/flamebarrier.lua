@@ -14,7 +14,8 @@ return {
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                card = self
+                card = self,
+                source = self
             })
             world.queue:push({
                 type = "ON_STATUS_GAIN",

@@ -1,0 +1,8 @@
+{Name = "Machine Learning",
+    Image = "MachineLearning.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 1,
+    Text = "|#Innate.] \nAt the start of your turn, draw 1 additional card.",
+    Traits = {},

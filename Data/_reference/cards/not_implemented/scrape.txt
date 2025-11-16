@@ -1,0 +1,8 @@
+{Name = "Scrape",
+    Image = "Scrape.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|10] damage.\nDraw [4|5] cards.\nDiscard all cards drawn this way that do not cost 0.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Establishment",
+    Image = "Establishment.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 1,
+    Text = "|#Innate. ]Whenever a card is #Retained, lower its cost by 1.",
+    Traits = {"Innate"},

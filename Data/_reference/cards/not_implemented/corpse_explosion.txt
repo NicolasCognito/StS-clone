@@ -1,0 +1,8 @@
+{Name = "Corpse Explosion",
+    Image = "CorpseExplosion.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Apply [6|9] #Poison.\nWhen the enemy dies, deal damage equal to its max HP to ALL enemies.",
+    Traits = {},

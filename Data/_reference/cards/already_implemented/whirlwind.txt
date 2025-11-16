@@ -1,0 +1,8 @@
+{Name = "Whirlwind",
+    Image = "Whirlwind.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = X,
+    Text = "Deal [5|8] damage to ALL enemies X times.",
+    Traits = {},

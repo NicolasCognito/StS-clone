@@ -1,0 +1,8 @@
+{Name = "Fission",
+    Image = "Fission.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 0,
+    Text = "[Remove|#Evoke] all your Orbs. Gain <B> and draw 1 card for each Orb [removed|#Evoked].\n#Exhaust.",
+    Traits = {},

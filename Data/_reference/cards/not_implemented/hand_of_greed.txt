@@ -1,0 +1,8 @@
+{Name = "Hand of Greed",
+    Image = "HandOfGreed.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [20|25] damage.\nIf #Fatal, gain [20|25] Gold.",
+    Traits = {},

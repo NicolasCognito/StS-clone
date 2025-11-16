@@ -85,7 +85,8 @@ function EvokeOrb.executeSingle(world, orb)
         world.queue:push({
             type = "ON_BLOCK",
             target = player,
-            amount = evokeBlock
+            amount = evokeBlock,
+            source = "Frost Orb (Evoke)"
         })
 
     elseif orb.id == "Dark" then

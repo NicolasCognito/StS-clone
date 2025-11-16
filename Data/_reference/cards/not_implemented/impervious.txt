@@ -1,0 +1,8 @@
+{Name = "Impervious",
+    Image = "Impervious.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Gain [30|40] #Block.\n#Exhaust.",
+    Traits = {},

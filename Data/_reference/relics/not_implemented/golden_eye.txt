@@ -1,0 +1,7 @@
+{Name = "Golden Eye",
+    Rarity = "Rare",
+	Character = "Watcher",
+    Description = "Whenever you '''Scry''', '''Scry''' 2 additional cards.",
+    Flavor = "See into the minds of those nearby, predicting their future moves.",
+    Image = "Golden eye.png",
+    Traits = {},

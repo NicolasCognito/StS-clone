@@ -1,0 +1,6 @@
+{Name = "Question Card",
+    Rarity = "Uncommon",
+    Description = "Future card rewards have 1 additional card to choose from.",
+    Flavor = '"Those with more choices minimize the downside to chaos." - Kublai the Great',
+    Image = "QuestionCard.png",
+    Traits = {},

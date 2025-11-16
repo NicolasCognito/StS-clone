@@ -1,0 +1,6 @@
+{Name = "Gambling Chip",
+    Rarity = "Rare",
+    Description = "At the start of each combat, discard any number of cards then draw that many.",
+    Flavor = 'You can see a small inscription on one side. It reads: "Bear\'s Lucky Chip!"',
+    Image = "GamblingChip.png",
+    Traits = {},

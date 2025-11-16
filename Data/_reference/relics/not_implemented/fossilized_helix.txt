@@ -1,0 +1,6 @@
+{Name = "Fossilized Helix",
+    Rarity = "Rare",
+    Description = "Prevent the first time you would lose HP in combat.",
+    Flavor = "Seemingly indestructible, you wonder what kind of creature this belonged to.",
+    Image = "FossilizedHelix.png",
+    Traits = {},

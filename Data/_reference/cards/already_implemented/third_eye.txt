@@ -1,0 +1,8 @@
+{Name = "Third Eye",
+    Image = "ThirdEye.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [7|9] #Block. #Scry [3|5].",
+    Traits = {},

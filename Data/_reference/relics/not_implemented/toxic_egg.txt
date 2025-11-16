@@ -1,0 +1,7 @@
+{Name = "Toxic Egg",
+    ID = "Toxic Egg",
+    Rarity = "Uncommon",
+    Description = "Whenever you add a Skill card to your deck, it is Upgraded.",
+    Flavor = '"What a marvelous discovery! This appears to be the inert egg of some magical creature. Who or what created this?" - Ranwid',
+    Image = "ToxicEgg2.png",
+    Traits = {},

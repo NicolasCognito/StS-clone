@@ -1,0 +1,8 @@
+{Name = "Clash",
+    Image = "Clash.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Can only be played if every card in your hand is an Attack.\nDeal [14|18] damage.",
+    Traits = {},

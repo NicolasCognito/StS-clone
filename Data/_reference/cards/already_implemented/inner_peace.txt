@@ -1,0 +1,8 @@
+{Name = "Inner Peace",
+    Image = "InnerPeace.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "If you are in #Calm, draw [3|4] cards, otherwise Enter #Calm.",
+    Traits = {},

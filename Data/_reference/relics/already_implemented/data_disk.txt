@@ -1,0 +1,7 @@
+{Name = "Data Disk",
+    Rarity = "Common",
+	Character = "Defect",
+    Description = "Start each combat with 1 [[File:Icon_Focus.png|20px|middle]] '''Focus'''",
+    Flavor = "This disk contains precious data on birds and snakes.",
+    Image = "DataDisk.png",
+    Traits = {},

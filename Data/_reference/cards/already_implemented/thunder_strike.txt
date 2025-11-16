@@ -1,0 +1,8 @@
+{Name = "Thunder Strike",
+    Image = "ThunderStrike.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 3,
+    Text = "Deal [7|9] damage to a random enemy for each #Lightning #Channeled this combat.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Flame Barrier",
+    Image = "FlameBarrier.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Gain [12|16] #Block.\nWhenever you are attacked this turn, deal [4|6] damage back.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Anger",
+    Image = "Anger.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [6|8] damage.\nAdd a copy of this card into your discard pile.",
+    Traits = {},

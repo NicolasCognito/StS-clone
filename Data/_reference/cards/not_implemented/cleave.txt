@@ -1,0 +1,8 @@
+{Name = "Cleave",
+    Image = "Cleave.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|11] damage to ALL enemies.",
+    Traits = {},

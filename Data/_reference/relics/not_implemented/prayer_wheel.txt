@@ -1,0 +1,6 @@
+{Name = "Prayer Wheel",
+    Rarity = "Rare",
+    Description = "Normal enemies drop an additional card reward.",
+    Flavor = "The wheel continues to spin, never stopping.",
+    Image = "PrayerWheel.png",
+    Traits = {},

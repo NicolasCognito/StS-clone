@@ -1,0 +1,8 @@
+{Name = "Melter",
+    Image = "Melter.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Remove all #Block from the enemy.\nDeal [10|14] damage.",
+    Traits = {},

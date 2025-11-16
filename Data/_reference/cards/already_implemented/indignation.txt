@@ -1,0 +1,8 @@
+{Name = "Indignation",
+    Image = "Indignation.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "If you are in #Wrath, apply [3|5] #Vulnerable to ALL enemies, otherwise enter #Wrath.",
+    Traits = {},

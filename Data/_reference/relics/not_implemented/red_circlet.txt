@@ -1,0 +1,5 @@
+{Name = "Red Circlet",
+    Rarity = "Special",
+    Description = "Looks very pretty.",
+    Flavor = "You ran out of relics. Impressive!",
+    Traits = {},

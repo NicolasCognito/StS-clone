@@ -1,0 +1,8 @@
+{Name = "Aggregate",
+    Image = "Aggregate.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain <B> for every [4|3] cards in your draw pile.",
+    Traits = {},

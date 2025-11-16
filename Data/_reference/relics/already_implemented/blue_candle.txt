@@ -1,0 +1,6 @@
+{Name = "Blue Candle",
+    Rarity = "Uncommon",
+    Description = "'''Curse''' cards can now be played. <br>Playing a '''Curse''' will make you lose 1 HP and Exhausts the card.",
+    Flavor = "The flame ignites when shrouded in darkness.",
+    Image = "BlueCandle.png",
+    Traits = {},

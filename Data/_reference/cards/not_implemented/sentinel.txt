@@ -1,0 +1,8 @@
+{Name = "Sentinel",
+    Image = "Sentinel.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [5|8] #Block.\nIf this card is #Exhausted,\ngain <R> <R>| <R>].",
+    Traits = {},

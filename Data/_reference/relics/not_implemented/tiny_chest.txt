@@ -1,0 +1,6 @@
+{Name = "Tiny Chest",
+    Rarity = "Common",
+    Description = "Every 4th ? room is a Treasure room.",
+    Flavor = '"A fine prototype." - The Architect',
+    Image = "TinyChest.png",
+    Traits = {},

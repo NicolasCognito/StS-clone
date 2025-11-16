@@ -1,0 +1,7 @@
+{Name = "Ancient Potion",
+        Rarity = "Uncommon",
+        Text = "Gain 1 ([[File:SacredBark.png|20px|middle]] 2) [[File:Icon_Artifact.png|20px|middle]] '''Artifact'''.",
+        Image = "AncientPotion.png",
+        Code = "#Ancient Potion",
+        Link = "Potions",
+        },

@@ -1,0 +1,7 @@
+{Name = "Ancient Augmentation",
+    Rarity = "Blight",
+    Character = "Blight Chest",
+    Description = "Enemies start combat with 1 [[File:Icon_Artifact.png|20px|middle]] '''Artifact''', 10 [[File:Icon_PlatedArmor.png|20px|middle]] '''Plated Armor''', and 10 [[File:Icon_Regen.png|20px|middle]] '''Regenerate'''.",
+    Image = "Ancient.png",
+    Link = "Blights",
+    Traits = {},

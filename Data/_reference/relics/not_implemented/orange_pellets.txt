@@ -1,0 +1,6 @@
+{Name = "Orange Pellets",
+    Rarity = "Shop",
+    Description = "Whenever you play a Power, Attack, and Skill in the same turn, remove all of your debuffs.",
+    Flavor = "Made from various fungi found throughout the Spire, they will stave off any affliction.",
+    Image = "OrangePellets.png",
+    Traits = {},

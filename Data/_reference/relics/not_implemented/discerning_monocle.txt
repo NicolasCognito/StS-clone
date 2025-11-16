@@ -1,0 +1,5 @@
+{Name = "Discerning Monocle",
+    Rarity = "Uncommon",
+    Description = "Merchant prices are reduced by 20%",
+    Flavor = "A very dapper looking monocle indeed.",
+    Traits = {},

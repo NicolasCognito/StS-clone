@@ -1,0 +1,6 @@
+{Name = "Whetstone",
+    Rarity = "Common",
+    Description = "Upon pick up, Upgrade 2 random Attacks.",
+    Flavor = '"Flesh never beats steel." - Kublai the Great',
+    Image = "Whetstone.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Rip and Tear",
+    Image = "RipandTear.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|9] damage to a random enemy twice.",
+    Traits = {},

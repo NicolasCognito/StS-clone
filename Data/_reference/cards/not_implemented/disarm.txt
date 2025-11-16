@@ -1,0 +1,8 @@
+{Name = "Disarm",
+    Image = "Disarm.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Enemy loses [2|3] #Strength.\n#Exhaust.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Wheel Kick",
+    Image = "WheelKick.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [15|20] damage. Draw 2 cards.",
+    Traits = {},

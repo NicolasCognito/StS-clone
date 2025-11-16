@@ -1,0 +1,7 @@
+{Name = "Symbiotic Virus",
+    Rarity = "Uncommon",
+	Character = "Defect",
+    Description = "At the start of each combat, Channel 1 [[File:Dark.png|20px|middle]] '''Dark''' orb",
+    Flavor = "A little bit of bad can do a lot of good.",
+    Image = "SymbioticVirus.png",
+    Traits = {},

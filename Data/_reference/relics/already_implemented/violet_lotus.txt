@@ -1,0 +1,7 @@
+{Name = "Violet Lotus",
+    Rarity = "Boss",
+	Character = "Watcher",
+    Description = "Whenever you exit '''Calm''', gain an additional '''Energy'''.",
+    Flavor = 'The old texts describe that the surface of \"mana pools\" were littered with these flowers.',
+    Image = "Violet lotus.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Fear No Evil",
+    Image = "FearNoEvil.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|11] damage. If the enemy intends to Attack, enter #Calm.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Evolve",
+    Image = "Evolve.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you draw a #Status card, draw [1|2] [card|cards].",
+    Traits = {},

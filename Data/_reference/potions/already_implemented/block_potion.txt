@@ -1,0 +1,7 @@
+{Name = "Block Potion",
+        Rarity = "Common",
+        Text = "Gain 12 ([[File:SacredBark.png|20px|middle]] 24) [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+        Image = "BlockPotion.png",
+        Code = "#Block Potion",
+        Link = "Potions",
+        },

@@ -1,0 +1,7 @@
+{Name = "Champion Belt",
+    Rarity = "Rare",
+	Character = "Ironclad",
+    Description = "Whenever you apply [[File:Icon_Vulnerable.png|20px|middle]] '''Vulnerable''', also apply 1 [[File:Icon_Weak.png|20px|middle]] '''Weak'''.",
+    Flavor = "Only the greatest may wear this belt.",
+    Image = "ChampionBelt.png",
+    Traits = {},

@@ -1,0 +1,5 @@
+{Name = "Derp Rock",
+    Rarity = "Starter",
+    Description = "At the start of each turn, gain 1 Charge. NL (Cannot be removed or transformed.)",
+    Flavor = "Placeholder",
+    Traits = {},

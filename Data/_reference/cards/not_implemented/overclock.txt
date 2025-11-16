@@ -1,0 +1,8 @@
+{Name = "Overclock",
+    Image = "Overclock.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Draw [2|3] cards.\nAdd a #Burn into your discard pile.",
+    Traits = {},

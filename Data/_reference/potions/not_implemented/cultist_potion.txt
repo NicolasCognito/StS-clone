@@ -1,0 +1,7 @@
+{Name = "Cultist Potion",
+        Rarity = "Rare",
+        Text = "Gain 1 ([[File:SacredBark.png|20px|middle]] 2) [[File:Icon_Ritual.png|20px|middle]] '''Ritual'''.",
+        Image = "CultistPotion.png",
+        Code = "#Cultist Potion",
+        Link = "Potions",
+        },

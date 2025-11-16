@@ -1,0 +1,7 @@
+{Name = "Molten Egg",
+    ID = "Molten Egg",
+    Rarity = "Uncommon",
+    Description = "Whenever you add an Attack card to your deck, it is Upgraded.",
+    Flavor = "The egg of a Phoenix. It glows red hot with a simmering lava.",
+    Image = "MoltenEgg2.png",
+    Traits = {},

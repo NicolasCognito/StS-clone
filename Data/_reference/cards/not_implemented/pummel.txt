@@ -1,0 +1,8 @@
+{Name = "Pummel",
+    Image = "Pummel.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal 2 damage [4|5] times.\n#Exhaust.",
+    Traits = {},

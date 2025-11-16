@@ -1,0 +1,8 @@
+{Name = "Spirit Shield",
+    Image = "SpiritShield.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Gain [3|4] #Block for each card in your hand.",
+    Traits = {},

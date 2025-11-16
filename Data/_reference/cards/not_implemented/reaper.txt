@@ -1,0 +1,8 @@
+{Name = "Reaper",
+    Image = "Reaper.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [4|5] damage to ALL enemies. Heal HP equal to unblocked damage.\n#Exhaust.",
+    Traits = {},

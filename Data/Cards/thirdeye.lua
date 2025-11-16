@@ -15,7 +15,8 @@ return {
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                amount = self.block
+                amount = self.block,
+                source = self
             })
 
             -- Request scry context (show top 3 cards)

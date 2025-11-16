@@ -1,0 +1,8 @@
+{Name = "Glass Knife",
+    Image = "GlassKnife.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|12] damage twice. Decrease the damage of this card by 2 this combat.",
+    Traits = {},

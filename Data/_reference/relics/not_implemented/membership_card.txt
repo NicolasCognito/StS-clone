@@ -1,0 +1,6 @@
+{Name = "Membership Card",
+    Rarity = "Shop",
+    Description = "50% discount on all products!",
+    Flavor = '"Bonus membership offer for my most valuable customers!"',
+    Image = "MembershipCard.png",
+    Traits = {},

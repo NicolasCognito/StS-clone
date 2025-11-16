@@ -1,0 +1,8 @@
+{Name = "Catalyst",
+    Image = "Catalyst.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "[Double|Triple] the enemy\'s #Poison.\n#Exhaust.",
+    Traits = {},

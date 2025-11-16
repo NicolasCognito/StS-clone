@@ -1,0 +1,8 @@
+{Name = "Chrysalis",
+    Image = "Chrysalis.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Shuffle [3|5] random Skills into your draw pile. They cost 0 this combat.\n#Exhaust.",
+    Traits = {},

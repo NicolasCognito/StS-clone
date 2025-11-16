@@ -1,0 +1,8 @@
+{Name = "Static Discharge",
+    Image = "StaticDischarge.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you receive unblocked attack damage, #Channel [1|2] #Lightning.",
+    Traits = {},

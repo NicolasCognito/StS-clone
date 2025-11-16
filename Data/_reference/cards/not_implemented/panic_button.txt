@@ -1,0 +1,8 @@
+{Name = "Panic Button",
+    Image = "PanicButton.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Gain [30|40] #Block. You cannot gain #Block from cards for 2 turns.\n#Exhaust.",
+    Traits = {},

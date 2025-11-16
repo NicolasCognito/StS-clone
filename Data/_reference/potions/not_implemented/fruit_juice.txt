@@ -1,0 +1,7 @@
+{Name = "Fruit Juice",
+        Rarity = "Rare",
+        Text = "Gain 5 ([[File:SacredBark.png|20px|middle]] 10) Max HP.",
+        Image = "FruitJuice.png",
+        Code = "#Fruit Juice",
+        Link = "Potions",
+        },

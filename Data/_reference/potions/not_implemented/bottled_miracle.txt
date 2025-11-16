@@ -1,0 +1,8 @@
+{Name = "Bottled Miracle",
+        Rarity = "Common",
+		Character = "Watcher",
+        Text = "Add 2 ([[File:SacredBark.png|20px|middle]] 4) '''Miracles''' to your hand",
+        Image = "BottledMiracle.png",
+        Code = "#Bottled Miracle",
+        Link = "Potions",
+        },

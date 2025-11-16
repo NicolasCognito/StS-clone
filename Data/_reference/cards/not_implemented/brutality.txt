@@ -1,0 +1,8 @@
+{Name = "Brutality",
+    Image = "Brutality.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 0,
+    Text = "|#Innate.] \nAt the start of your turn, lose 1 HP and draw 1 card.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Miracle",
+    Image = "Miracle.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Skill",
+    Cost = 0,
+    Text = "#Retain. Gain <P>| <P>]. #Exhaust.",
+    Traits = {},

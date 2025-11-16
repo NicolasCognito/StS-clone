@@ -22,7 +22,8 @@ return {
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                amount = blockAmount
+                amount = blockAmount,
+                source = self
             })
         end,
 

@@ -1,0 +1,8 @@
+{Name = "Purity",
+    Image = "Purity.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "#Exhaust up to [3|5] cards in your hand.\n#Exhaust.",
+    Traits = {},

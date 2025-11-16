@@ -1,0 +1,8 @@
+{Name = "Deadly Poison",
+    Image = "DeadlyPoison.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Apply [5|7] #Poison.",
+    Traits = {},

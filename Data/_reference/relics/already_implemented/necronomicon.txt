@@ -1,0 +1,8 @@
+{Name = "Necronomicon",
+    Rarity = "Event",
+	EventName = "Cursed Tome",
+	EventIcon = "CursedTomeIcon.png",
+    Description = "The first Attack played each turn that costs 2 or more is played twice. When you take this relic, obtain a special '''Curse'''.",
+    Flavor = "Only a fool would try and harness this evil power. At night your dreams are haunted by <br>images of the book devouring your mind.",
+    Image = "Necronomicon.png",
+    Traits = {},

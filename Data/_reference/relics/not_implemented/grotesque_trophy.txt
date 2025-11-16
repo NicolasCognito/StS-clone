@@ -1,0 +1,6 @@
+{Name = "Grotesque Trophy",
+    Rarity = "Blight",
+    Description = "Upon pickup, obtain 3 '''Prides'''.",
+    Image = "Trophy.png",
+    Link = "Blights",
+    Traits = {},

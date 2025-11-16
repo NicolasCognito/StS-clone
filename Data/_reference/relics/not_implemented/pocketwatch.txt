@@ -1,0 +1,6 @@
+{Name = "Pocketwatch",
+    Rarity = "Rare",
+    Description = "Whenever you play 3 or less cards during your turn, draw 3 additional cards at the start of your next turn.",
+    Flavor = "The hands seem stuck on the 3 o'clock position.",
+    Image = "Pocketwatch.png",
+    Traits = {},

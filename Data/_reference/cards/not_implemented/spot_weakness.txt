@@ -1,0 +1,8 @@
+{Name = "Spot Weakness",
+    Image = "SpotWeakness.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "If the enemy intends to attack, gain [3|4] #Strength.",
+    Traits = {},

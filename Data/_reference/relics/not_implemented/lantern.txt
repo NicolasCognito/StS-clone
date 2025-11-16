@@ -1,0 +1,6 @@
+{Name = "Lantern",
+    Rarity = "Common",
+    Description = "Gain 1 '''Energy''' on the first turn of each combat.",
+    Flavor = "An eerie lantern which illuminates only for the wielder.",
+    Image = "Lantern.png",
+    Traits = {},

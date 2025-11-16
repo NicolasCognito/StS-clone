@@ -1,0 +1,8 @@
+{Name = "Battle Hymn",
+    Image = "BattleHymn.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "|#Innate. ]At the start of each turn add a #Smite into your hand.",
+    Traits = {"Innate"},

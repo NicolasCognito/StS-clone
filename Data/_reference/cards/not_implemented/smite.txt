@@ -1,0 +1,8 @@
+{Name = "Smite",
+    Image = "Smite.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Attack",
+    Cost = 1,
+    Text = "#Retain. Deal [12|16] damage. #Exhaust.",
+    Traits = {},

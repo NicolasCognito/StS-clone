@@ -1,0 +1,8 @@
+{Name = "Concentrate",
+    Image = "Concentrate.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Discard [3|2] cards.\nGain <G> <G>.",
+    Traits = {},

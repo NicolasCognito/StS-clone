@@ -1,0 +1,8 @@
+{Name = "Panache",
+    Image = "Panache.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 0,
+    Text = "Every time you play 5 cards in a single turn, deal [10|14] damage to ALL enemies.",
+    Traits = {},

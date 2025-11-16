@@ -1,0 +1,8 @@
+{Name = "Skim",
+    Image = "Skim.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Draw [3|4] cards.",
+    Traits = {},

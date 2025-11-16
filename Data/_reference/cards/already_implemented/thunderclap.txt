@@ -1,0 +1,8 @@
+{Name = "Thunderclap",
+    Image = "Thunderclap.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [4|7] damage and apply 1 #Vulnerable to ALL enemies.",
+    Traits = {},

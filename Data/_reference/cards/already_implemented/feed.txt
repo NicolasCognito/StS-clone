@@ -1,0 +1,8 @@
+{Name = "Feed",
+    Image = "Feed.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [10|12] damage.\nIf #Fatal, raise your Max HP by [3|4]. #Exhaust.",
+    Traits = {},

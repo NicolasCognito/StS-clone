@@ -1,0 +1,8 @@
+{Name = "Bandage Up",
+    Image = "BandageUp.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Heal [4|6] HP.\n#Exhaust.",
+    Traits = {},

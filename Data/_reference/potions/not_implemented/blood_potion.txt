@@ -1,0 +1,8 @@
+{Name = "Blood Potion",
+        Rarity = "Common",
+		Character = "Ironclad",
+        Text = "Heal for 20% ([[File:SacredBark.png|20px|middle]] 40%) of your Max HP.",
+        Image = "BloodPotion.png",
+        Code = "#Blood Potion",
+        Link = "Potions",
+        },

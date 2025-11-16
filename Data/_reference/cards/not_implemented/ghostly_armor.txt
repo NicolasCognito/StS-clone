@@ -1,0 +1,8 @@
+{Name = "Ghostly Armor",
+    Image = "GhostlyArmor.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "#Ethereal.\nGain [10|13] #Block.",
+    Traits = {},

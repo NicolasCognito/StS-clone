@@ -1,0 +1,6 @@
+{Name = "Du-Vu Doll",
+    Rarity = "Rare",
+    Description = "For each '''Curse''' in your deck, start each combat with 1 additional [[File:Icon_Strength.png|20px|middle]] '''Strength'''.",
+    Flavor = "A doll devised to gain strength from malicious energy.",
+    Image = "Du-VuDoll.png",
+    Traits = {},

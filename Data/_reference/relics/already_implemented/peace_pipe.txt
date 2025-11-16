@@ -1,0 +1,6 @@
+{Name = "Peace Pipe",
+    Rarity = "Rare",
+    Description = "You can now remove cards from your deck at Rest Sites.",
+    Flavor = "Clears the mind and cleanses the soul.",
+    Image = "PeacePipe.png",
+    Traits = {},

@@ -1,0 +1,7 @@
+{Name = "Liquid Bronze",
+        Rarity = "Uncommon",
+        Text = "Gain 3 ([[File:SacredBark.png|20px|middle]] 6) [[File:Icon_Thorns.png|20px|middle]] '''Thorns'''.",
+        Image = "LiquidBronze.png",
+        Code = "#Liquid Bronze",
+        Link = "Potions",
+        },

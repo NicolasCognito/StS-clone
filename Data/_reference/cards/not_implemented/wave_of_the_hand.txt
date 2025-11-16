@@ -1,0 +1,8 @@
+{Name = "Wave of the Hand",
+    Image = "WaveoftheHand.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Whenever you gain #Block this turn, apply [1|2] #Weak to ALL enemies.",
+    Traits = {},

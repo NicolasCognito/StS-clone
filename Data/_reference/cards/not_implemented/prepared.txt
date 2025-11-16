@@ -1,0 +1,8 @@
+{Name = "Prepared",
+    Image = "Prepared.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Draw [1|2] [card|cards].\nDiscard [1|2] [card|cards].",
+    Traits = {},

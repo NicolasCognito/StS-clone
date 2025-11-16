@@ -1,0 +1,8 @@
+{Name = "Snecko Skull",
+    ID = "Snake Skull",
+    Rarity = "Common",
+	Character = "Silent",
+    Description = "Whenever you apply [[File:Icon_Poison.png|20px|middle]] '''Poison''', apply an additional 1 [[File:Icon_Poison.png|20px|middle]] '''Poison'''.",
+    Flavor = "A snecko skull in pristine condition. Mysteriously clean and smooth, dirt and grime fall off inexplicably.",
+    Image = "SnakeSkull.png",
+    Traits = {},

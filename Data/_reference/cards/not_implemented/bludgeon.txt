@@ -1,0 +1,8 @@
+{Name = "Bludgeon",
+    Image = "Bludgeon.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 3,
+    Text = "Deal [32|42] damage.",
+    Traits = {},

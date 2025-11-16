@@ -1,0 +1,8 @@
+{Name = "Double Tap",
+    Image = "DoubleTap.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 1,
+    Text = "This turn, your next [Attack is|[1|2] Attacks are] played twice.",
+    Traits = {},

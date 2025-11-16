@@ -1,0 +1,8 @@
+{Name = "Heart of Iron",
+        Rarity = "Rare",
+		Character = "Ironclad",
+        Text = "Gain 6 ([[File:SacredBark.png|20px|middle]] 12) [[File:Icon_Metallicize.png|20px|middle]] '''Metallicize'''.",
+        Image = "HeartofIron.png",
+        Code = "#Heart of Iron",
+        Link = "Potions",
+        },

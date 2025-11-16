@@ -1,0 +1,8 @@
+{Name = "Reckless Charge",
+    Image = "RecklessCharge.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [7|10] damage.\nShuffle a #Dazed into your draw pile.",
+    Traits = {},

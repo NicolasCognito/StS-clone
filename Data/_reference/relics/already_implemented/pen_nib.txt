@@ -1,0 +1,6 @@
+{Name = "Pen Nib",
+    Rarity = "Common",
+    Description = "Every 10th Attack you play deals double damage.",
+    Flavor = "Holding the nib, you can see everyone ever slain by a previous owner of the pen. A violent history.",
+    Image = "PenNib.png",
+    Traits = {},

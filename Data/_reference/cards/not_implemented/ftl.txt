@@ -1,0 +1,8 @@
+{Name = "FTL",
+    Image = "FTL.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [5|6] damage. If you have played less than [3|4] cards this turn, draw 1 card.",
+    Traits = {},

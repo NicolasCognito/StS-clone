@@ -1,0 +1,7 @@
+{Name = "Skill Potion",
+        Rarity = "Common",
+        Text = "Choose 1 of 3 random Skill cards to add ([[File:SacredBark.png|20px|middle]] 2 copies of it) to your hand. It costs ([[File:SacredBark.png|20px|middle]] They cost) 0 this turn.",
+        Image = "SkillPotion.png",
+        Code = "#Skill Potion",
+        Link = "Potions",
+        },

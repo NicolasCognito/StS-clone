@@ -1,0 +1,8 @@
+{Name = "Flurry of Blows",
+    Image = "FlurryOfBlows.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [4|6] damage. On #Stance change, returns from the Discard Pile into your hand.",
+    Traits = {},

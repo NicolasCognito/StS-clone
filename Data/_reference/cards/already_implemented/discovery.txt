@@ -1,0 +1,8 @@
+{Name = "Discovery",
+    Image = "Discovery.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Choose 1 of 3 random cards to add into your hand. It costs 0 this turn. [\n#Exhaust.|",
+    Traits = {},

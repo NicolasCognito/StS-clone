@@ -1,0 +1,8 @@
+{Name = "Spirit Poop",
+    Rarity = "Event",
+	EventName = "Bonfire Spirits",
+	EventIcon = "BonfireSpiritIcon.png",
+    Description = "It's unpleasant.",
+    Flavor = "The charred remains of your offering to the spirits.",
+    Image = "SpiritPoop.png",
+    Traits = {},

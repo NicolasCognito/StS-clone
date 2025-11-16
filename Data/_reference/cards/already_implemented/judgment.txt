@@ -1,0 +1,8 @@
+{Name = "Judgment",
+    Image = "Judgment.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 1,
+    Text = "If the enemy had [30|40] or less HP, set their HP to 0.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Inflame",
+    Image = "Inflame.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Gain [2|3] #Strength.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Uppercut",
+    Image = "Uppercut.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal 13 damage.\nApply [1|2] #Weak.\nApply [1|2] #Vulnerable.",
+    Traits = {},

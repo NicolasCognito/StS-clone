@@ -1,0 +1,8 @@
+{Name = "Ritual Dagger",
+    Image = "RitualDagger.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal 15 damage. If #Fatal, permanently increase this card\'s damage by [3|5].\n#Exhaust.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Metamorphosis",
+    Image = "Metamorphosis.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Shuffle [3|5] random Attacks into your draw pile. They cost 0 this combat.\n#Exhaust.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Expertise",
+    Image = "Expertise.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Draw cards until you have [6|7] in your hand.",
+    Traits = {},

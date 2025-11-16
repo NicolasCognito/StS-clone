@@ -1,0 +1,7 @@
+{Name = "Accursed",
+    Rarity = "Blight",
+    Character = "Blight Chest",
+    Description = "Whenever you defeat a Boss, obtain 2 random '''Curses'''.",
+    Image = "Accursed.png",
+    Link = "Blights",
+    Traits = {},

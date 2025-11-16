@@ -1,0 +1,8 @@
+{Name = "Choke",
+    Image = "Choke.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal 12 damage.\nWhenever you play a card this turn, the enemy loses [3|5] HP.",
+    Traits = {},

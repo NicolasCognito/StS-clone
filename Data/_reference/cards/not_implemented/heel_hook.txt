@@ -1,0 +1,8 @@
+{Name = "Heel Hook",
+    Image = "HeelHook.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [5|8] damage. \nIf the enemy has #Weak, \ngain <G> and \ndraw 1 card.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Empty Mind",
+    Image = "EmptyMind.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Exit your #Stance. Draw [2|3] cards.",
+    Traits = {},

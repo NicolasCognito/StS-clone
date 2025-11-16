@@ -4,7 +4,7 @@
 -- count: number of cards to draw
 --
 -- Handles:
--- - Check cannotDraw flag (Bullet Time effect)
+-- - Check No Draw status (Bullet Time effect)
 -- - Draw from deck (change card.state from DECK to HAND)
 -- - Shuffle discard back into deck if deck is empty
 -- - Apply Confused status (randomize cost 0-3)
@@ -17,12 +17,6 @@ local DrawCard = {}
 local Utils = require("utils")
 
 function DrawCard.execute(world, player, count)
-    -- Check if player cannot draw (Bullet Time effect)
-    if player.cannotDraw then
-        table.insert(world.log, "Cannot draw cards this turn")
-        return
-    end
-
     player.status = player.status or {}
     local playerName = player.name or player.id or "Player"
 

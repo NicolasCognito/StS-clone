@@ -1,0 +1,8 @@
+{Name = "Headbutt",
+    Image = "Headbutt.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [9|12] damage.\nPut a card from your discard pile on top of your draw pile.",
+    Traits = {},

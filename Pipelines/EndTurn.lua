@@ -116,10 +116,16 @@ function EndTurn.execute(world, player)
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                amount = player.status.like_water
+                amount = player.status.like_water,
+                source = "Like Water"
             })
             ProcessEventQueue.execute(world)
         end
+    end
+
+    -- Clear Bullet Time / No Draw style effects at end of player turn
+    if player.status then
+        player.status.no_draw = nil
     end
 
     -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down

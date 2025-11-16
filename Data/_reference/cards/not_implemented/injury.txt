@@ -1,0 +1,10 @@
+{Name = "Injury",
+    Image = "Injury.png",
+    Color = "Curse",
+    Rarity = "Curse",
+    Type = "Curse",
+    Cost = -2,
+    Text = "#Unplayable.",
+    NoUpgrade = true,
+    Traits = {"Unplayable"}
+    },

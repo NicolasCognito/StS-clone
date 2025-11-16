@@ -1,0 +1,8 @@
+{Name = "Tempest",
+    Image = "Tempest.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = X,
+    Text = "#Channel [X|X+1] #Lightning.\n#Exhaust.",
+    Traits = {},

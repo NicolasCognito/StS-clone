@@ -1,0 +1,6 @@
+{Name = "Pantograph",
+    Rarity = "Uncommon",
+    Description = "At the start of boss combats, heal 25 HP.",
+    Flavor = '"Solid foundations are not accidental. Tools for planning are a must." - The Architect',
+    Image = "Pantograph.png",
+    Traits = {},

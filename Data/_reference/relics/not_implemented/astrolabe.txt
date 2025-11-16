@@ -1,0 +1,6 @@
+{Name = "Astrolabe",
+    Rarity = "Boss",
+    Description = "Upon pickup, choose and Transform 3 cards, then Upgrade them.",
+    Flavor = "A tool to glean invaluable knowledge from the stars.",
+    Image = "Astrolabe.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Quick Slash",
+    Image = "QuickSlash.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|12] damage.\nDraw 1 card.",
+    Traits = {},

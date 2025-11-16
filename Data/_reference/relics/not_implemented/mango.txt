@@ -1,0 +1,6 @@
+{Name = "Mango",
+    Rarity = "Rare",
+    Description = "Raise your Max HP by 14",
+    Flavor = "The most coveted forgotten fruit. Impeccably preserved with no signs of Spireblight.",
+    Image = "Mango.png",
+    Traits = {},

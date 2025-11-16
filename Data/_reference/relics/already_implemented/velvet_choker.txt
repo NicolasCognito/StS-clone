@@ -1,0 +1,6 @@
+{Name = "Velvet Choker",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>You cannot play more than 6 cards per turn.",
+    Flavor = '"Immense power, but too limited." - Kublai the Great',
+    Image = "VelvetChoker.png",
+    Traits = {},

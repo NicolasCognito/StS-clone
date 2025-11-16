@@ -1,0 +1,8 @@
+{Name = "Consecrate",
+    Image = "Consecrate.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [5|8] damage to ALL enemies.",
+    Traits = {},

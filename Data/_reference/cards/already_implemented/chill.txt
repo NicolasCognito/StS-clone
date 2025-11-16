@@ -1,0 +1,8 @@
+{Name = "Chill",
+    Image = "Chill.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "|#Innate.] \n#Channel 1 #Frost for each enemy in combat.\n#Exhaust.",
+    Traits = {},

@@ -1,0 +1,6 @@
+{Name = "Wing Boots",
+    Rarity = "Rare",
+    Description = "You may ignore paths when choosing the next room to travel to 3 times.",
+    Flavor = "Stylish.",
+    Image = "WingedGreaves.png",
+    Traits = {},

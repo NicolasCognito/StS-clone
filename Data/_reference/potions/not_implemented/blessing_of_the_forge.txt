@@ -1,0 +1,7 @@
+{Name = "Blessing of the Forge",
+        Rarity = "Common",
+        Text = "Upgrade all cards in your hand for the rest of combat.",
+        Image = "Blessing Of The Forge temporary.png",
+        Code = "#Blessing of the Forge",
+        Link = "Potions",
+        },

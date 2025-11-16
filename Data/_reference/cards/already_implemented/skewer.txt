@@ -1,0 +1,8 @@
+{Name = "Skewer",
+    Image = "Skewer.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = X,
+    Text = "Deal [7|10] damage X times.",
+    Traits = {},

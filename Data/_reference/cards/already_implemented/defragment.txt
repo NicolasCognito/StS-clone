@@ -1,0 +1,8 @@
+{Name = "Defragment",
+    Image = "Defragment.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Gain [1|2] #Focus.",
+    Traits = {},

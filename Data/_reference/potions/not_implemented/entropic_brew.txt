@@ -1,0 +1,7 @@
+{Name = "Entropic Brew",
+        Rarity = "Rare",
+        Text = "Fill all your empty potion slots with random potions.",
+        Image = "EntropicBrew_Potion_Static.png",
+        Code = "#Entropic Brew",
+        Link = "Potions",
+        },

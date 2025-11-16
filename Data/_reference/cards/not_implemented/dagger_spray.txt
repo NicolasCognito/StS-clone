@@ -1,0 +1,8 @@
+{Name = "Dagger Spray",
+    Image = "DaggerSpray.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [4|6] damage to ALL enemies twice.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Capacitor",
+    Image = "Capacitor.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Gain [2|3] Orb slots.",
+    Traits = {},

@@ -1,0 +1,7 @@
+{Name = "The Abacus",
+    ID = "Abacus",
+    Rarity = "Shop",
+    Description = "	Gain 6 [[File:Icon_Block.png|20px|middle]] '''Block''' whenever you shuffle your draw pile.",
+    Flavor = "One...Two...Three...",
+    Image = "TheAbacus.png",
+    Traits = {},

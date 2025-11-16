@@ -1,0 +1,10 @@
+{Name = "Clumsy",
+    Image = "Clumsy.png",
+    Color = "Curse",
+    Rarity = "Curse",
+    Type = "Curse",
+    Cost = -2,
+    Text = "#Unplayable.\n#Ethereal.",
+    NoUpgrade = true,
+    Traits = {"Unplayable", "Ethereal"}
+    },

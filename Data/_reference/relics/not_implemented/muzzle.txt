@@ -1,0 +1,6 @@
+{Name = "Muzzle",
+    Rarity = "Blight",
+    Description = "You can no longer increase your Max HP. All healing is halved.",
+    Image = "Muzzle.PNG",
+    Link = "Blights",
+    Traits = {},

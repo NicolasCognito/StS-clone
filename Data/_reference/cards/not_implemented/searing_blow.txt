@@ -1,0 +1,8 @@
+{Name = "Searing Blow",
+    Image = "SearingBlow.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [12|16] damage.\nCan be #Upgraded any number of times.",
+    Traits = {},

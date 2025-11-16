@@ -1,0 +1,8 @@
+{Name = "Thinking Ahead",
+    Image = "ThinkingAhead.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Draw 2 cards.\nPut a card from your hand on top of your draw pile. [\n#Exhaust.|",
+    Traits = {},

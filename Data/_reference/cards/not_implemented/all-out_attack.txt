@@ -1,0 +1,8 @@
+{Name = "All-Out Attack",
+    Image = "All-OutAttack.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [10|14] damage to ALL enemies.\nDiscard 1 card at random.",
+    Traits = {},

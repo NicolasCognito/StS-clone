@@ -1,0 +1,8 @@
+{Name = "N'loth's Hungry Face",
+    Rarity = "Event",
+	EventName = "Face Trader",
+	EventIcon = "FaceTraderIcon.png",
+    Description = "The next non-boss chest you open is empty.",
+    Flavor = "You feel hungry.",
+    Image = "NlothsMask.png",
+    Traits = {},

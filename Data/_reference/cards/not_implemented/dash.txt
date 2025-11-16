@@ -1,0 +1,8 @@
+{Name = "Dash",
+    Image = "Dash.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Gain [10|13] #Block.\nDeal [10|13] damage.",
+    Traits = {},

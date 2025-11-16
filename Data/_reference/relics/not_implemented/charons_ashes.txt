@@ -1,0 +1,7 @@
+{Name = "Charon's Ashes",
+    Rarity = "Rare",
+	Character = "Ironclad",
+    Description = "Whenever you Exhaust a card, deal 3 damage to ALL enemies.",
+    Flavor = "Charon was said to be the god of rebirth, eternally dying and reviving in a burst of flame.",
+    Image = "CharonsAshes.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Sunder",
+    Image = "Sunder.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 3,
+    Text = "Deal [24|32] damage.\nIf this kills an enemy, gain <B> <B> <B>.",
+    Traits = {},

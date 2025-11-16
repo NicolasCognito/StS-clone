@@ -1,0 +1,8 @@
+{Name = "Sever Soul",
+    Image = "SeverSoul.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "#Exhaust all non-Attack cards in your hand.\nDeal [16|22] damage.",
+    Traits = {},

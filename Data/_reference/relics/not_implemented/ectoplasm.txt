@@ -1,0 +1,6 @@
+{Name = "Ectoplasm",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>You can no longer gain Gold.",
+    Flavor = "This blob of slime and energy seems to pulse with life.",
+    Image = "Ectoplasm.png",
+    Traits = {},

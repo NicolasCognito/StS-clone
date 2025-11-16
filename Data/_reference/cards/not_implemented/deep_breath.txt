@@ -1,0 +1,8 @@
+{Name = "Deep Breath",
+    Image = "DeepBreath.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Shuffle your discard pile into your draw pile.\nDraw [1|2] [card|cards].",
+    Traits = {},

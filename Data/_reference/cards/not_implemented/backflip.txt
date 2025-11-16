@@ -1,0 +1,8 @@
+{Name = "Backflip",
+    Image = "Backflip.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [5|8] #Block.\nDraw 2 cards.",
+    Traits = {},

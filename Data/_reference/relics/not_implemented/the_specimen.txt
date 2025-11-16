@@ -1,0 +1,7 @@
+{Name = "The Specimen",
+    Rarity = "Rare",
+	Character = "Silent",
+    Description = "Whenever an enemy dies, transfer any [[File:Icon_Poison.png|20px|middle]] '''Poison''' it has to a random enemy.",
+    Flavor = '"Fascinating! I found a mutated creature demonstrating astounding toxic properties. Storing a sample for later examination." - Ranwid',
+    Image = "TheSpecimen.png",
+    Traits = {},

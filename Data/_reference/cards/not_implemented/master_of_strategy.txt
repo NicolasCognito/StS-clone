@@ -1,0 +1,8 @@
+{Name = "Master of Strategy",
+    Image = "MasterofStrategy.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Draw [3|4] cards.\n#Exhaust.",
+    Traits = {},

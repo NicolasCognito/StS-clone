@@ -1,0 +1,8 @@
+{Name = "Unload",
+    Image = "Unload.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [14|18] damage.\nDiscard all non-Attack cards in your hand.",
+    Traits = {},

@@ -1,0 +1,6 @@
+{Name = "Ice Cream",
+    Rarity = "Rare",
+    Description = "'''Energy''' is now conserved between turns.",
+    Flavor = "Delicious!",
+    Image = "IceCream.png",
+    Traits = {},

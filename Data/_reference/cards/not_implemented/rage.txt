@@ -1,0 +1,8 @@
+{Name = "Rage",
+    Image = "Rage.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Whenever you play an Attack this turn, gain [3|5] #Block.",
+    Traits = {},

@@ -1,0 +1,180 @@
+================================================================================
+RELICS COMPLEXITY ASSESSMENT
+================================================================================
+
+================================================================================
+TRIVIAL - Simple stat/effect application
+================================================================================
+Anchor - Start combat with block
+Bag of Marbles - Start combat with AOE Vulnerable
+Bag of Preparation - Start combat extra draw
+Blood Vial - Start combat heal
+Circlet - Cosmetic
+Clockwork Souvenir - Start combat with Artifact
+Cultist Headpiece - Cosmetic/flavor
+Gremlin Visage - Start combat with Weak
+Lantern - First turn energy
+Mango - Max HP gain
+Ninja Scroll - Start combat with 3 Shivs
+Oddly Smooth Stone - Start combat with Dexterity
+Old Coin - On-pickup: gain 300 gold
+Pear - Max HP gain
+Pure Water - Start combat with 1 Miracle
+Red Circlet - Cosmetic
+Red Mask - Start combat with AOE Weak
+Ring of the Snake - Start combat draw 2
+Spirit Poop - Cosmetic/flavor
+Strawberry - Max HP gain
+Thread and Needle - Start combat with Plated Armor
+Twisted Funnel - Start combat with AOE Poison
+Vajra - Start combat with Strength
+
+================================================================================
+INTERMEDIATE - Event tracking, counters, conditional effects
+================================================================================
+Accursed - On-boss-defeat trigger: add Curses
+Akabeko - First Attack tracking per combat
+Ancient Augmentation - Start combat with multiple enemy status effects
+Art of War - Track no-Attacks-played, next turn energy
+Bird-Faced Urn - On-Power-play heal trigger
+Black Blood - Starter relic replacement, end-combat heal
+Brimstone - Turn-start: player Strength + enemy Strength
+Bronze Scales - On-damage-taken thorns
+Calipers - Modified block decay (15 instead of all)
+Captain's Wheel - Turn 3 block gain
+Cauldron - On-pickup: gain 5 random potions
+Centennial Puzzle - First HP loss per combat: draw cards
+Champion Belt - Whenever apply Vulnerable, also apply Weak
+Charon's Ashes - On-exhaust AOE damage
+Cloak Clasp - End-turn block per card in hand
+Darkstone Periapt - On-curse-obtain Max HP gain
+Dead Branch - On-exhaust add random card to hand
+Du-Vu Doll - Start combat Strength per Curse in deck
+Duality - On-Attack-play temporary Dexterity
+Durian - Lose 50% Max HP
+Enchiridion - Start combat: random Power with cost 0
+Face of Cleric - End-combat Max HP gain
+Fossilized Helix - Prevent first HP loss (once per combat)
+Ginger - Immunity to Weak
+Golden Eye - Scry bonus (+2)
+Gremlin Horn - On-enemy-death energy + draw
+Grotesque Trophy - On-pickup: obtain 3 Prides
+Hand Drill - On-block-break apply Vulnerable
+Happy Flower - Every 3 turns energy gain
+Hauntings - Enemies start with Intangible
+Holy Water - Starter relic replacement, start combat with 3 Miracles
+Horn Cleat - Turn 2 block gain
+Hovering Kite - First discard per turn: energy
+Ice Cream - Energy conservation between turns
+Incense Burner - Every 6 turns Intangible
+Ink Bottle - Every 10 cards played: draw 1
+Kunai - Every 3 Attacks per turn: Dexterity
+Lee's Waffle - On-pickup: Max HP + full heal
+Letter Opener - Every 3 Skills per turn: AOE damage
+Lizard Tail - On-death: heal to 50% (one-time)
+Magic Flower - Healing multiplier during combat
+Mark of Pain - Energy gain + start combat with Wounds
+Mark of the Bloom - Cannot heal
+Meat on the Bone - End-combat conditional heal (<= 50% HP)
+Melange - On-shuffle Scry 3
+Mercury Hourglass - Turn-start AOE damage
+Mummified Hand - On-Power-play random card cost 0
+Mutagenic Strength - Start combat temporary Strength
+Muzzle - Cannot gain Max HP, healing halved
+Neow's Lament - First 3 combats: enemies have 1 HP
+Nunchaku - Every 10 Attacks: energy
+Odd Mushroom - Vulnerable damage multiplier modification (25% instead of 50%)
+Omamori - Negate next 2 Curses
+Orange Pellets - Play Power+Attack+Skill same turn: remove debuffs
+Orichalcum - End-turn: if no block, gain 6 block
+Ornamental Fan - Every 3 Attacks per turn: block
+Pantograph - Start boss combat: heal 25
+Paper Krane - Weak damage multiplier modification (40% instead of 25%)
+Philosopher's Stone - Energy gain + all enemies start with Strength
+Pocketwatch - Play <= 3 cards: next turn draw 3
+Potion Belt - On-pickup: gain 2 potion slots
+Ring of the Serpent - Starter relic replacement, turn-start draw 1
+Runic Cube - On-HP-loss draw 1
+Runic Dodecahedron - Conditional energy (full HP)
+Runic Pyramid - No hand discard at end of turn
+Sacred Bark - Potion effect multiplier (2x)
+Scatterbrain - Draw 1 less per turn
+Self-Forming Clay - On-HP-loss: next turn block
+Shuriken - Every 3 Attacks per turn: Strength
+Slaver's Collar - Conditional energy (boss/elite combat)
+Sling of Courage - Start elite combat with Strength
+Snecko Skull - Poison application bonus (+1)
+Sozu - Energy gain + cannot obtain potions
+Stone Calendar - Turn 7: AOE damage
+Strange Spoon - 50% chance exhaust -> discard
+Strike Dummy - Strike cards bonus damage
+Sundial - Every 3 shuffles: energy
+The Abacus - On-shuffle block gain
+The Specimen - On-enemy-death: transfer poison
+Time Maze - Card play limit per turn (15 max)
+Tingsha - On-discard damage per card
+Torii - Damage reduction (5 or less -> 1)
+Tough Bandages - On-discard block gain
+Toy Ornithopter - On-potion-use heal
+Turnip - Immunity to Frail
+Twisting Mind - End-turn: add random Status to deck top
+Unceasing Top - Empty hand during turn: draw card
+Void Essence - Permanent energy loss
+Warped Tongs - Turn-start: upgrade random card in hand for combat
+Wrist Blade - Cost 0 Attacks bonus damage
+
+================================================================================
+COMPLEX - Needs new UI/systems or major architectural changes
+================================================================================
+Astrolabe - On-pickup: choose and transform 3 cards + upgrade (card selection UI)
+Bottled Flame - On-pickup: choose Attack card, start combat with it (card selection)
+Bottled Lightning - On-pickup: choose Skill card, start combat with it (card selection)
+Bottled Tornado - On-pickup: choose Power card, start combat with it (card selection)
+Dolly's Mirror - On-pickup: choose card to duplicate (card selection)
+Nilry's Codex - End-turn: choose 1 of 3 random cards (choice UI)
+Orrery - On-pickup: choose and add 5 cards (card selection)
+Tiny House - On-pickup: multiple effects including card/upgrade selection
+Toolbox - Start combat: choose 1 of 3 random Colorless (choice UI)
+
+================================================================================
+HARD TO SAY - Unclear without system knowledge (map/shop/reward systems)
+================================================================================
+Black Star - Elites drop 2 relics (might need map/reward system changes)
+Busted Crown - Energy gain + modify card reward screens
+Calling Bell - On-pickup: obtain Curse + 3 relics
+Ceramic Fish - On-card-added gold gain (might need deck modification hooks)
+Cursed Key - Energy gain + on-chest-open curse (map interaction)
+Derp Rock - Turn-start charge gain, cannot be removed (special flag)
+Discerning Monocle - Merchant price modification
+Ectoplasm - Energy gain + cannot gain gold (map/reward modification)
+Empty Cage - On-pickup: remove 2 cards (card selection)
+Frozen Egg - Auto-upgrade Powers when added to deck
+Frozen Eye - UI modification for draw pile viewing
+Golden Idol - Enemy gold drop modification
+Juzu Bracelet - Map generation modification (no combat in ?)
+Matryoshka - Next 2 chests contain 2 relics (map/chest modification)
+Maw Bank - Floor climb gold gain, disabled on shop spend (map tracking)
+Meal Ticket - On-shop-enter heal (map interaction)
+Membership Card - Shop discount
+Mimic Infestation - Map generation modification (treasure->elite)
+Molten Egg - Auto-upgrade Attacks when added to deck
+N'loth's Gift - Card reward rarity modification
+N'loth's Hungry Face - Next chest is empty
+Pandora's Box - On-pickup: transform all Strikes/Defends
+Prayer Wheel - Normal enemy card reward modification
+Preserved Insect - Elite HP modification
+Prismatic Shard - Card reward pool modification (colorless + other colors)
+Question Card - Card reward screen modification (+1 option)
+Runic Dome - Energy gain + hide enemy intents (UI modification)
+Shield of Blight - Enemy HP modification
+Singing Bowl - Card reward modification (option to gain Max HP instead)
+Smiling Mask - Card removal cost modification
+Spear of Blight - Enemy damage modification
+Ssserpent Head - On-?-room-enter gold gain
+The Courier - Merchant inventory modification + discount
+Tiny Chest - Map modification (every 4th ? is treasure)
+Toxic Egg - Auto-upgrade Skills when added to deck
+War Paint - On-pickup: upgrade 2 random Skills
+Whetstone - On-pickup: upgrade 2 random Attacks
+White Beast Statue - Post-combat potion drop modification
+Wing Boots - Map pathing modification (ignore paths 3 times)

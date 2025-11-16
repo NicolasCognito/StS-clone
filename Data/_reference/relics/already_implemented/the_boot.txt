@@ -1,0 +1,7 @@
+{Name = "The Boot",
+    ID = "Boot",
+    Rarity = "Common",
+    Description = "Whenever you would deal 4 or less unblocked Attack damage, increase it to 5.",
+    Flavor = "When wound up, the boot grows larger in size.",
+    Image = "Boot.png",
+    Traits = {},

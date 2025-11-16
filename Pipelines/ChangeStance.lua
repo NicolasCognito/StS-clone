@@ -89,7 +89,8 @@ function ChangeStance.execute(world, event)
             world.queue:push({
                 type = "ON_BLOCK",
                 target = player,
-                amount = player.status.mental_fortress
+                amount = player.status.mental_fortress,
+                source = "Mental Fortress"
             })
         end
 

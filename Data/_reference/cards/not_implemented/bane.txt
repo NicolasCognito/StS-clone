@@ -1,0 +1,8 @@
+{Name = "Bane",
+    Image = "Bane.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|10] damage.\nIf the enemy has #Poison, deal [7|10] damage again.",
+    Traits = {},

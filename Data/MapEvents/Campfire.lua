@@ -1,4 +1,5 @@
 local MapQueue = require("Pipelines.Map_MapQueue")
+local UpgradeCard = require("Pipelines.UpgradeCard")
 local Relics = require("Data.relics")
 local Utils = require("utils")
 local ReusableNodes = require("Data.MapEvents._ReusableNodes")
@@ -220,7 +221,7 @@ return {
                             stability = "temp",
                             count = {min = 1, max = 1},
                             filter = function(_, _, _, candidate)
-                                return candidate and not candidate.upgraded and type(candidate.onUpgrade) == "function"
+                                return UpgradeCard.canUpgrade(candidate)
                             end
                         }
                     }, "FIRST")

@@ -1,0 +1,8 @@
+{Name = "Rupture",
+    Image = "Rupture.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you lose HP from a card,\ngain [1|2] #Strength.",
+    Traits = {},

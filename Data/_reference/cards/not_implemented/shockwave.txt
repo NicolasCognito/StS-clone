@@ -1,0 +1,8 @@
+{Name = "Shockwave",
+    Image = "Shockwave.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Apply [3|5] #Weak and #Vulnerable to ALL enemies.\n#Exhaust.",
+    Traits = {},

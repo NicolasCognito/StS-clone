@@ -1,0 +1,6 @@
+{Name = "Smiling Mask",
+    Rarity = "Common",
+    Description = "The merchant's card removal service now always costs 50 Gold.",
+    Flavor = "Mask worn by the merchant. He must have spares...",
+    Image = "SmilingMask.png",
+    Traits = {},

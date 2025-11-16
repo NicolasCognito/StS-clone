@@ -1,0 +1,8 @@
+{Name = "Impatience",
+    Image = "Impatience.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "If you have no Attacks in your hand, draw [2|3] cards.",
+    Traits = {},

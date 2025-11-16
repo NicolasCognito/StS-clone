@@ -1,0 +1,6 @@
+{Name = "White Beast Statue",
+    Rarity = "Uncommon",
+    Description = "Potions always drop after combat.",
+    Flavor = "A small white statue of a creature you have never seen before.",
+    Image = "WhiteBeastStatue.png",
+    Traits = {},

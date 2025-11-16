@@ -1,0 +1,8 @@
+{Name = "Leap",
+    Image = "Leap.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [9|12] #Block.",
+    Traits = {},

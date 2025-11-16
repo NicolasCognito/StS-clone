@@ -1,0 +1,6 @@
+{Name = "Calipers",
+    Rarity = "Rare",
+    Description = "At the start of your turn, lose 15 [[File:Icon_Block.png|20px|middle]] '''Block''' rather than all of your [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+    Flavor = '"Mechanical precision leads to greatness" - The Architect',
+    Image = "Calipers.png",
+    Traits = {},

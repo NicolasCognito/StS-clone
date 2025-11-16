@@ -1,0 +1,8 @@
+{Name = "True Grit",
+    Image = "TrueGrit.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [7|9] #Block.\n#Exhaust a [random|] card in your hand.",
+    Traits = {},

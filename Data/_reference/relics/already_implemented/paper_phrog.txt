@@ -1,0 +1,8 @@
+{Name = "Paper Phrog",
+    ID = "Paper Frog",
+    Rarity = "Uncommon",
+	Character = "Ironclad",
+    Description = "Enemies with [[File:Icon_Vulnerable.png|20px|middle]] '''Vulnerable''' take 75% more damage rather than 50%.",
+    Flavor = "The paper continually folds and unfolds itself into the shape of a small creature.",
+    Image = "PaperFrog.png",
+    Traits = {},

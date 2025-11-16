@@ -1,0 +1,6 @@
+{Name = "Dolly's Mirror",
+    Rarity = "Shop",
+    Description = "Upon pickup, obtain an additional copy of a card in your deck.",
+    Flavor = "I look funny in this.",
+    Image = "DollysMirror.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Adrenaline",
+    Image = "Adrenaline.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Gain <G>| <G>].\nDraw 2 cards.\n#Exhaust.",
+    Traits = {},

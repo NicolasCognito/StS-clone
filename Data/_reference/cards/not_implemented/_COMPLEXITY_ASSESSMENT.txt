@@ -1,0 +1,272 @@
+================================================================================
+CARDS COMPLEXITY ASSESSMENT
+================================================================================
+
+================================================================================
+TRIVIAL - Uses existing pipelines straightforwardly
+================================================================================
+Acrobatics - Draw + discard
+Adrenaline - Energy + draw
+Aggregate - Count draw pile for block
+Alchemize - Add random potion
+Alpha - Shuffle card into deck
+Apparition - Gain Intangible status
+Ascender's Bane - Unplayable curse
+Auto-Shields - Conditional block
+Backflip - Block + draw
+Ball Lightning - Damage + channel orb
+Bandage Up - Heal
+Bane - Conditional double damage
+Beam Cell - Damage + Vulnerable
+Beta - Shuffle card into deck
+Bite - Damage + heal
+Blade Dance - Add Shivs to hand
+Blind - Apply Weak to all
+Bludgeon - High damage
+Body Slam - Damage based on current block
+Boot Sequence - Innate block
+Bouncing Flask - Random poison application
+Bowling Bash - Damage scaled by enemy count
+Burn - Status: end-turn damage
+Burning Pact - Exhaust + draw
+Carnage - Ethereal damage
+Carve Reality - Damage + add card
+Cleave - AOE damage
+Cloak and Dagger - Block + add Shivs
+Clothesline - Damage + Weak
+Cold Snap - Damage + channel orb
+Concentrate - Discard + energy
+Conclude - AOE damage + end turn
+Consecrate - AOE damage
+Core Surge - Damage + Artifact
+Crippling Cloud - AOE Poison + Weak
+Curse of the Bell - Unplayable, unremovable curse
+Dagger Spray - AOE damage twice
+Dash - Block + damage
+Dazed - Unplayable status
+Deadly Poison - Apply poison
+Deceive Reality - Block + add card
+Deep Breath - Shuffle discard + draw
+Deflect - Block
+Die Die Die - AOE damage
+Disarm - Strength reduction
+Distraction - Add random Skill with cost 0
+Dramatic Entrance - Innate AOE damage
+Entrench - Double current block
+Evaluate - Block + shuffle card
+Expunger - Damage X times
+Finesse - Block + draw
+Flash of Steel - Damage + draw
+Flying Sleeves - Retain + damage twice
+Fusion - Channel Plasma
+Ghostly Armor - Ethereal block
+Good Instincts - Block
+Hemokinesis - HP cost + damage
+Immolate - AOE damage + add Burn
+Impervious - High block
+Injury - Unplayable
+Iron Wave - Block + damage
+J.A.X. - HP cost + Strength
+Just Lucky - Scry + block + damage
+Leap - Block
+Leg Sweep - Weak + block
+Malaise - Strength loss + Weak (X cost)
+Master of Strategy - Draw
+Melter - Remove block + damage
+Necronomicurse - Unplayable curse
+Neutralize - Damage + Weak
+Offering - HP cost + energy + draw
+Overclock - Draw + add Burn
+Panacea - Artifact gain
+Piercing Wail - Temporary Strength reduction to all
+Poisoned Stab - Damage + poison
+Pommel Strike - Damage + draw
+Power Through - Add Wounds + block
+Pray - Gain Mantra + shuffle card
+Prepared - Draw + discard
+Protect - Retain + block
+Pummel - Multi-hit damage
+Quick Slash - Damage + draw
+Ragnarok - Random multi-hit
+Reaper - AOE damage + heal
+Reboot - Shuffle all + draw
+Reckless Charge - Damage + shuffle Dazed
+Recycle - Exhaust + energy based on cost
+Reinforced Body - Block X times
+Riddle with Holes - Multi-hit damage
+Rip and Tear - Random multi-hit
+Safety - Retain block
+Seeing Red - Energy gain
+Shiv - Damage
+Shockwave - AOE Weak + Vulnerable
+Shrug It Off - Block + draw
+Skim - Draw
+Slice - Damage
+Slimed - Exhaust
+Smite - Retain damage
+Sucker Punch - Damage + Weak
+Sweeping Beam - AOE damage + draw
+Swift Strike - Damage
+Sword Boomerang - Random multi-hit
+Terror - Massive Vulnerable
+Through Violence - Retain damage
+Trip - AOE Vulnerable
+TURBO - Energy + add Void
+Twin Strike - Double damage
+Uppercut - Damage + Weak + Vulnerable
+Wheel Kick - Damage + draw
+Wild Strike - Damage + shuffle Wound
+Wound - Unplayable
+Writhe - Unplayable + Innate
+
+================================================================================
+INTERMEDIATE - Persistent tracking, filtering, moderate complexity
+================================================================================
+A Thousand Cuts - Power: on-play trigger for all cards
+Accuracy - Power: modifies specific card type (Shivs)
+After Image - Power: on-play trigger for block
+All-Out Attack - AOE damage + random discard
+All for One - Filter discard by cost, move to hand
+Anger - Deal damage + copy to discard
+Barricade - Power: persistent block retention
+Battle Hymn - Power: start-of-turn card generation
+Battle Trance - Draw + block further draws this turn
+Berserk - Power: start-of-turn energy gain + Vulnerable
+Blur - Block + retain block next turn
+Brutality - Power: turn-start HP loss + draw
+Buffer - Power: prevent HP loss N times
+Bullet Time - Block draws + reduce hand costs this turn
+Calculated Gamble - Discard hand + draw same amount
+Caltrops - Power: thorns damage
+Charge Battery - Block now + energy next turn
+Choke - Damage + per-card-played damage this turn
+Clash - Conditional playability (hand must be all Attacks)
+Claw - Self-scaling all Claw instances
+Collect - Multi-turn delayed card generation
+Combust - Power: end-turn HP loss + AOE damage
+Dark Embrace - Power: on-exhaust draw trigger
+Dark Shackles - Temporary Strength reduction
+Demon Form - Power: turn-start Strength gain
+Deva Form - Power: turn-start energy with scaling
+Dodge and Roll - Block now + next turn
+Doppelganger - Next turn draw + energy
+Doubt - Status: end-turn Weak application
+Dropkick - Damage + conditional energy/draw
+Echo Form - Power: first card each turn plays twice
+Endless Agony - On-draw copy trigger
+Envenom - Power: poison on unblocked damage
+Escape Plan - Draw + conditional block
+Eviscerate - Cost reduction based on discards this turn
+Evolve - Power: draw on Status draw
+Fasting - Power: stats + permanent energy reduction
+Feel No Pain - Power: block on exhaust
+Fiend Fire - Exhaust hand + damage per exhausted
+Finisher - Damage based on Attacks played this turn
+Fire Breathing - Power: damage on Status/Curse draw
+Flechettes - Damage based on Skills in hand
+Flex - Temporary Strength gain/loss
+Flying Knee - Damage + next turn energy
+Footwork - Power: Dexterity gain
+Force Field - Cost reduction based on Powers played
+FTL - Damage + conditional draw
+Genetic Algorithm - Permanent self-modification
+Glass Knife - Damage + self-degradation
+Go for the Eyes - Damage + conditional Weak
+Hand of Greed - Damage + gold on kill
+Heatsinks - Power: draw on Power play
+Heel Hook - Damage + conditional energy/draw
+Hello World - Power: turn-start random Common generation
+Hologram - Block + retrieve from discard
+Impatience - Conditional draw
+Infinite Blades - Power: turn-start Shiv generation
+Inflame - Power: Strength gain
+Jack of All Trades - Add random Colorless cards
+Juggernaut - Power: damage on block gain
+Lesson Learned - Damage + upgrade on kill
+Limit Break - Double Strength
+Machine Learning - Power: persistent extra draw
+Madness - Cost reduction for random card in hand
+Magnetism - Power: turn-start random Colorless generation
+Masterful Stab - Cost increase based on HP loss count
+Metallicize - Power: end-turn block gain
+Mind Blast - Damage based on draw pile size
+Nirvana - Power: block on Scry
+Noxious Fumes - Power: turn-start poison to all
+Omega - Power: end-turn massive AOE damage
+Outmaneuver - Next turn energy
+Panic Button - Block + block prevention for 2 turns
+Perfected Strike - Damage scaling by card name count in deck
+Predator - Damage + next turn extra draws
+Pride - Innate: end-turn self-copy to deck top
+Purity - Exhaust up to N cards from hand
+Rage - Power: block on Attack play this turn
+Rampage - Self-scaling damage
+Reach Heaven - Damage + shuffle specific card
+Rebound - Damage + next card to deck top
+Regret - Status: end-turn HP loss per card in hand
+Ritual Dagger - Permanent self-modification on kill
+Rupture - Power: Strength on HP loss from cards
+Sadistic Nature - Power: damage on debuff application
+Sanctity - Block + conditional draw
+Scrape - Damage + draw + conditional discard
+Scrawl - Draw until hand full
+Searing Blow - Unlimited upgrade potential
+Second Wind - Exhaust non-Attacks + block per exhausted
+Self Repair - Power: end-combat heal
+Sentinel - Block + energy on exhaust
+Setup - Card to deck top + cost 0
+Sever Soul - Exhaust non-Attacks + damage
+Shame - Status: end-turn Frail
+Signature Move - Conditional playability (only Attack in hand)
+Sneaky Strike - Damage + conditional energy
+Spirit Shield - Block per card in hand
+Spot Weakness - Conditional Strength (intent-based)
+Stack - Block based on discard pile size
+Steam Barrier - Self-degrading block
+Storm of Steel - Discard hand + Shivs per discarded
+Streamline - Self-cost-reducing damage
+Study - Power: end-turn shuffle Insight
+Sunder - Damage + conditional energy on kill
+Swivel - Block + next Attack costs 0
+Talk to the Hand - Damage + persistent block on attack
+Tantrum - Multi-hit + stance change + shuffle self
+The Bomb - Delayed turn-based AOE damage
+Thinking Ahead - Draw + card to deck top
+Transmutation - Add X random Colorless with cost 0
+True Grit - Block + exhaust (random or choice)
+Unload - Damage + discard non-Attacks
+Violence - Fetch random Attacks from deck
+Void - Status: on-draw energy loss
+Wallop - Damage + block based on unblocked damage
+Warcry - Draw + card to deck top
+Wave of the Hand - Power: Weak on block gain this turn
+Weave - Damage + return-from-discard on Scry
+White Noise - Add random Power with cost 0
+Wraith Form - Power: Intangible + end-turn Dexterity loss
+Wreath of Flame - Power: next Attack bonus damage
+
+================================================================================
+COMPLEX - Needs new UI, major systems, or unique mechanics
+================================================================================
+Apotheosis - Upgrade ALL cards in deck for combat (might need iteration over all card instances)
+Armaments - Choose: upgrade 1 card OR all cards in hand (choice UI)
+Battle Trance - Block further draws (might need draw blocking system)
+Chrysalis - Add random Skills with cost 0 (generation + cost mod)
+Corpse Explosion - On-death trigger with damage to all (needs death event hooks)
+Creative AI - Generate random Power cards (random card generation by type)
+Dual Wield - Choose Attack or Power to copy (card selection UI)
+Enlightenment - Reduce costs for turn OR combat (two different modes)
+Exhume - Choose card from exhaust pile (exhaust pile UI)
+Foreign Influence - Choose 1 of 3 random Attacks (any color) (choice UI + cross-color)
+Forethought - Bottom deck single or multiple cards + cost 0 (card selection)
+Secret Technique - Fetch Skill from deck (deck search UI)
+Secret Weapon - Fetch Attack from deck (deck search UI)
+Seek - Fetch cards from deck (deck search UI)
+Wish - Choose 1 of 3 effects: armor/strength/gold (choice UI with different types)
+
+================================================================================
+HARD TO SAY - Unclear without system knowledge
+================================================================================
+Conjure Blade - Depends on Expunger implementation
+Metamorphosis - Add random Attacks with cost 0 (similar to Chrysalis)
+Parasite - On-removal HP loss (needs deck modification hooks)

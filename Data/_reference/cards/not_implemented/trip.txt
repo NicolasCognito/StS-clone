@@ -1,0 +1,8 @@
+{Name = "Trip",
+    Image = "Trip.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Apply 2 #Vulnerable| to ALL enemies].",
+    Traits = {},

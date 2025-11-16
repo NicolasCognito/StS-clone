@@ -3,7 +3,7 @@
 -- player: the player character
 --
 -- Handles:
--- - Clear turn-based player flags (cannotDraw from Bullet Time)
+-- - Clear per-turn state (temporary retention flags, duplication tracking)
 -- - Reset block to 0
 -- - Turn-start powers that need context (Foresight, Tools of the Trade)
 -- - Draw cards (5 base + Snecko Eye bonus)
@@ -308,9 +308,6 @@ function StartTurn.execute(world, player)
         -- If player somehow survived, continue turn normally
     end
 
-    -- Clear turn-based player flags
-    player.cannotDraw = nil  -- Clear Bullet Time's "cannot draw" effect
-
     -- Clear temporary retention flags from all cards
     for _, card in ipairs(player.combatDeck) do
         card.retainThisTurn = nil
@@ -418,6 +415,19 @@ function StartTurn.execute(world, player)
             amount = player.status.devotion
         })
         ProcessEventQueue.execute(world)
+    end
+
+    -- Deva Form: Gain increasing energy at start of turn
+    if player.status and player.status.deva and player.status.deva > 0 then
+        local energyGain = player.status.deva
+        player.energy = player.energy + energyGain
+        table.insert(world.log, playerName .. " gained " .. energyGain .. " energy from Deva Form")
+
+        local growth = player.status.deva_growth or 0
+        if growth > 0 then
+            player.status.deva = player.status.deva + growth
+            table.insert(world.log, playerName .. "'s Deva Form energy gain increased to " .. player.status.deva)
+        end
     end
 
     -- Loop: Trigger next orb passive at start of turn

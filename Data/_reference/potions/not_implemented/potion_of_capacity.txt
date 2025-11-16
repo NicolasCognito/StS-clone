@@ -1,0 +1,8 @@
+{Name = "Potion of Capacity",
+        Rarity = "Uncommon",
+		Character = "Defect",
+        Text = "Gain 2 ([[File:SacredBark.png|20px|middle]] 4) Orb slots.",
+        Image = "PotionofCapacity.png",
+        Code = "#Potion of Capacity",
+        Link = "Potions",
+        },

@@ -1,0 +1,8 @@
+{Name = "Stance Potion",
+        Rarity = "Uncommon",
+		Character = "Watcher",
+        Text = "Enter '''Calm''' or '''Wrath'''.",
+        Image = "StancePotion.png",
+        Code = "#Stance Potion",
+        Link = "Potions",
+        },

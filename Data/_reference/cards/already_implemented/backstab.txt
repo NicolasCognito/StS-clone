@@ -1,0 +1,8 @@
+{Name = "Backstab",
+    Image = "Backstab.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "#Innate.\nDeal [11|15] damage.\n#Exhaust.",
+    Traits = {},

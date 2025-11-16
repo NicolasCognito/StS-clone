@@ -1,0 +1,8 @@
+{Name = "Sweeping Beam",
+    Image = "SweepingBeam.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [6|9] damage to ALL enemies.\nDraw 1 card.",
+    Traits = {},

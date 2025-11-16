@@ -1,0 +1,7 @@
+{Name = "Explosive Potion",
+        Rarity = "Common",
+        Text = "Deal 10 ([[File:SacredBark.png|20px|middle]] 20) damage to all enemies.",
+        Image = "ExplosivePotion.png",
+        Code = "#Explosive Potion",
+        Link = "Potions",
+        },

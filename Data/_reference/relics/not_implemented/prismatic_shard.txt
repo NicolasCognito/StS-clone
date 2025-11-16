@@ -1,0 +1,6 @@
+{Name = "Prismatic Shard",
+    Rarity = "Shop",
+    Description = "Combat reward screens now contain colorless cards and cards from other colors.",
+    Flavor = "Looking through the shard, you are able to see entirely new perspectives.",
+    Image = "PrismaticShard.png",
+    Traits = {},

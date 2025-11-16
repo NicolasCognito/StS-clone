@@ -1,0 +1,6 @@
+{Name = "Circlet",
+    Rarity = "Special",
+    Description = "Looks pretty.",
+    Flavor = "You ran out of relics to find. Impressive!",
+    Image = "Circlet.png",
+    Traits = {},

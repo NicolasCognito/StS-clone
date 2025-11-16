@@ -1,0 +1,6 @@
+{Name = "Sling of Courage",
+    Rarity = "Shop",
+    Description = "Start each Elite combat with 2 [[File:Icon_Strength.png|20px|middle]] '''Strength'''.",
+    Flavor = "A handy tool for dealing with particularly tough opponents.",
+    Image = "Sling.png",
+    Traits = {},

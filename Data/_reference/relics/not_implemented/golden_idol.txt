@@ -1,0 +1,8 @@
+{Name = "Golden Idol",
+    Rarity = "Event",
+	EventName = "Golden Idol",
+	EventIcon = "GoldenIdolIcon.png",
+    Description = "Enemies drop 25% more Gold.",
+    Flavor = "Made of solid gold, you feel richer just holding it.",
+    Image = "GoldenIdol.png",
+    Traits = {},

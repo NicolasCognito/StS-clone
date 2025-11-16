@@ -1,0 +1,8 @@
+{Name = "Cut Through Fate",
+    Image = "CutThroughFate.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|9] damage. #Scry [2|3]. Draw 1 card.",
+    Traits = {},

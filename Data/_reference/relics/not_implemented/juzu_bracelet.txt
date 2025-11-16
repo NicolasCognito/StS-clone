@@ -1,0 +1,6 @@
+{Name = "Juzu Bracelet",
+    Rarity = "Common",
+    Description = "Regular enemy combats are no longer encountered in ? rooms.",
+    Flavor = "A ward against the unknown.",
+    Image = "JuzuBracelet.png",
+    Traits = {},

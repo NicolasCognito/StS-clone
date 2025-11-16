@@ -1,0 +1,8 @@
+{Name = "Worship",
+    Image = "Worship.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "|#Retain. ]Gain 5 #Mantra.",
+    Traits = {},

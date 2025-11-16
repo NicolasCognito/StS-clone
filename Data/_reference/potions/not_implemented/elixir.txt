@@ -1,0 +1,8 @@
+{Name = "Elixir",
+        Rarity = "Uncommon",
+		Character = "Ironclad",
+        Text = "Exhaust any number of cards in your hand.",
+        Image = "Elixir.png",
+        Code = "#Elixir",
+        Link = "Potions",
+        },

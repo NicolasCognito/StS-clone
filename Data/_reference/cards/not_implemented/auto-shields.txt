@@ -1,0 +1,8 @@
+{Name = "Auto-Shields",
+    Image = "Auto-Shields.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "If you have no #Block, gain [11|15] #Block.",
+    Traits = {},

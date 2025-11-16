@@ -1,0 +1,6 @@
+{Name = "Dream Catcher",
+    Rarity = "Common",
+    Description = "Whenever you rest, you may add a card to your deck.",
+    Flavor = "The northern tribes would often use dream catchers at night, believing they led to self improvement.",
+    Image = "DreamCatcher.png",
+    Traits = {},

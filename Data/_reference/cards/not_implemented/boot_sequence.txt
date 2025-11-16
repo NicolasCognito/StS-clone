@@ -1,0 +1,8 @@
+{Name = "Boot Sequence",
+    Image = "BootSequence.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "#Innate.\nGain [10|13] #Block.\n#Exhaust.",
+    Traits = {},

@@ -1,0 +1,6 @@
+{Name = "Maw Bank",
+    Rarity = "Common",
+    Description = "Whenever you climb a floor, gain 12 Gold. No longer works when you spend any Gold at the shop.",
+    Flavor = "Surprisingly popular, despite maw attacks being a regular occurrence.",
+    Image = "MawBank.png",
+    Traits = {},

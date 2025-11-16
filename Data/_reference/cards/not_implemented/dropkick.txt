@@ -1,0 +1,8 @@
+{Name = "Dropkick",
+    Image = "Dropkick.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [5|8] damage.\nIf the enemy has #Vulnerable, gain <R> and draw 1 card.",
+    Traits = {},

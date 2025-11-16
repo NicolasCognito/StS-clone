@@ -1,0 +1,8 @@
+{Name = "Self Repair",
+    Image = "SelfRepair.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the end of combat, heal [7|10] HP.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Genetic Algorithm",
+    Image = "GeneticAlgorithm.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain 1 #Block. Permanently increase this card\'s #Block by [2|3].\n#Exhaust.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Collect",
+    Image = "Collect.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = X,
+    Text = "Put an Upgraded #Miracle into your hand at the start of your next [X|X+1] turns. #Exhaust",
+    Traits = {},

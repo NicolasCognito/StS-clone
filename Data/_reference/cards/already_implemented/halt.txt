@@ -1,0 +1,8 @@
+{Name = "Halt",
+    Image = "Halt.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Gain [3|4] #Block. #Wrath: Gain [9|14] additional #Block.",
+    Traits = {},

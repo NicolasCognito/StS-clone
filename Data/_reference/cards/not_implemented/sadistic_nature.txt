@@ -1,0 +1,8 @@
+{Name = "Sadistic Nature",
+    Image = "SadisticNature.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 0,
+    Text = "Whenever you apply a debuff to an enemy, they take [5|7] damage.",
+    Traits = {},

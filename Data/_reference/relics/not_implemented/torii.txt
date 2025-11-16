@@ -1,0 +1,6 @@
+{Name = "Torii",
+    Rarity = "Rare",
+    Description = "Whenever you would receive 5 or less unblocked Attack damage, reduce it to 1.",
+    Flavor = "Holding the small Torii, you feel a sense of calm and safety drift through your mind.",
+    Image = "Torii.png",
+    Traits = {},

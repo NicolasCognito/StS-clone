@@ -1,0 +1,8 @@
+{Name = "Demon Form",
+    Image = "DemonForm.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 3,
+    Text = "At the start of your turn, gain [2|3] #Strength.",
+    Traits = {},

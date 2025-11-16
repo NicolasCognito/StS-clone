@@ -1,0 +1,8 @@
+{Name = "Equilibrium",
+    Image = "Equilibrium.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Gain [13|16] #Block.\n#Retain your hand this turn.",
+    Traits = {},

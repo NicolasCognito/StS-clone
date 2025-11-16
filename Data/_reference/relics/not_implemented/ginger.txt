@@ -1,0 +1,6 @@
+{Name = "Ginger",
+    Rarity = "Rare",
+    Description = "You can no longer become [[File:Icon_Weak.png|20px|middle]] '''Weakened'''.",
+    Flavor = "A potent tool in many tonics.",
+    Image = "Ginger.png",
+    Traits = {},

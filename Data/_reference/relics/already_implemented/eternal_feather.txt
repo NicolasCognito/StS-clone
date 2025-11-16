@@ -1,0 +1,6 @@
+{Name = "Eternal Feather",
+    Rarity = "Uncommon",
+    Description = "For every 5 cards in your deck, heal 3 HP whenever you enter a Rest Site.",
+    Flavor = "This feather appears to be completely indestructible. What bird does this possibly come from? ",
+    Image = "EternalFeather.png",
+    Traits = {},

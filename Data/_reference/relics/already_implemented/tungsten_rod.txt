@@ -1,0 +1,6 @@
+{Name = "Tungsten Rod",
+    Rarity = "Rare",
+    Description = "Whenever you would lose HP, lose 1 less.",
+    Flavor = "It's very very heavy.",
+    Image = "TungstenRod.png",
+    Traits = {},

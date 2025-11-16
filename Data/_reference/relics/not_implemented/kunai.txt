@@ -1,0 +1,6 @@
+{Name = "Kunai",
+    Rarity = "Uncommon",
+    Description = "Every time you play 3 Attacks in a single turn, gain 1 [[File:Icon_Dexterity.png|20px|middle]] '''Dexterity'''",
+    Flavor = "A blade favored by assassins for its lethality at range.",
+    Image = "Kunai.png",
+    Traits = {},

@@ -1,0 +1,6 @@
+{Name = "Captain's Wheel",
+    Rarity = "Rare",
+    Description = "At the start of your 3rd turn, gain 18 [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+    Flavor = "Wooden trinket carved with delicate precision. A name is carved into it but the language is foreign.",
+    Image = "Captain wheel.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Dramatic Entrance",
+    Image = "DramaticEntrance.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "#Innate.\nDeal [8|12] damage to ALL enemies.\n#Exhaust.",
+    Traits = {},

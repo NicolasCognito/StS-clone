@@ -1,0 +1,8 @@
+{Name = "Bowling Bash",
+    Image = "BowlingBash.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|10] damage for each enemy in combat.",
+    Traits = {},

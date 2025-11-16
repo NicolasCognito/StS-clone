@@ -1,0 +1,8 @@
+{Name = "Wallop",
+    Image = "Wallop.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [9|12] damage. Gain #Block equal to unblocked damage dealt.",
+    Traits = {},

@@ -1,0 +1,6 @@
+{Name = "Slaver's Collar",
+    Rarity = "Boss",
+    Description = "During Boss and Elite combats, gain 1 '''Energy''' at the start of your turn.",
+    Flavor = "Rusty miserable chains.",
+    Image = "SlaversCollar.png",
+    Traits = {},

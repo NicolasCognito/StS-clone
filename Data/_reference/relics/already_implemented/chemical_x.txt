@@ -1,0 +1,6 @@
+{Name = "Chemical X",
+    Rarity = "Shop",
+    Description = "Whenever you play a cost X card, its effects are increased by 2.",
+    Flavor = "WARNING: Do not combine with sugar, spice, and everything nice.",
+    Image = "ChemicalX.png",
+    Traits = {},

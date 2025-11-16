@@ -1,0 +1,6 @@
+{Name = "Lizard Tail",
+    Rarity = "Rare",
+    Description = "When you would die, heal to 50% of your Max HP instead (works once).",
+    Flavor = "A fake tail to trick enemies during combat.",
+    Image = "LizardTail.png",
+    Traits = {},

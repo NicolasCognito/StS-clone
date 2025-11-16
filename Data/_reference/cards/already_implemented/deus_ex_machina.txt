@@ -1,0 +1,8 @@
+{Name = "Deus Ex Machina",
+    Image = "DeusExMachina.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = Unplayable,
+    Text = "#Unplayable. When you draw this card, add [2|3] #Miracles into your hand. #Exhaust.",
+    Traits = {"Unplayable","Exhaust"},

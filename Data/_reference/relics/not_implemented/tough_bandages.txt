@@ -1,0 +1,7 @@
+{Name = "Tough Bandages",
+    Rarity = "Rare",
+	Character = "Silent",
+    Description = "Whenever you discard a card during your turn, gain 3 [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+    Flavor = "Loss gives strength.",
+    Image = "ToughBandages.png",
+    Traits = {},

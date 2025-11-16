@@ -1,0 +1,6 @@
+{Name = "Gremlin Horn",
+    Rarity = "Uncommon",
+    Description = "Whenever an enemy dies, gain 1 '''Energy''' and draw 1 card.",
+    Flavor = '"Gremlin Nobs are capable of growing until the day they die. Remarkable." - Ranwid',
+    Image = "GremlinHorn.png",
+    Traits = {},

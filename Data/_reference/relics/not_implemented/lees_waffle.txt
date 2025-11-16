@@ -1,0 +1,6 @@
+{Name = "Lee's Waffle",
+    Rarity = "Shop",
+    Description = "Raise your Max HP by 7 and heal all of your HP.",
+    Flavor = '"Tastiest treat you will find in all the Spire! Baked today just for you."',
+    Image = "LeesWaffle.png",
+    Traits = {},

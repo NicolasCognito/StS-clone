@@ -1,0 +1,8 @@
+{Name = "Biased Cognition",
+    Image = "BiasedCognition.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 1,
+    Text = "Gain [4|5] #Focus.\nAt the start of your turn, lose 1 #Focus.",
+    Traits = {},

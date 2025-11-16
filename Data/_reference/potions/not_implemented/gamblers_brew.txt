@@ -1,0 +1,7 @@
+{Name = "Gambler's Brew",
+        Rarity = "Uncommon",
+        Text ="Discard any number of cards, then draw that many.",
+        Image = "GamblersBrew.png",
+        Code = "#Gambler's Brew",
+        Link = "Potions",
+        },

@@ -1,0 +1,8 @@
+{Name = "Weave",
+    Image = "Weave.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [4|6] damage. Whenever you #Scry, return this from the discard pile to your hand.",
+    Traits = {},

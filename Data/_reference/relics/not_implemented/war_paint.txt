@@ -1,0 +1,6 @@
+{Name = "War Paint",
+    Rarity = "Common",
+    Description = "Upon pick up, Upgrade 2 random Skills.",
+    Flavor = "In the past, Ironclads would create wards using enchanted war paint before charging into battle.",
+    Image = "WarPaint.png",
+    Traits = {},

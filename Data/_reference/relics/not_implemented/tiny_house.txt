@@ -1,0 +1,6 @@
+{Name = "Tiny House",
+    Rarity = "Boss",
+    Description = "Obtain 1 potion. <br>Gain 50 Gold. <br>Raise your Max HP by 5. <br>Obtain 1 card. <br>Upgrade 1 random card.",
+    Flavor = '"A near perfect implementation of miniaturization. My finest work to date, but still not adequate." - The Architect',
+    Image = "TinyHouse.png",
+    Traits = {},

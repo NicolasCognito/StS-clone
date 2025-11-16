@@ -1,0 +1,8 @@
+{Name = "Juggernaut",
+    Image = "Juggernaut.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 2,
+    Text = "Whenever you gain #Block, deal [5|7] damage to a random enemy.",
+    Traits = {},

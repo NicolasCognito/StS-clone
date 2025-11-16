@@ -1,0 +1,7 @@
+{Name = "Frozen Egg",
+    ID = "Frozen Egg",
+    Rarity = "Uncommon",
+    Description = "Whenever you add a Power card to your deck, it is Upgraded.",
+    Flavor = "The egg lies inert and frozen, never to hatch.",
+    Image = "FrozenEgg2.png",
+    Traits = {},

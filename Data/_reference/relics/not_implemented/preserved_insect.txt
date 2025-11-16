@@ -1,0 +1,6 @@
+{Name = "Preserved Insect",
+    Rarity = "Common",
+    Description = "Enemies in Elite rooms have 25% less HP.",
+    Flavor = "The insect seems to create a shrinking aura that targets particularly large enemies.",
+    Image = "PreservedInsect.png",
+    Traits = {},

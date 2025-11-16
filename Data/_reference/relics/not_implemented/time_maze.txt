@@ -1,0 +1,6 @@
+{Name = "Time Maze",
+    Rarity = "Blight",
+    Description = "	You cannot play more than 15 cards per turn.",
+    Image = "Time Maze.png",
+    Link = "Blights",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Iron Wave",
+    Image = "IronWave.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Gain [5|7] #Block.\nDeal [5|7] damage.",
+    Traits = {},

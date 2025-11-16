@@ -1,0 +1,8 @@
+{Name = "Carnage",
+    Image = "Carnage.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "#Ethereal.\nDeal [20|28] damage.",
+    Traits = {},

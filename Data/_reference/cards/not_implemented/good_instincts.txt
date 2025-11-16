@@ -1,0 +1,8 @@
+{Name = "Good Instincts",
+    Image = "GoodInstincts.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Gain [6|9] #Block.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Riddle with Holes",
+    Image = "RiddleWithHoles.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [3|4] damage 5 times.",
+    Traits = {},

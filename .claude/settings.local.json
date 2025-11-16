@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(lua:*)"
+      "Bash(lua:*)",
+      "Bash(python3:*)",
+      "Bash(shuf:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

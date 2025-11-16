@@ -1,0 +1,8 @@
+{Name = "Burst",
+    Image = "Burst.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 1,
+    Text = "This turn, your next [Skill is|2 Skills are] played twice.",
+    Traits = {},

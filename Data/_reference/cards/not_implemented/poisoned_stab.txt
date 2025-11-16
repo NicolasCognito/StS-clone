@@ -1,0 +1,8 @@
+{Name = "Poisoned Stab",
+    Image = "PoisonedStab.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [6|8] damage.\nApply [3|4] #Poison.",
+    Traits = {},

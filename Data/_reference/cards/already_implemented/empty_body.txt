@@ -1,0 +1,8 @@
+{Name = "Empty Body",
+    Image ="EmptyBody.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [7|10] #Block. Exit your #Stance.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Pray",
+    Image = "Pray.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [3|4] #Mantra. Shuffle an #Insight into your draw pile.",
+    Traits = {},

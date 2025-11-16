@@ -1,0 +1,8 @@
+{Name = "Hyperbeam",
+    Image = "Hyperbeam.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [26|34] damage to ALL enemies.\nLose 3 #Focus.",
+    Traits = {},

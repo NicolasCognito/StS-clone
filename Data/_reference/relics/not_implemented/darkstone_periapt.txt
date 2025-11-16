@@ -1,0 +1,6 @@
+{Name = "Darkstone Periapt",
+    Rarity = "Uncommon",
+    Description = "Whenever you obtain a '''Curse''', increase your Max HP by 6",
+    Flavor = "The stone draws power from dark energy, converting it into vitality for the wearer.",
+    Image = "DarkstonePeriapt.png",
+    Traits = {},

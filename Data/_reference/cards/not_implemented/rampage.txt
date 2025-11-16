@@ -1,0 +1,8 @@
+{Name = "Rampage",
+    Image = "Rampage.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal 8 damage.\nIncrease this card\'s damage by [5|8] this combat.",
+    Traits = {},

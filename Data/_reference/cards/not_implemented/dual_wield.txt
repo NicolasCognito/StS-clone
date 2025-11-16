@@ -1,0 +1,8 @@
+{Name = "Dual Wield",
+    Image = "DualWield.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Choose an Attack or Power card. Add [a copy|2 copies] of that card into your hand.",
+    Traits = {},

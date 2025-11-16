@@ -1,0 +1,8 @@
+{Name = "Bouncing Flask",
+    Image = "BouncingFlask.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Apply 3 #Poison to a random enemy [3|4] times.",
+    Traits = {},

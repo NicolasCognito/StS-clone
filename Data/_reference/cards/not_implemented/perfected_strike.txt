@@ -1,0 +1,8 @@
+{Name = "Perfected Strike",
+    Image = "PerfectedStrike.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal 6 damage.\nDeals [2|3] additional damage for ALL your cards containing \"Strike\".",
+    Traits = {},

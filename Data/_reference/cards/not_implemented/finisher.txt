@@ -1,0 +1,8 @@
+{Name = "Finisher",
+    Image = "Finisher.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [6|8] damage for each Attack played this turn.",
+    Traits = {},

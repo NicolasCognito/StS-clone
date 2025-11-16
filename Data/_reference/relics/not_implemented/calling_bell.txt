@@ -1,0 +1,6 @@
+{Name = "Calling Bell",
+    Rarity = "Boss",
+    Description = "Obtain a special '''Curse''' and 3 Relics.",
+    Flavor = "This dark iron bell rang 3 times when you found it, but now stays silent.",
+    Image = "CallingBell.png",
+    Traits = {},

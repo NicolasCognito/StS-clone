@@ -1,0 +1,8 @@
+{Name = "Chaos",
+    Image = "Chaos.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "#Channel [1|2] random [Orb|Orbs].",
+    Traits = {},

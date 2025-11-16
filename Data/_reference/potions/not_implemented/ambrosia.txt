@@ -1,0 +1,8 @@
+{Name = "Ambrosia",
+        Rarity = "Rare",
+		Character = "Watcher",
+        Text = "Enter '''Divinity'''.",
+        Image = "Ambrosia.png",
+        Code = "#Ambrosia",
+        Link = "Potions",
+        },

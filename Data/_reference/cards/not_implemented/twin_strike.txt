@@ -1,0 +1,8 @@
+{Name = "Twin Strike",
+    Image = "TwinStrike.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [5|7] damage twice.",
+    Traits = {},

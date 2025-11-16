@@ -1,0 +1,8 @@
+{Name = "Ghost in a Jar",
+        Rarity = "Rare",
+		Character = "Silent",
+        Text = "Gain 1 ([[File:SacredBark.png|20px|middle]] 2) [[File:Icon_Intangible.png|20px|middle]] '''Intangible'''.",
+        Image = "GhostInAJar.png",
+        Code = "#Ghost in a Jar",
+        Link = "Potions",
+        },

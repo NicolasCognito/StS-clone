@@ -1,0 +1,7 @@
+{Name = "Duality",
+    Rarity = "Uncommon",
+	Character = "Watcher",
+    Description = "Whenever you play an Attack, gain 1 temporary [[File:Icon_Dexterity.png|20px|middle]] '''Dexterity'''.",
+    Flavor = '"And the sun was extinguished forever, as if curtains fell before it." - Zoroth',
+    Image = "Yang-0.png",
+    Traits = {},

@@ -1,0 +1,6 @@
+{Name = "Girya",
+    Rarity = "Rare",
+    Description = "You can now gain [[File:Icon_Strength.png|20px|middle]] '''Strength''' at Rest Sites. (3 times max)",
+    Flavor = "This Girya is unfathomably heavy. You could train with this to get significantly stronger.",
+    Image = "Girya.png",
+    Traits = {},

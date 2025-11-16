@@ -1,0 +1,8 @@
+{Name = "Combust",
+    Image = "Combust.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the end of your turn, lose 1 HP and deal [5|7] damage to ALL enemies.",
+    Traits = {},

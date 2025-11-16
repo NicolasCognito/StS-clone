@@ -1,0 +1,6 @@
+{Name = "Mercury Hourglass",
+    Rarity = "Uncommon",
+    Description = "At the start of your turn, deal 3 damage to ALL enemies.",
+    Flavor = "An enchanted hourglass that endlessly drips.",
+    Image = "MercuryHourglass.png",
+    Traits = {},

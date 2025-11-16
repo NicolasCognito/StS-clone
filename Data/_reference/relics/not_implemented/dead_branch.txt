@@ -1,0 +1,6 @@
+{Name = "Dead Branch",
+    Rarity = "Rare",
+    Description = "Whenever you Exhaust a card, add a random card to your hand.",
+    Flavor = "The branch of a tree from a forgotten era.",
+    Image = "DeadBranch.png",
+    Traits = {},

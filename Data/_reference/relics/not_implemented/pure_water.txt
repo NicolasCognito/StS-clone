@@ -1,0 +1,7 @@
+{Name = "Pure Water",
+    Rarity = "Starter",
+	Character = "Watcher",
+    Description = "At the start of each combat, add 1 '''Miracle''' card into your hand.",
+    Flavor = "Filtered through fine sand and free of impurities.",
+    Image = "PureWater-0.png",
+    Traits = {},

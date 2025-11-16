@@ -1,0 +1,8 @@
+{Name = "Sash Whip",
+    Image = "SashWhip.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|10] damage. If the last card played this combat was an Attack, apply [1|2] #Weak.",
+    Traits = {},

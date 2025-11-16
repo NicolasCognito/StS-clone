@@ -1,0 +1,6 @@
+{Name = "Sacred Bark",
+    Rarity = "Boss",
+    Description = "Double the effectiveness of potions.",
+    Flavor = "A bark rumored to originate from the World tree.",
+    Image = "SacredBark.png",
+    Traits = {},

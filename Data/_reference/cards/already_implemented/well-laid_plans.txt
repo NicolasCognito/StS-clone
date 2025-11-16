@@ -1,0 +1,8 @@
+{Name = "Well-Laid Plans",
+    Image = "Well-LaidPlans.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the end of your turn, #Retain up to [1|2] [card|cards].",
+    Traits = {},

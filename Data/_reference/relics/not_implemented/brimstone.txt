@@ -1,0 +1,7 @@
+{Name = "Brimstone",
+    Rarity = "Shop",
+	Character = "Ironclad",
+    Description = "At the start of your turn, gain 2 [[File:Icon_Strength.png|20px|middle]] '''Strength''' and ALL enemies gain 1  [[File:Icon_Strength.png|20px|middle]] '''Strength'''.",
+    Flavor = "Emanates an infernal heat.",
+    Image = "Brimstone.png",
+    Traits = {},

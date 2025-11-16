@@ -1,0 +1,6 @@
+{Name = "Damaru",
+    Rarity = "Common",
+	Character = "Watcher",
+    Description = "At the start of your turn, gain 1 [[File:Icon_Mantra.png|20px|middle]] '''Mantra'''",
+    Flavor = "The sound of the small drum keeps your mind awake, revealing a path forward.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Claw",
+    Image = "Claw.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [3|5] damage.\nIncrease the damage of ALL Claw cards by 2 this combat.",
+    Traits = {},

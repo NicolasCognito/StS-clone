@@ -1,0 +1,8 @@
+{Name = "Apparition",
+    Image = "Apparition.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Skill",
+    Cost = 1,
+    Text = "[#Ethereal.|\nGain 1 #Intangible. \n#Exhaust.",
+    Traits = {},

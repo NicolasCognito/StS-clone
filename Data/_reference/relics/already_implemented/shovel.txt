@@ -1,0 +1,6 @@
+{Name = "Shovel",
+    Rarity = "Rare",
+    Description = "You can now Dig for relics at Rest Sites.",
+    Flavor = "The Spire houses all number of relics from past civilizations and powerful adventurers lost to time. Time to go dig them up!",
+    Image = "Shovel.png",
+    Traits = {},

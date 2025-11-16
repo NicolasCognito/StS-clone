@@ -1,0 +1,6 @@
+{Name = "Strange Spoon",
+    Rarity = "Shop",
+    Description = "Cards which Exhaust when played will instead discard 50% of the time.",
+    Flavor = "Staring at the spoon, it appears to bend and twist around before your eyes.",
+    Image = "StrangeSpoon.png",
+    Traits = {},

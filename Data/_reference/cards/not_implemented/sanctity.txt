@@ -1,0 +1,8 @@
+{Name = "Sanctity",
+    Image = "Sanctity.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [6|9] #Block. If the previous card played was a Skill, draw 2 cards.",
+    Traits = {},

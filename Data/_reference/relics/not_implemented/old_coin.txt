@@ -1,0 +1,6 @@
+{Name = "Old Coin",
+    Rarity = "Rare",
+    Description = "Gain 300 Gold.",
+    Flavor = "Unique coins are highly valued by Merchants for their historical value and rare metallic composition.",
+    Image = "OldCoin.png",
+    Traits = {},

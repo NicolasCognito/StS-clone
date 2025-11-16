@@ -1,0 +1,6 @@
+{Name = "Spear of Blight",
+    Rarity = "Blight",
+    Description = "Enemies deal more damage.",
+    Image = "Spear.png",
+    Link = "Blights",
+    Traits = {},

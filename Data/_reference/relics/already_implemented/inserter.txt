@@ -1,0 +1,7 @@
+{Name = "Inserter",
+    Rarity = "Boss",
+	Character = "Defect",
+    Description = "Every 2 turns, gain 1 Orb slot.",
+    Flavor = "Push. Pull. Stack. Repeat.",
+    Image = "Inserter.png",
+    Traits = {},

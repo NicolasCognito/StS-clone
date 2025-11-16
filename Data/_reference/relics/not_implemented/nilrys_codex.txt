@@ -1,0 +1,8 @@
+{Name = "Nilry's Codex",
+    Rarity = "Event",
+	EventName = "Cursed Tome",
+	EventIcon = "CursedTomeIcon.png",
+    Description = "At the end of each turn, you can choose 1 of 3 random cards to shuffle into your draw pile.",
+    Flavor = "Crafted by the infamous game master himself. Said to expand one's mind.",
+    Image = "NilrysCodex.png",
+    Traits = {},

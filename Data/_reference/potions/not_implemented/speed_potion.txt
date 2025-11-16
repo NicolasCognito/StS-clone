@@ -1,0 +1,7 @@
+{Name = "Speed Potion",
+        Rarity = "Common",
+        Text = "Gain 5 ([[File:SacredBark.png|20px|middle]] 10) [[File:Icon_Dexterity.png|20px|middle]] '''Dexterity'''. At the end of your turn, lose 5 ([[File:SacredBark.png|20px|middle]] 10) [[File:Icon_Dexterity.png|20px|middle]] '''Dexterity'''.",
+        Image = "SpeedPotion.png",
+        Code = "#Speed Potion",
+        Link = "Potions",
+        },

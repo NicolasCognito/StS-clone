@@ -226,7 +226,7 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
             type = "ON_BLOCK",
             target = defender,
             amount = blockGain,
-            source = "BlockReturn"
+            source = "Block Return"
         })
     end
 

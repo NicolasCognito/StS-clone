@@ -1,0 +1,7 @@
+{Name = "Burning Blood",
+    Rarity = "Starter",
+	Character = "Ironclad",
+    Description = "At the end of combat, heal 6 HP.",
+    Flavor = "Your body's own blood burns with an undying rage.",
+    Image = "BurningBlood.png",
+    Traits = {},

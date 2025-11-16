@@ -1,0 +1,8 @@
+{Name = "Pommel Strike",
+    Image = "PommelStrike.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [9|10] damage.\nDraw [1|2] [card|cards].",
+    Traits = {},

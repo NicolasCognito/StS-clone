@@ -1,0 +1,8 @@
+{Name = "Swivel",
+    Image = "Swivel.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Gain [8|11] #Block. The next Attack you play costs 0.",
+    Traits = {},

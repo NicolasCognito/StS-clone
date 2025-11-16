@@ -1,0 +1,6 @@
+{Name = "Shuriken",
+    Rarity = "Uncommon",
+    Description = "Every time you play 3 Attacks in a single turn, gain 1 [[File:Icon_Strength.png|20px|middle]] '''Strength'''.",
+    Flavor = "Lightweight throwing weapons. Recommend going for the eyes.",
+    Image = "Shuriken.png",
+    Traits = {},

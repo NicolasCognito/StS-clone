@@ -1,0 +1,8 @@
+{Name = "Piercing Wail",
+    Image = "PiercingWail.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "ALL enemies lose [6|8] #Strength this turn.\n#Exhaust.",
+    Traits = {},

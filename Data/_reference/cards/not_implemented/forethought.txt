@@ -1,0 +1,8 @@
+{Name = "Forethought",
+    Image = "Forethought.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Put [a card|any number of cards] from your hand to the bottom of your draw pile. [It costs|They cost] 0 until played.",
+    Traits = {},

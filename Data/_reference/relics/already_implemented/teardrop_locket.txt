@@ -1,0 +1,7 @@
+{Name = "Teardrop Locket",
+    Rarity = "Uncommon",
+	Character = "Watcher",
+    Description = "Start each combat in '''Calm'''.",
+    Flavor = "Its owner blind, its contents unseen.",
+    Image = "Tear drop locket.png",
+    Traits = {},

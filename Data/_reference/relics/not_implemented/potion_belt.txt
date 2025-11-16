@@ -1,0 +1,6 @@
+{Name = "Potion Belt",
+    Rarity = "Common",
+    Description = "Upon pickup, gain 2 Potion slots.",
+    Flavor = "I can hold more Potions using this belt!",
+    Image = "PotionBelt.png",
+    Traits = {},

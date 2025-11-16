@@ -1,0 +1,7 @@
+{Name = "Flex Potion",
+        Rarity = "Common",
+        Text = "Gain 5 ([[File:SacredBark.png|20px|middle]] 10) [[File:Icon_Strength.png|20px|middle]] '''Strength'''. At the end of your turn, lose 5 ([[File:SacredBark.png|20px|middle]] 10) [[File:Icon_Strength.png|20px|middle]] '''Strength'''.",
+        Image = "SteroidPotion.png",
+        Code = "#Flex Potion",
+        Link = "Potions",
+        },

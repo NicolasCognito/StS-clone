@@ -1,0 +1,8 @@
+{Name = "Offering",
+    Image = "Offering.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Lose 6 HP.\nGain <R> <R>.\nDraw [3|5] cards.\n#Exhaust.",
+    Traits = {},

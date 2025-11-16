@@ -1,0 +1,6 @@
+{Name = "Cursed Key",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>Whenever you open a non-boss chest, obtain a '''Curse'''.",
+    Flavor = "You can feel the malicious energy emanating from the key. Power comes at a price.",
+    Image = "CursedKey.png",
+    Traits = {},

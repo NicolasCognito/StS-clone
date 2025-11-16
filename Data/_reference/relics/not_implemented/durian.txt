@@ -1,0 +1,7 @@
+{Name = "Durian",
+    Rarity = "Blight",
+    Character = "Blight Chest",
+    Description = "Lose 50% of your Max HP.",
+    Image = "Durian.png",
+    Link = "Blights",
+    Traits = {},

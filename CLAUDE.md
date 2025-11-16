@@ -11,7 +11,8 @@ When receiving a task to work on this repository, follow these steps:
 ## 2. 🔍 Research When Needed
 
 If the user mentions a card or relic name without providing details:
-- Search the web for the card/relic description
+- Search the Data/_reference if it has something about the card
+- If necessary, search the web for the card/relic details (rare, usually excessive)
 - Understand its mechanics and effects before implementing
 - Verify the information matches the source game (Slay the Spire)
 

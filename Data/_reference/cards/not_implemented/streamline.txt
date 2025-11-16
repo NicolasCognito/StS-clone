@@ -1,0 +1,8 @@
+{Name = "Streamline",
+    Image = "Streamline.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [15|20] damage.\nReduce this card\'s cost by 1 this combat.",
+    Traits = {},

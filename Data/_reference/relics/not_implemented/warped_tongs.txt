@@ -1,0 +1,8 @@
+{Name = "Warped Tongs",
+    Rarity = "Event",
+	EventName = "Ominous Forge",
+	EventIcon = "OminiousForgeIcon.png",
+    Description = "At the start of your turn, Upgrade a random card in your hand for the rest of combat.",
+    Flavor = "The cursed tongs emit a strong desire to return to where they were stolen from.",
+    Image = "WarpedTongs.png",
+    Traits = {},

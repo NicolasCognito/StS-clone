@@ -1,0 +1,6 @@
+{Name = "Shield of Blight",
+    Rarity = "Blight",
+    Description = "Enemies have 50% more HP.",
+    Image = "Shield.png",
+    Link = "Blights",
+    Traits = {},

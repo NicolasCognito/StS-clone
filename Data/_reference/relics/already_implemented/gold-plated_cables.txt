@@ -1,0 +1,7 @@
+{Name = "Gold-Plated Cables",
+    Rarity = "Uncommon",
+	Character = "Defect",
+    Description = "Your rightmost Orb triggers its passive an additional time.",
+    Flavor = '"Interesting! Even automatons are affected by placebo." - Ranwid',
+    Image = "Cables.png",
+    Traits = {},

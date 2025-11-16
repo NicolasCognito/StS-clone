@@ -1,0 +1,8 @@
+{Name = "Essence of Darkness",
+        Rarity = "Rare",
+		Character = "Defect",
+        Text = "Channel 1 ([[File:SacredBark.png|20px|middle]] 2) [[File:Dark.png|20px|middle]] '''Dark''' of each orb slot.",
+        Image = "EssenceOfDarkness.png",
+        Code = "#Essence of Darkness",
+        Link = "Potions",
+        },

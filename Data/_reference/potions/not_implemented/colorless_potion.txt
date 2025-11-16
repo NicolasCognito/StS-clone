@@ -1,0 +1,7 @@
+{Name = "Colorless Potion",
+        Rarity = "Common",
+        Text = "Choose 1 0f 3 random Colorless cards to add ([[File:SacredBark.png|20px|middle]] 2 copies of it) to your hand. It costs ([[File:SacredBark.png|20px|middle]] They cost) 0 this turn.",
+        Image = "Colorless Potion.png",
+        Code = "#Colorless Potion",
+        Link = "Potions",
+        },

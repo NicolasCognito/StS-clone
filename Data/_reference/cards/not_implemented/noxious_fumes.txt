@@ -1,0 +1,8 @@
+{Name = "Noxious Fumes",
+    Image = "NoxiousFumes.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "At the start of your turn, apply [2|3] #Poison to ALL enemies.",
+    Traits = {},

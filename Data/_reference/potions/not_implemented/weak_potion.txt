@@ -1,0 +1,7 @@
+{Name = "Weak Potion",
+        Rarity = "Common",
+        Text = "Apply 3 ([[File:SacredBark.png|20px|middle]] 6) [[File:Icon_Weak.png|20px|middle]] '''Weak''' to target enemy.",
+        Image = "WeakPotion.png",
+        Code = "#Weak Potion",
+        Link = "Potions",
+        },

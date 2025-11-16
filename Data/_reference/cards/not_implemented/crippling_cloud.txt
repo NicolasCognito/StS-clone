@@ -1,0 +1,8 @@
+{Name = "Crippling Cloud",
+    Image = "CripplingCloud.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 2,
+    Text = "Apply [4|7] #Poison and 2 #Weak to ALL enemies.\n#Exhaust.",
+    Traits = {},

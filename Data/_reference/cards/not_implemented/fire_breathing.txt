@@ -1,0 +1,8 @@
+{Name = "Fire Breathing",
+    Image = "FireBreathing.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you draw a #Status or #Curse card, deal [6|10] damage to ALL enemies.",
+    Traits = {},

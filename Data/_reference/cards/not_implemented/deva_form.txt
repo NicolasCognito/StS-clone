@@ -1,0 +1,8 @@
+{Name = "Deva Form",
+    Image = "DevaForm.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 3,
+    Text = "[#Ethereal. |At the start of your turn, gain <P> and increase this gain by 1.",
+    Traits = {"Ethereal"},

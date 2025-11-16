@@ -1,0 +1,8 @@
+{Name = "Fiend Fire",
+    Image = "FiendFire.png",
+    Color = "Red",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 2,
+    Text = "#Exhaust all cards in your hand.\nDeal [7|10] damage for each #Exhausted card.\n#Exhaust.",
+    Traits = {},

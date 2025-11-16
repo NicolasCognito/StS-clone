@@ -1,0 +1,8 @@
+{Name = "Heatsinks",
+    Image = "Heatsinks.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you play a Power card, draw [1|2] [card|cards].",
+    Traits = {},

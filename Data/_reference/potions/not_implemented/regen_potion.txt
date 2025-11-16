@@ -1,0 +1,7 @@
+{Name = "Regen Potion",
+        Rarity = "Uncommon",
+        Text = "Gain 5 ([[File:SacredBark.png|20px|middle]] 10) [[File:Icon_Regen.png|20px|middle]] '''Regeneration'''.",
+        Image = "RegenPotion.png",
+        Code = "#Regen Potion",
+        Link = "Potions",
+        },

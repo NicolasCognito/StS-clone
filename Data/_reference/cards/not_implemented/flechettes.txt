@@ -1,0 +1,8 @@
+{Name = "Flechettes",
+    Image = "Flechettes.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [4|6] damage for each Skill in your hand.",
+    Traits = {},

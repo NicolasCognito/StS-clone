@@ -1,0 +1,8 @@
+{Name = "Bloody Idol",
+    Rarity = "Event",
+	EventName = "Forgotten Altar",
+	EventIcon = "ForgottenAltarIcon.png",
+    Description = "Whenever you gain Gold, heal 5 HP.",
+    Flavor = "The idol now weeps a constant stream of blood.",
+    Image = "BloodyIdol.png",
+    Traits = {},

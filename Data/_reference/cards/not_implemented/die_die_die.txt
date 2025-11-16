@@ -1,0 +1,8 @@
+{Name = "Die Die Die",
+    Image = "DieDieDie.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [13|17] damage to ALL enemies.\n#Exhaust.",
+    Traits = {},

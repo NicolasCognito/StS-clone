@@ -1,0 +1,6 @@
+{Name = "Orichalcum",
+    Rarity = "Common",
+    Description = "If you end your turn without [[File:Icon_Block.png|20px|middle]] '''Block''', gain 6 [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+    Flavor = "A green tinted metal of an unknown origin. Seemingly indestructible.",
+    Image = "Orichalcum.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Sword Boomerang",
+    Image = "SwordBoomerang.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal 3 damage to a random enemy [3|4] times.",
+    Traits = {},

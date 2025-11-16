@@ -1,0 +1,8 @@
+{Name = "Sands of Time",
+    Image = "SandsofTime.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 4,
+    Text = "#Retain. Deal [20|26] damage. Whenever this card is #Retained, lower its cost by 1.",
+    Traits = {},

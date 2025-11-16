@@ -1,0 +1,6 @@
+{Name = "Bottled Flame",
+    Rarity = "Uncommon",
+    Description = "Upon pick up, choose an Attack card. <br>At the start of each combat, this card will be in your hand.",
+    Flavor = "Inside the bottle resides a flame that eternally burns.",
+    Image = "BottledFlame.png",
+    Traits = {},

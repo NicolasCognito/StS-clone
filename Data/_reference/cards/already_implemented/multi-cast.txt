@@ -1,0 +1,8 @@
+{Name = "Multi-Cast",
+    Image = "Multi-Cast.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = X,
+    Text = "#Evoke your next Orb [X|X+1] times.",
+    Traits = {},

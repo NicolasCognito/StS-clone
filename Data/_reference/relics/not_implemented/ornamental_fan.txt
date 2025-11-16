@@ -1,0 +1,6 @@
+{Name = "Ornamental Fan",
+    Rarity = "Uncommon",
+    Description = "Every time you play 3 Attacks in a single turn, gain 4 [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+    Flavor = "The fan seems to extend and harden as blood is spilled.",
+    Image = "OrnamentalFan.png",
+    Traits = {},

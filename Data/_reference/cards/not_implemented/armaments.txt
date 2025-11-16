@@ -1,0 +1,8 @@
+{Name = "Armaments",
+    Image = "Armaments.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain 5 #Block.\n#Upgrade [a card|all cards] in your hand for the rest of combat.",
+    Traits = {},

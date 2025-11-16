@@ -1,0 +1,6 @@
+{Name = "Runic Dome",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>You can no longer see enemy Intents.",
+    Flavor = "The runes are indecipherable.",
+    Image = "RunicDome.png",
+    Traits = {},

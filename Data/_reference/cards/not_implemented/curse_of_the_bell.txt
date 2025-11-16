@@ -1,0 +1,10 @@
+{Name = "Curse of the Bell",
+    Image = "CurseoftheBell.png",
+    Color = "Curse",
+    Rarity = "Curse",
+    Type = "Curse",
+    Cost = -2,
+    Text = "#Unplayable. Cannot be removed from your deck.",
+    NoUpgrade = true,
+    Traits = {"Unplayable", "Ethereal"}
+    },

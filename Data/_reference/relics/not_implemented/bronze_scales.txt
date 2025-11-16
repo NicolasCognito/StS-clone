@@ -1,0 +1,6 @@
+{Name = "Bronze Scales",
+    Rarity = "Common",
+    Description = "Whenever you take damage, deal 3 damage back.",
+    Flavor = "The sharp scales of the Guardian. Rearranges itself to protect its user. ",
+    Image = "BronzeScales.png",
+    Traits = {},

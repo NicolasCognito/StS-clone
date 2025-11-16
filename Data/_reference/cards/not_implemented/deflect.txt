@@ -1,0 +1,8 @@
+{Name = "Deflect",
+    Image = "Deflect.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Gain [4|7] #Block.",
+    Traits = {},

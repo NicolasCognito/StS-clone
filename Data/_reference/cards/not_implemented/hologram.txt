@@ -1,0 +1,8 @@
+{Name = "Hologram",
+    Image = "Hologram.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [3|5] #Block.\nPut a card from your discard pile into your hand. [\n#Exhaust.|",
+    Traits = {},

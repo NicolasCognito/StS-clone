@@ -1,0 +1,7 @@
+{Name = "Runic Dodecahedron",
+    ID = "Dodecahedron",
+    Rarity = "Uncommon",
+    Description = "If your HP is full, gain 1 '''Energy''' at the start of each turn.",
+    Flavor = "The runes are indecipherable.",
+    Image = "RunicDedecahedron.png",
+    Traits = {},

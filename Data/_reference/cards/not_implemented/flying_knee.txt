@@ -1,0 +1,8 @@
+{Name = "Flying Knee",
+    Image = "FlyingKnee.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [8|11] damage.\nNext turn, gain <G>.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Acrobatics",
+    Image = "Acrobatics.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Draw [3|4] cards.\nDiscard 1 card.",
+    Traits = {},

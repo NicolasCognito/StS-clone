@@ -1,0 +1,8 @@
+{Name = "Go for the Eyes",
+    Image = "GofortheEyes.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [3|4] damage.\nIf the enemy intends to attack, apply [1|2] #Weak.",
+    Traits = {},

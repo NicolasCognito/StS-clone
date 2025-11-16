@@ -1,0 +1,6 @@
+{Name = "Sundial",
+    Rarity = "Uncommon",
+    Description = "Every 3 times you shuffle your deck, gain 2 '''Energy'''.",
+    Flavor = '"Early man\'s foolish obsession with time caused them to look to the sky for guidance, hoping for something permanent." - Zoroth',
+    Image = "Sundial.png",
+    Traits = {},

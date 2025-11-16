@@ -1,0 +1,8 @@
+{Name = "Brilliance",
+    Image = "Brilliance.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [12|16] damage. Deals additional damage equal to #Mantra gained this combat.",
+    Traits = {},

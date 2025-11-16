@@ -1,0 +1,8 @@
+{Name = "Dagger Throw",
+    Image = "DaggerThrow.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [9|12] damage.\nDraw 1 card. \nDiscard 1 card.",
+    Traits = {},

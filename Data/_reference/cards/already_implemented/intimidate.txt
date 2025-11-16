@@ -1,0 +1,8 @@
+{Name = "Intimidate",
+    Image = "Intimidate.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Apply [1|2] #Weak to ALL enemies.\n#Exhaust.",
+    Traits = {},

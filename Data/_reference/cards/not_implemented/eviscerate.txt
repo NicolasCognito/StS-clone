@@ -1,0 +1,8 @@
+{Name = "Eviscerate",
+    Image = "Eviscerate.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 3,
+    Text = "Costs 1 less <G>\nfor each card discarded this turn.\nDeal [7|9] damage 3 times.",
+    Traits = {},

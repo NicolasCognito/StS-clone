@@ -1,0 +1,6 @@
+{Name = "Toy Ornithopter",
+    Rarity = "Common",
+    Description = "Whenever you use a potion, heal 5 HP.",
+    Flavor = '"This little toy is the perfect companion for the lone adventurer!"',
+    Image = "ToyOrnithopter.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Safety",
+    Image = "Safety.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Skill",
+    Cost = 1,
+    Text = "#Retain. Gain [12|16] #Block. #Exhaust.",
+    Traits = {},

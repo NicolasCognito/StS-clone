@@ -1,0 +1,8 @@
+{Name = "Protect",
+    Image = "Protect.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 2,
+    Text = "#Retain. Gain [12|16] #Block.",
+    Traits = {},

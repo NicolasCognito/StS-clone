@@ -1,0 +1,7 @@
+{Name = "Cloak Clasp",
+    Rarity = "Rare",
+	Character = "Watcher",
+    Description = "At the end of your turn, gain 1 [[File:Icon_Block.png|20px|middle]] '''Block''' for each card in your hand.",
+    Flavor = "A simple but sturdy design.",
+    Image = "CloakClasp.png",
+    Traits = {},

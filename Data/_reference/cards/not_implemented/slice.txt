@@ -1,0 +1,8 @@
+{Name = "Slice",
+    Image = "Slice.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [6|9] damage.",
+    Traits = {},

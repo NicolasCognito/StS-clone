@@ -1,0 +1,8 @@
+{Name = "Wild Strike",
+    Image = "WildStrike.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [12|17] damage.\nShuffle a #Wound into your draw pile.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "A Thousand Cuts",
+    Image = "AThousandCuts.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 2,
+    Text = "Whenever you play a card, deal [1|2] damage to ALL enemies.",
+    Traits = {},

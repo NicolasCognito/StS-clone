@@ -1,0 +1,7 @@
+{Name = "Dexterity Potion",
+        Rarity = "Common",
+        Text = "Gain 2 ([[File:SacredBark.png|20px|middle]] 4) [[File:Icon_Dexterity.png|20px|middle]] '''Dexterity''' this combat.",
+        Image = "DexterityPotion.png",
+        Code = "#Dexterity Potion",
+        Link = "Potions",
+        },

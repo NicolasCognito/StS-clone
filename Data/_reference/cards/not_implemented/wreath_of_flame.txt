@@ -1,0 +1,8 @@
+{Name = "Wreath of Flame",
+    Image = "WreathofFlame.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Your next Attack deals [5|8] additional damage.",
+    Traits = {},

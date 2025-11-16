@@ -1,0 +1,8 @@
+{Name = "Clothesline",
+    Image = "Clothesline.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [12|14] damage.\nApply [2|3] #Weak.",
+    Traits = {},

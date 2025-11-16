@@ -1,0 +1,8 @@
+{Name = "Tactician",
+    Image = "Tactician.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = -2,
+    Text = "#Unplayable.\nIf this card is discarded from your hand, gain <G>| <G>].",
+    Traits = {},

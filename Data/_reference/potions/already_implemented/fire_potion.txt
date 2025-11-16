@@ -1,0 +1,7 @@
+{Name = "Fire Potion",
+        Rarity = "Common",
+        Text = "Deal 20 ([[File:SacredBark.png|20px|middle]] 40) damage to target enemy.",
+        Image = "FirePotion.png",
+        Code = "#Fire Potion",
+        Link = "Potions",
+        },

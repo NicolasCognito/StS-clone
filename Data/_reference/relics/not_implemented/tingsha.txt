@@ -1,0 +1,7 @@
+{Name = "Tingsha",
+    Rarity = "Rare",
+	Character = "Silent",
+    Description = "Whenever you discard a card during your turn, deal 3 damage to a random enemy for each card discarded.",
+    Flavor = "The sound this instrument generates seems to be capable of reverberating to painful levels of volume.",
+    Image = "Tingsha.png",
+    Traits = {},

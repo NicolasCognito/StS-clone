@@ -1,0 +1,6 @@
+{Name = "Strawberry",
+    Rarity = "Common",
+    Description = "Raise your Max HP by 7",
+    Flavor = '"Delicious! Haven\'t seen any of these since the blight." - Ranwid',
+    Image = "Strawberry.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Expunger",
+    Image = "Expunger.png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [9|15] damage X times.",
+    Traits = {},

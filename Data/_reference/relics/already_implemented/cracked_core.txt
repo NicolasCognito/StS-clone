@@ -1,0 +1,7 @@
+{Name = "Cracked Core",
+    Rarity = "Starter",
+	Character = "Defect",
+    Description = "At the start of each combat, Channel 1 [[File:Lightning.png|20px|middle]] '''Lightning''' orb",
+    Flavor = "The mysterious life force which powers the Automatons within the Spire. It appears to be cracked.",
+    Image = "CrackedCore.png",
+    Traits = {},

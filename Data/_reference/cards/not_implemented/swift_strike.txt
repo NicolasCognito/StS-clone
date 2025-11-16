@@ -1,0 +1,8 @@
+{Name = "Swift Strike",
+    Image = "SwiftStrike.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [7|10] damage.",
+    Traits = {},

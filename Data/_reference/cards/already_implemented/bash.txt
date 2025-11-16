@@ -1,0 +1,8 @@
+{Name = "Bash",
+    Image = "Bash.png",
+    Color = "Red",
+    Rarity = "Basic",
+    Type = "Attack",
+    Cost = 2,
+    Text = "Deal [8|10] damage.\nApply [2|3] #Vulnerable.",
+    Traits = {},

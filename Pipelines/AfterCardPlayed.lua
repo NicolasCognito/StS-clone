@@ -74,6 +74,30 @@ function AfterCardPlayed.execute(world, player)
             end
         end
 
+        -- A THOUSAND CUTS: trigger damage on every card play
+        local thousandCutsStacks = (player.status and player.status.a_thousand_cuts) or 0
+        if thousandCutsStacks > 0 then
+            world.queue:push({
+                type = "ON_NON_ATTACK_DAMAGE",
+                source = player,
+                target = "all",
+                amount = thousandCutsStacks
+            })
+            table.insert(world.log, "A Thousand Cuts deals " .. thousandCutsStacks .. " damage to all enemies")
+        end
+
+        -- AFTER IMAGE: gain block on every card play
+        local afterImageStacks = (player.status and player.status.after_image) or 0
+        if afterImageStacks > 0 then
+            world.queue:push({
+                type = "ON_BLOCK",
+                target = player,
+                amount = afterImageStacks,
+                source = "After Image"
+            })
+            table.insert(world.log, "After Image grants " .. afterImageStacks .. " Block")
+        end
+
         -- Enforce card play limits (Velvet Choker, Normality)
         -- Recalculate limit (Normality might have been played/exhausted this execution!)
         local limit = Utils.getCardPlayLimit(world, player)

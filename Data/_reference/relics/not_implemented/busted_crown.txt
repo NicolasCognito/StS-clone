@@ -1,0 +1,6 @@
+{Name = "Busted Crown",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>On Card Reward screens, you have 2 fewer cards to choose from",
+    Flavor = "The Champ's crown... or a pale imitation?",
+    Image = "BustedCrown.png",
+    Traits = {},

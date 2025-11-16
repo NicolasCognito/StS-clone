@@ -1,0 +1,8 @@
+{Name = "Survivor",
+    Image = "Survivor.png",
+    Color = "Green",
+    Rarity = "Basic",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [8|11] #Block.\nDiscard 1 card.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Rainbow",
+    Image = "Rainbow.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 2,
+    Text = "#Channel 1 #Lightning.\n#Channel 1 #Frost.\n#Channel 1 #Dark. [\n#Exhaust.|",
+    Traits = {},

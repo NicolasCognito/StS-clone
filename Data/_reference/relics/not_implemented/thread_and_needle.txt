@@ -1,0 +1,6 @@
+{Name = "Thread and Needle",
+    Rarity = "Rare",
+    Description = "At the start of each combat, gain 4 [[File:Icon_PlatedArmor.png|20px|middle]] '''Plated Armor'''.",
+    Flavor = "Wrapping the magical thread around your body, you feel harder to the touch.",
+    Image = "ThreadandNeedle.png",
+    Traits = {},

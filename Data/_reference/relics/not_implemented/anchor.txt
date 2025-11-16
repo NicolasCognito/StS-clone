@@ -1,0 +1,6 @@
+{Name = "Anchor",
+    Rarity = "Common",
+    Description = "Start each combat with 10 [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+    Flavor = "Holding this miniature trinket, you feel heavier and more stable.",
+    Image = "Anchor.png",
+    Traits = {},

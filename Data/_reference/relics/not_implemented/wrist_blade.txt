@@ -1,0 +1,7 @@
+{Name = "Wrist Blade",
+    Rarity = "Boss",
+	Character = "Silent",
+    Description = "Attacks that cost 0 deal 4 additional damage.",
+    Flavor = "Handy for assassinations.",
+    Image = "WristBlade.png",
+    Traits = {},

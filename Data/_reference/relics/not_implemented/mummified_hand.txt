@@ -1,0 +1,6 @@
+{Name = "Mummified Hand",
+    Rarity = "Uncommon",
+    Description = "Whenever you play a Power card, a random card in your hand costs 0 that turn.",
+    Flavor = "Frequently twitches, especially when your pulse is high.",
+    Image = "MummifiedHand.png",
+    Traits = {},

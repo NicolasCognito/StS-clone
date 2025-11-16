@@ -1,0 +1,8 @@
+{Name = "Stack",
+    Image = "Stack.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain #Block equal to the number of cards in your discard pile| +3].",
+    Traits = {},

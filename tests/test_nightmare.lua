@@ -8,7 +8,44 @@ local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
 local StartTurn = require("Pipelines.StartTurn")
 local EndTurn = require("Pipelines.EndTurn")
+local ContextProvider = require("Pipelines.ContextProvider")
 local Utils = require("utils")
+
+local function findCard(world, cardId, state)
+    for _, card in ipairs(world.player.combatDeck) do
+        if card.id == cardId and (not state or card.state == state) then
+            return card
+        end
+    end
+    return nil
+end
+
+local function playCard(world, player, card)
+    while true do
+        local result = PlayCard.execute(world, player, card)
+        if result == true then
+            return true
+        end
+
+        if type(result) == "table" and result.needsContext then
+            local request = world.combat.contextRequest
+            local context = ContextProvider.execute(world, player, request.contextProvider, request.card)
+
+            if request.stability == "stable" then
+                local selection = context
+                if type(context) == "table" and request.contextProvider and request.contextProvider.type == "cards" then
+                    if #context == 1 then
+                        selection = context[1]
+                    end
+                end
+                world.combat.stableContext = selection
+            else
+                world.combat.tempContext = context
+            end
+            world.combat.contextRequest = nil
+        end
+    end
+end
 
 print("=== Testing Nightmare Card ===\n")
 
@@ -28,6 +65,7 @@ strike.state = "HAND"
 
 world.player.masterDeck = {nightmare, strike}
 world.player.combatDeck = {nightmare, strike}
+world.NoShuffle = true
 
 -- Setup enemy
 world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
@@ -37,11 +75,12 @@ StartCombat.execute(world)
 
 print("Initial hand size: " .. Utils.getCardCountByState(world.player.combatDeck, "HAND"))
 
--- Play Nightmare, selecting Strike
--- Simulate context selection (in real game, CLI/GUI would collect this)
-world.combat.stableContext = strike
+local nightmareCard = findCard(world, "Nightmare", "HAND")
+local strikeCard = findCard(world, "Strike", "HAND")
+assert(nightmareCard, "Nightmare card not found in hand")
+assert(strikeCard, "Strike card not found in hand")
 
-PlayCard.execute(world, world.player, nightmare)
+playCard(world, world.player, nightmareCard)
 
 -- Check NIGHTMARE state cards exist
 local nightmareCards = Utils.getCardsByState(world.player.combatDeck, "NIGHTMARE")
@@ -89,6 +128,7 @@ for i = 1, 8 do
 end
 
 world.player.masterDeck = world.player.combatDeck
+world.NoShuffle = true
 world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 
 StartCombat.execute(world)
@@ -96,9 +136,12 @@ StartCombat.execute(world)
 local initialHandSize = Utils.getCardCountByState(world.player.combatDeck, "HAND")
 print("Initial hand size (should be 10): " .. initialHandSize)
 
--- Play Nightmare
-world.combat.stableContext = strike
-PlayCard.execute(world, world.player, nightmare)
+nightmareCard = findCard(world, "Nightmare", "HAND")
+strikeCard = findCard(world, "Strike", "HAND")
+assert(nightmareCard, "Nightmare card not found in hand")
+assert(strikeCard, "Strike card not found in hand")
+
+playCard(world, world.player, nightmareCard)
 
 -- Check NIGHTMARE cards exist
 nightmareCards = Utils.getCardsByState(world.player.combatDeck, "NIGHTMARE")
@@ -107,7 +150,8 @@ print("NIGHTMARE state cards: " .. #nightmareCards)
 EndTurn.execute(world, world.player)
 
 -- Start new turn with full hand (drawn cards)
-world.player.cannotDraw = true  -- Prevent drawing to keep hand full
+world.player.status = world.player.status or {}
+world.player.status.no_draw = 1  -- Prevent drawing to keep hand full
 StartTurn.execute(world, world.player)
 
 -- Check that NIGHTMARE cards were removed (hand was full)
@@ -137,6 +181,7 @@ defend.state = "HAND"
 
 world.player.masterDeck = {nightmare, strike, defend}
 world.player.combatDeck = {nightmare, strike, defend}
+world.NoShuffle = true
 world.enemies = {Utils.copyEnemyTemplate(Enemies.Cultist)}
 
 StartCombat.execute(world)
@@ -146,8 +191,12 @@ world.player.status.echo_form = 1
 world.player.status.echoFormThisTurn = 1
 
 -- Play Nightmare - should be duplicated by Echo Form
-world.combat.stableContext = strike
-PlayCard.execute(world, world.player, nightmare)
+nightmareCard = findCard(world, "Nightmare", "HAND")
+strikeCard = findCard(world, "Strike", "HAND")
+assert(nightmareCard, "Nightmare card not found in hand")
+assert(strikeCard, "Strike card not found in hand")
+
+playCard(world, world.player, nightmareCard)
 
 -- Check NIGHTMARE cards: should be 6 (3 from initial, 3 from Echo Form duplication)
 nightmareCards = Utils.getCardsByState(world.player.combatDeck, "NIGHTMARE")

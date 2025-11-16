@@ -1,0 +1,8 @@
+{Name = "Bloodletting",
+    Image = "Bloodletting.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Lose 3 HP.\nGain <R> <R>| <R>].",
+    Traits = {},

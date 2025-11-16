@@ -1,0 +1,8 @@
+{Name = "Electrodynamics",
+    Image = "Electrodynamics.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 2,
+    Text = "#Lightning now hits ALL enemies.\n#Channel [2|3] #Lightning.",
+    Traits = {},

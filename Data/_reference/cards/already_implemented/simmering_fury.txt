@@ -1,0 +1,8 @@
+{Name = "Simmering Fury",
+    Image = "SimmeringFury.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "At the start of your next turn, enter #Wrath and draw [2|3] cards.",
+    Traits = {},

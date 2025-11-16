@@ -1,0 +1,8 @@
+{Name = "Reprogram",
+    Image = "Reprogram.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Lose [1|2] focus. Gain [1|2] Strength. Gain [1|2] Dexterity.",
+    Traits = {},

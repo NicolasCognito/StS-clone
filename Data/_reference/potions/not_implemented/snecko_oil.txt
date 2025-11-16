@@ -1,0 +1,7 @@
+{Name = "Snecko Oil",
+        Rarity = "Uncommon",
+        Text = "Draw 5 ([[File:SacredBark.png|20px|middle]] 10) Cards. Randomize the cost of cards in your hand",
+        Image = "SneckoOil.png",
+        Code = "#Snecko Oil",
+        Link = "Potions",
+        },

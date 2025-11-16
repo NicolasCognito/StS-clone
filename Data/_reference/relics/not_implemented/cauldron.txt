@@ -1,0 +1,6 @@
+{Name = "Cauldron",
+    Rarity = "Shop",
+    Description = "When obtained, brews 5 random potions.",
+    Flavor = "The Merchant is actually a rather skilled potion brewer. Buy 4 get 1 free.",
+    Image = "Cauldron.png",
+    Traits = {},

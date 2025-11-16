@@ -1,0 +1,8 @@
+{Name = "Burning Pact",
+    Image = "BurningPact.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "#Exhaust 1 card.\nDraw [2|3] cards.",
+    Traits = {},

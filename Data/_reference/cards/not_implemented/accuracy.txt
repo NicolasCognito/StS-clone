@@ -1,0 +1,8 @@
+{Name = "Accuracy",
+    Image = "Accuracy.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "#Shivs deal [4|6] additional damage.",
+    Traits = {},

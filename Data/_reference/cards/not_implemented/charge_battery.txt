@@ -1,0 +1,8 @@
+{Name = "Charge Battery",
+    Image = "ChargeBattery.png",
+    Color = "Blue",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [7|10] #Block.\nNext turn, gain <B>.",
+    Traits = {},

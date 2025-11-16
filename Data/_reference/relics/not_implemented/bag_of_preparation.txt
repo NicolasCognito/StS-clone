@@ -1,0 +1,6 @@
+{Name = "Bag of Preparation",
+    Rarity = "Common",
+    Description = "At the start of each combat, draw 2 additional cards.",
+    Flavor = "Oversized adventurer's pack. Has many pockets and straps.",
+    Image = "BagofPreparation.png",
+    Traits = {},

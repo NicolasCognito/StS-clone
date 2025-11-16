@@ -1,0 +1,8 @@
+{Name = "Pressure Points",
+    Image = "PressurePoints.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Apply [8|11] Mark. ALL enemies lose HP equal to their Mark.",
+    Traits = {},

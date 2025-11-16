@@ -1,0 +1,8 @@
+{Name = "Alpha",
+    Image = "Alpha.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 1,
+    Text = "|#Innate. ]Shuffle a #Beta into your draw pile. #Exhaust.",
+    Traits = {"Innate"},

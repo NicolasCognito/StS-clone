@@ -1,0 +1,6 @@
+{Name = "Coffee Dripper",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>You can no longer Rest at Rest Sites.",
+    Flavor = '"Yes, another cup please. Back to work. Back to work!" - The Architect',
+    Image = "CoffeeDripper.png",
+    Traits = {},

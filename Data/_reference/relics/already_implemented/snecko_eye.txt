@@ -1,0 +1,6 @@
+{Name = "Snecko Eye",
+    Rarity = "Boss",
+    Description = "Draw 2 additional cards each turn. Start each combat [[File:Icon_Confused.png|20px|middle]] '''Confused'''.",
+    Flavor = "An eye of a fallen snecko. Much larger than you imagined.",
+    Image = "SneckoEye.png",
+    Traits = {},

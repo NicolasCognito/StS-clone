@@ -1,0 +1,6 @@
+{Name = "Pear",
+    Rarity = "Uncommon",
+    Description = "Raise your Max HP by 10",
+    Flavor = "A common fruit before the Spireblight.",
+    Image = "Pear.png",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "N'loth's Gift",
+    Rarity = "Event",
+	EventName = "N'loth",
+	EventIcon = "NlothIcon.png",
+    Description = "Triples the chance of receiving rare cards as monster rewards.",
+    Flavor = "The strange gift from N'loth. Whenever you try and unwrap it, another wrapped box of the same size lies within.",
+    Image = "NlothsGift.png",
+    Traits = {},

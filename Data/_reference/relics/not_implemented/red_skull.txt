@@ -1,0 +1,7 @@
+{Name = "Red Skull",
+    Rarity = "Common",
+	Character = "Ironclad",
+    Description = "While your HP is at or below 50%, you have 3 additional [[File:Icon_Strength.png|20px|middle]] '''Strength'''.",
+    Flavor = "A small skull covered in ornamental paint.",
+    Image = "RedSkull.png",
+    Traits = {},

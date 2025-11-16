@@ -1,0 +1,8 @@
+{Name = "Malaise",
+    Image = "Malaise.png",
+    Color = "Green",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = X,
+    Text = "Enemy loses [X|X+1] #Strength. Apply [X|X+1] #Weak.\n#Exhaust.",
+    Traits = {},

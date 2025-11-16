@@ -1,0 +1,7 @@
+{Name = "Magic Flower",
+    Rarity = "Rare",
+	Character = "Ironclad",
+    Description = "Healing is 50% more effective during combat.",
+    Flavor = "A flower long thought extinct, somehow preserved in perfect condition.",
+    Image = "MagicFlower.png",
+    Traits = {},

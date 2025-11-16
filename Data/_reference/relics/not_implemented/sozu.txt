@@ -1,0 +1,6 @@
+{Name = "Sozu",
+    Rarity = "Boss",
+    Description = "Gain 1 '''Energy''' at the start of each turn. <br>You can no longer obtain potions.",
+    Flavor = "You notice that magical liquids seem to lose their properties when near this relic.",
+    Image = "Sozu.png",
+    Traits = {},

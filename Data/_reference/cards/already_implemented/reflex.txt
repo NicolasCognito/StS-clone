@@ -1,0 +1,8 @@
+{Name = "Reflex",
+    Image = "Reflex.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = -2,
+    Text = "#Unplayable.\nIf this card is discarded from your hand, draw [2|3] [card|cards].",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Deceive Reality",
+    Image = "DeceiveReality.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [4|7] #Block. Add a #Safety into your hand.",
+    Traits = {},

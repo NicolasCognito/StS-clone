@@ -1,0 +1,8 @@
+{Name = "Caltrops",
+    Image = "Caltrops.png",
+    Color = "Green",
+    Rarity = "Uncommon",
+    Type = "Power",
+    Cost = 1,
+    Text = "Whenever you are attacked, deal [3|5] damage back.",
+    Traits = {},

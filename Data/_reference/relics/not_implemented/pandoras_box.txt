@@ -1,0 +1,6 @@
+{Name = "Pandora's Box",
+    Rarity = "Boss",
+    Description = "Transform all Strikes and Defends.",
+    Flavor = "You have a bad feeling about opening this.",
+    Image = "PandorasBox.png",
+    Traits = {},

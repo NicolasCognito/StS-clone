@@ -1,0 +1,6 @@
+{Name = "Omamori",
+    Rarity = "Common",
+    Description = "Negate the next 2 '''Curses''' you obtain.",
+    Flavor = "A common charm for staving off vile spirits. This one seems to possess a spark of divine energy.",
+    Image = "Omamori.png",
+    Traits = {},

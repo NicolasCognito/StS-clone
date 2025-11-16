@@ -1,0 +1,6 @@
+{Name = "Art of War",
+    Rarity = "Common",
+    Description = "If you do not play any Attacks during your turn, gain an extra '''Energy''' next turn.",
+    Flavor = "This ancient manuscript contains wisdom from a past age.",
+    Image = "ArtofWar.png",
+    Traits = {},

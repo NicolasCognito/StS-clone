@@ -1,0 +1,6 @@
+{Name = "Strike Dummy",
+    Rarity = "Uncommon",
+    Description = "Cards containing '''Strike''' deal 3 additional damage.",
+    Flavor = "It's beat up.",
+    Image = "StrikeDummy.png",
+    Traits = {},

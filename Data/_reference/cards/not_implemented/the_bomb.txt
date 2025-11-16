@@ -1,0 +1,8 @@
+{Name = "The Bomb",
+    Image = "TheBomb.png",
+    Color = "Colorless",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 2,
+    Text = "At the end of 3 turns, deal [40|50] damage to ALL enemies.",
+    Traits = {},

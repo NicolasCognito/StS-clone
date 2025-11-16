@@ -1,0 +1,6 @@
+{Name = "Orrery",
+    Rarity = "Shop",
+    Description = "Choose and add 5 cards to your deck.",
+    Flavor = '"Once you understand the universe..." - Zoroth',
+    Image = "Orrery.png",
+    Traits = {},

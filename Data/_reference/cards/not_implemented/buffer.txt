@@ -1,0 +1,8 @@
+{Name = "Buffer",
+    Image = "Buffer.png",
+    Color = "Blue",
+    Rarity = "Rare",
+    Type = "Power",
+    Cost = 2,
+    Text = "Prevent the next [time|2 times] you would lose HP.",
+    Traits = {},

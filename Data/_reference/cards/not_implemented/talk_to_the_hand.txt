@@ -1,0 +1,8 @@
+{Name = "Talk to the Hand",
+    Image = "TalktotheHand.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [5|7] damage. Whenever you attack this enemy, gain [2|3] #Block. #Exhaust.",
+    Traits = {},

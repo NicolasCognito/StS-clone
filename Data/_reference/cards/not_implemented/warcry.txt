@@ -1,0 +1,8 @@
+{Name = "Warcry",
+    Image = "Warcry.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Draw [1|2] [card|cards].\nPut a card from your hand onto the top of your draw pile.\n#Exhaust.",
+    Traits = {},

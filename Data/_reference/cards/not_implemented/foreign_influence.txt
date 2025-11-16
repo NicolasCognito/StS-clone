@@ -1,0 +1,8 @@
+{Name = "Foreign Influence",
+    Image = "ForeignInfluence.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Choose 1 of 3 Attacks of any color to add to your hand. |It costs 0 this turn.] #Exhaust.",
+    Traits = {},

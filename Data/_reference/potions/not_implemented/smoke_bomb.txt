@@ -1,0 +1,7 @@
+{Name = "Smoke Bomb",
+        Rarity = "Uncommon",
+        Text = "Escape from a non-boss combat. Receive no rewards.",
+        Image = "SmokeBomb.png",
+        Code = "#Smoke Bomb",
+        Link = "Potions",
+        },

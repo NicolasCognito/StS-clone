@@ -1,0 +1,8 @@
+{Name = "Neutralize",
+    Image = "Neutralize.png",
+    Color = "Green",
+    Rarity = "Basic",
+    Type = "Attack",
+    Cost = 0,
+    Text = "Deal [3|4] damage.\nApply [1|2] #Weak.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Dark Shackles",
+    Image = "DarkShackles.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Enemy loses [9|15] #Strength this turn.\n#Exhaust.",
+    Traits = {},

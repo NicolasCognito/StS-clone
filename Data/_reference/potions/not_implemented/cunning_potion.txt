@@ -1,0 +1,8 @@
+{Name = "Cunning Potion",
+        Rarity = "Uncommon",
+		Character = "Silent",
+        Text = "Add 3 ([[File:SacredBark.png|20px|middle]] 6) '''Shivs+''' to your hand.",
+        Image = "CunningPotion.png",
+        Code = "#Colorless Potion",
+        Link = "Potions",
+        },

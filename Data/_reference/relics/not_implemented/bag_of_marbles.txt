@@ -1,0 +1,6 @@
+{Name = "Bag of Marbles",
+    Rarity = "Common",
+    Description = "At the start of each combat, apply 1 [[File:Icon_Vulnerable.png|20px|middle]] '''Vulnerable''' to ALL enemies.",
+    Flavor = "A once popular toy in the City. Useful for throwing enemies off balance.",
+    Image = "BagofMarbles.png",
+    Traits = {},

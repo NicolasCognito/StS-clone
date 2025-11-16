@@ -1,0 +1,6 @@
+{Name = "Ceramic Fish",
+    Rarity = "Common",
+    Description = "Whenever you add a card to your deck, gain 9 gold.",
+    Flavor = "Meticulously painted, these fish were revered to bring great fortune.",
+    Image = "CeramicFish.png",
+    Traits = {},

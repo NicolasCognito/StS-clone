@@ -1,0 +1,8 @@
+{Name = "Mark of the Bloom",
+    Rarity = "Event",
+	EventName = "Mind Bloom",
+	EventIcon = "MindBloomIcon.png",
+    Description = "You can no longer heal.",
+    Flavor = "In the Beyond, thoughts and reality are one.",
+    Image = "MarkoftheBloom.png",
+    Traits = {},

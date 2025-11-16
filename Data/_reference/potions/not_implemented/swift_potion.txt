@@ -1,0 +1,7 @@
+{Name = "Swift Potion",
+        Rarity = "Common",
+        Text = "Draw 3 ([[File:SacredBark.png|20px|middle]] 6) cards.",
+        Image = "SwiftPotion.png",
+        Code = "#Swift Potion",
+        Link = "Potions",
+        },

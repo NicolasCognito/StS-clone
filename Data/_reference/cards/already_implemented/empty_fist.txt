@@ -1,0 +1,8 @@
+{Name = "Empty Fist",
+    Image = "EmptyFist.png",
+    Color = "Purple",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [9|14] damage. Exit your #Stance.",
+    Traits = {},

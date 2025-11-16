@@ -1,0 +1,8 @@
+{Name = "J.A.X.",
+    Image = "J.A.X..png",
+    Color = "Colorless",
+    Rarity = "Special",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Lose 3 HP.\nGain [2|3] #Strength.",
+    Traits = {},

@@ -1,0 +1,8 @@
+{Name = "Blasphemy",
+    Image = "Blasphemy.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Skill",
+    Cost = 1,
+    Text = "|#Retain. ]Enter #Divinity. Die next turn. #Exhaust",
+    Traits = {},

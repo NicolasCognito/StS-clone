@@ -1,0 +1,6 @@
+{Name = "Horn Cleat",
+    Rarity = "Uncommon",
+    Description = "At the start of your 2nd turn, gain 14 [[File:Icon_Block.png|20px|middle]] '''Block'''.",
+    Flavor = "Pleasant to hold in the hand. What was it for?",
+    Image = "Horn cleat.png",
+    Traits = {},

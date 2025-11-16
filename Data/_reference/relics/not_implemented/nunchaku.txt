@@ -1,0 +1,6 @@
+{Name = "Nunchaku",
+    Rarity = "Common",
+    Description = "Every time you play 10 Attacks, gain 1 '''Energy'''.",
+    Flavor = "A good training tool. Improves the posture and agility of the wielder.",
+    Image = "Nunchaku.png",
+    Traits = {},

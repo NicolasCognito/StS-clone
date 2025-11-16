@@ -1,0 +1,8 @@
+{Name = "Jack of All Trades",
+    Image = "JackOfAllTrades.png",
+    Color = "Colorless",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 0,
+    Text = "Add [1|2] random Colorless [card|cards] into your hand.\n#Exhaust.",
+    Traits = {},

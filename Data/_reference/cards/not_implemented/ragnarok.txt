@@ -1,0 +1,8 @@
+{Name = "Ragnarok",
+    Image = "Ragnarok.png",
+    Color = "Purple",
+    Rarity = "Rare",
+    Type = "Attack",
+    Cost = 3,
+    Text = "Deal [5|6] damage to a random enemy [5|6] times.",
+    Traits = {},

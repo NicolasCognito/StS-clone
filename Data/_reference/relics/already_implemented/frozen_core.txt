@@ -1,0 +1,7 @@
+{Name = "Frozen Core",
+    Rarity = "Boss",
+	Character = "Defect",
+    Description = "Replaces [[File:CrackedCore.png|20px|middle]] '''Cracked Core'''. <br>If you end your turn with empty Orb slots, Channel 1 [[File:Frost.png|20px|middle]] '''Frost''' orb",
+    Flavor = "The crack in your core has been filled with a pulsating cold energy.",
+    Image = "FrozenCore.png",
+    Traits = {},

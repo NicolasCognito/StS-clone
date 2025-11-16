@@ -1,0 +1,8 @@
+{Name = "Hemokinesis",
+    Image = "Hemokinesis.png",
+    Color = "Red",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Lose 2 HP.\nDeal [15|20] damage.",
+    Traits = {},

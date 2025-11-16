@@ -1,0 +1,8 @@
+{Name = "Force Field",
+    Image = "ForceField.png",
+    Color = "Blue",
+    Rarity = "Uncommon",
+    Type = "Skill",
+    Cost = 4,
+    Text = "Costs 1 less <B> for each Power card played this combat.\nGain [12|16] #Block.",
+    Traits = {},

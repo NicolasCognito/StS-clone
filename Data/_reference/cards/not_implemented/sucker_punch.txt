@@ -1,0 +1,8 @@
+{Name = "Sucker Punch",
+    Image = "SuckerPunch.png",
+    Color = "Green",
+    Rarity = "Common",
+    Type = "Attack",
+    Cost = 1,
+    Text = "Deal [7|9] damage.\nApply [1|2] #Weak.",
+    Traits = {},

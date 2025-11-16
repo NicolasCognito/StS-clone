@@ -1,0 +1,8 @@
+{Name = "Shrug It Off",
+    Image = "ShrugItOff.png",
+    Color = "Red",
+    Rarity = "Common",
+    Type = "Skill",
+    Cost = 1,
+    Text = "Gain [8|11] #Block.\nDraw 1 card.",
+    Traits = {},

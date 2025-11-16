@@ -1,0 +1,8 @@
+{Name = "Windmill Strike",
+    Image = "WindmillStrike.png",
+    Color = "Purple",
+    Rarity = "Uncommon",
+    Type = "Attack",
+    Cost = 2,
+    Text = "#Retain. Deal [7|10] damage. Whenever this card is #Retained, increase its damage by [4|5].",
+    Traits = {},

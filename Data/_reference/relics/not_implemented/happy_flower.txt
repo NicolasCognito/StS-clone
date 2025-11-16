@@ -1,0 +1,6 @@
+{Name = "Happy Flower",
+    Rarity = "Common",
+    Description = "Every 3 turns, gain 1 '''Energy'''.",
+    Flavor = "This unceasingly joyous plant is a popular novelty item among nobles.",
+    Image = "HappyFlower.png",
+    Traits = {},
