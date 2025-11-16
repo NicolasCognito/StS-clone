@@ -1,26 +1,36 @@
 -- PLAY CARD PIPELINE
--- world: the complete game state
--- player: the player character
--- card: the card from hand to play
+-- Orchestrates the execution of a card from hand
 --
--- Context System:
--- - Cards specify context needs via card.contextProvider configuration
--- - Context is collected by CombatEngine (via user input) and stored in world.combat
--- - Cards read context from world.combat.latestContext during onPlay
--- - Context can be "stable" (persists across duplications) or "temp" (re-collected each duplication)
+-- ARCHITECTURE:
+-- This pipeline is the main orchestrator - it delegates to specialized pipelines and helpers:
+--   - IsPlayable.lua: Validates card can be played
+--   - BeforeCardPlayed.lua: Pre-execution hooks (Pen Nib, Pain, Storm, etc.)
+--   - AfterCardPlayed.lua: Post-execution hooks (card limits, Choked, etc.)
+--   - PlayCard_DuplicationHelpers.lua: Duplication planning (Double Tap, Echo Form, etc.)
+--   - PlayCard_Helpers.lua: Supporting functions (cleanup, cost calculation, logging)
 --
--- Handles:
--- - Check playability (via IsPlayable pipeline)
--- - Execute pre-play action (if card has prePlayAction function)
--- - Pay energy cost
--- - Request context collection (sets world.combat.contextRequest)
--- - Track combat statistics (Powers played, etc.)
--- - Call card.onPlay to generate events
--- - Process effect queue
--- - Schedule duplications (Double Tap, Burst, etc.) ahead of time
--- - Remove card from hand
--- - Add to discard pile (or exhaust if Corruption + Skill)
--- - Combat logging
+-- EXECUTION FLOW:
+-- 1. Playability check (IsPlayable)
+-- 2. Energy payment and cost calculation
+-- 3. Pre-play action hook (card.prePlayAction)
+-- 4. Duplication planning (creates shadow copies)
+-- 5. Queue card entries to CardQueue (LIFO stack)
+-- 6. For each execution (original + shadows):
+--    a. BeforeCardPlayed triggers
+--    b. card.onPlay() generates events
+--    c. Process EventQueue
+--    d. AfterCardPlayed triggers
+--    e. Handle card cleanup (exhaust or discard)
+--
+-- CONTEXT SYSTEM:
+-- - Cards request context via COLLECT_CONTEXT events in their onPlay
+-- - Context can be "stable" (persists across duplications) or "temp" (re-collected)
+-- - PlayCard pauses execution when context is needed, resumes after collection
+--
+-- SHADOW COPIES:
+-- - Duplications create real card instances (shadows) stored in world.DuplicationShadowCards
+-- - Each shadow executes independently: calls onPlay, triggers hooks, handles cleanup
+-- - All shadows are purged at end of turn
 
 local PlayCard = {}
 
@@ -31,6 +41,8 @@ local Utils = require("utils")
 local DuplicationHelpers = require("Pipelines.PlayCard_DuplicationHelpers")
 local ClearContext = require("Pipelines.ClearContext")
 local ContextProvider = require("Pipelines.ContextProvider")
+local BeforeCardPlayed = require("Pipelines.BeforeCardPlayed")
+local Helpers = require("Pipelines.PlayCard_Helpers")
 
 local function enterProcessingState(card)
     if card.state ~= "PROCESSING" then
@@ -61,52 +73,33 @@ local function prepareCardPlay(world, player, card, options)
     end
 
     local auto = options.auto or options.skipEnergyCost or false  -- Support both names for compatibility
-    local energySpentOverride = options.energySpentOverride
-    local playSource = options.playSource
     local costWhenPlayedOverride = options.costWhenPlayedOverride
+
+    -- STEP 2: CALCULATE CARD COST
+    -- Determine actual energy cost (may be overridden by effects)
     local cardCost = costWhenPlayedOverride or GetCost.execute(world, player, card)
 
-    -- STEP 2: PRE-PLAY ACTION (Optional)
+    -- STEP 3: PRE-PLAY ACTION (Optional hook for cards)
     if card.prePlayAction then
         card:prePlayAction(world, player)
     end
 
-    -- STEP 3: PAY ENERGY (skip for auto-cast)
+    -- STEP 4: PAY ENERGY (skip for auto-play)
     if not auto then
         player.energy = player.energy - cardCost
     end
 
-    -- Logging
-    local loggedCost = auto and 0 or cardCost
-    local logMessage = player.id .. " played " .. card.name .. " (cost: " .. loggedCost .. ")"
-    if playSource then
-        logMessage = logMessage .. " via " .. playSource
-    elseif auto then
-        logMessage = logMessage .. " for free"
-    end
+    -- STEP 5: LOG CARD PLAY
+    local logMessage = Helpers.formatPlayLog(player, card, options, cardCost)
     table.insert(world.log, logMessage)
 
-    -- Set cost information (needed even for auto-cast for X-cost cards, etc.)
+    -- STEP 6: SET COST INFORMATION ON CARD
+    -- This info is used by the card's onPlay and other systems
     card.costWhenPlayed = cardCost
-
-    if energySpentOverride ~= nil then
-        card.energySpent = energySpentOverride
-    elseif card.cost == "X" and auto then
-        card.energySpent = 0
-    else
-        card.energySpent = cardCost
-    end
-
-    -- Chemical X: Add bonus to X cost cards
-    if card.cost == "X" then
-        local chemicalX = Utils.getRelic(player, "Chemical_X")
-        if chemicalX then
-            card.energySpent = card.energySpent + chemicalX.xCostBonus
-            table.insert(world.log, "Chemical X activated! (X + " .. chemicalX.xCostBonus .. ")")
-        end
-    end
-
+    card.energySpent = Helpers.calculateEnergySpent(world, player, card, cardCost, options)
     card.energyPaid = true
+
+    -- STEP 7: ENTER PROCESSING STATE
     enterProcessingState(card)
     return true
 end
@@ -200,115 +193,43 @@ function PlayCard.executeCardEffect(world, player, card)
     if not card._effectInitialized then
         card._effectInitialized = true
 
-        -- STEP 1: TRACK STATISTICS (for ALL cards, including shadows)
-        if card.type == "POWER" then
-            world.combat.powersPlayedThisCombat = world.combat.powersPlayedThisCombat + 1
+        -- BEFORE CARD PLAYED PIPELINE
+        -- Handles: Statistics tracking, Pen Nib counter, Pain damage, Storm, shadow logging
+        BeforeCardPlayed.execute(world, player, card)
 
-            -- Storm: Channel 1 Lightning when playing Power cards (ALL powers trigger this)
-            if player.status and player.status.storm and player.status.storm > 0 then
-                world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
-                table.insert(world.log, "Storm triggered!")
-            end
-        end
-
-        -- Pen Nib: ALL attacks increment counter (including shadow copies)
-        if card.type == "ATTACK" then
-            world.penNibCounter = world.penNibCounter + 1
-        end
-
-        -- Enhanced logging for shadow copies
-        if card.isShadow then
-            local source = card.duplicationSource or "Duplication"
-            table.insert(world.log, "  → " .. card.originalCardName .. " (" .. source .. ")")
-        end
-
-        -- STEP 1.5: PAIN CURSE DAMAGE (before card effect resolves)
-        -- Count all Pain cards in hand and deal 1 HP per Pain
-        -- Pain damage is pushed with "FIRST" priority to process before the card's own effects
-        local handCards = Utils.getCardsByState(player.combatDeck, "HAND")
-        local painCount = 0
-        for _, handCard in ipairs(handCards) do
-            if handCard.id == "Pain" then
-                painCount = painCount + 1
-            end
-        end
-
-        if painCount > 0 then
-            for i = 1, painCount do
-                world.queue:push({
-                    type = "ON_NON_ATTACK_DAMAGE",
-                    source = "Pain",
-                    target = player,
-                    amount = 1,
-                    tags = {"ignoreBlock"}
-                }, "FIRST")
-            end
-            table.insert(world.log, player.name .. " loses " .. painCount .. " HP from Pain in hand")
-        end
-
-        -- STEP 2: EXECUTE CARD EFFECT
+        -- EXECUTE CARD EFFECT
+        -- Call the card's onPlay function to generate its events
         if card.onPlay then
             card:onPlay(world, player)
         end
 
-        -- STEP 3: TRACK CURRENT EXECUTING CARD
+        -- TRACK CURRENT EXECUTING CARD
+        -- Store card metadata for AfterCardPlayed to access
         world.combat.currentExecutingCard = {
             type = card.type,
             name = card.isShadow and card.originalCardName or card.name,
             isShadow = card.isShadow
         }
 
+        -- QUEUE AFTER CARD PLAYED EVENT
+        -- This triggers post-execution hooks (Pen Nib reset, Choked damage, card limits, etc.)
         world.queue:push({
             type = "AFTER_CARD_PLAYED",
             player = player
         })
     end
 
-    -- STEP 4: PROCESS EVENT QUEUE (always do this, even when resuming)
+    -- PROCESS EVENT QUEUE
+    -- Always run this, even when resuming after context collection
     local queueResult = ProcessEventQueue.execute(world)
     if type(queueResult) == "table" and queueResult.needsContext then
         return queueResult
     end
 
-    -- STEP 5: CARD CLEANUP (Discard or Exhaust)
-    -- Each card independently handles its own discard/exhaust
-    local shouldExhaust = false
-    local exhaustSource = nil
-
-    if card.exhausts then
-        shouldExhaust = true
-        exhaustSource = "SelfExhaust"
-    end
-
-    if Utils.hasPower(player, "Corruption") and card.type == "SKILL" then
-        shouldExhaust = true
-        exhaustSource = "Corruption"
-    end
-
-    if shouldExhaust then
-        world.queue:push({
-            type = "ON_EXHAUST",
-            card = card,
-            source = exhaustSource
-        })
-        queueResult = ProcessEventQueue.execute(world)
-        if type(queueResult) == "table" and queueResult.needsContext then
-            return queueResult
-        end
-    else
-        -- Discard the card
-        world.queue:push({
-            type = "ON_DISCARD",
-            card = card,
-            player = player
-        })
-        queueResult = ProcessEventQueue.execute(world)
-        if type(queueResult) == "table" and queueResult.needsContext then
-            return queueResult
-        end
-    end
-
-    return true
+    -- CARD CLEANUP
+    -- Determine if card should exhaust or discard and handle it
+    -- Exhaust conditions: card.exhausts = true OR (Corruption power + Skill card)
+    return Helpers.handleCardCleanup(world, player, card)
 end
 
 local function resolveEntry(world, entry)
