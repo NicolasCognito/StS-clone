@@ -460,12 +460,13 @@ If validation fails, card execution is cancelled (logged, not error).
 
 | Pipeline | Purpose | Key Responsibilities |
 |----------|---------|---------------------|
-| `PlayCard.lua` | Card execution orchestrator | Energy payment, duplication handling, context management, exhaust/discard |
+| `PlayCard.lua` | Card execution orchestrator | Delegates to specialized pipelines: IsPlayable, BeforeCardPlayed, AfterCardPlayed. Manages energy payment, duplication planning, context handling, cleanup via helpers |
 | `IsPlayable.lua` | Playability validation | Entangled check, card limit enforcement, energy check, custom card.isPlayable() |
+| `BeforeCardPlayed.lua` | Pre-execution triggers | Statistics tracking (Powers played), Pen Nib counter, Pain damage, Storm, shadow logging. Runs before card.onPlay() |
 | `ProcessEventQueue.lua` | Event router | Routes events to appropriate handlers (two-tier: SpecialBehaviors + DefaultRoutes) |
 | `EventQueueOver.lua` | Queue cleanup | Clear contexts, trigger next card from CardQueue, clear currentExecutingCard |
 | `ResolveCard.lua` | CardQueue processor | Pop and resolve entries from CardQueue, handle separators (clear stable context) |
-| `AfterCardPlayed.lua` | Post-card triggers | Pen Nib reset, Choked damage, lastPlayedCard tracking, card limit enforcement |
+| `AfterCardPlayed.lua` | Post-execution triggers | Pen Nib reset, Choked damage, lastPlayedCard tracking, Panache, card limit enforcement. Runs after card.onPlay() |
 | `DealAttackDamage.lua` | Attack damage | Strength, weak, vulnerable, block absorption, thorns, Pen Nib, Feed |
 | `DealNonAttackDamage.lua` | HP loss effects | Bypasses strength/vulnerable/weak, optionally ignores block |
 | `ApplyBlock.lua` | Block gain | Dexterity, frail, blur (carry over block) |
@@ -1155,7 +1156,7 @@ return {
 
 **Examples:**
 
-- **Pen Nib**: Track attack counter in `world.penNibCounter`, check in DealAttackDamage
+- **Pen Nib**: Counter incremented in BeforeCardPlayed (for attacks), checked in DealAttackDamage, reset in AfterCardPlayed
 - **Necronomicon**: Check in PlayCard duplication system
 - **Snecko Eye**: Adds Confused status at StartCombat
 - **Winged Boots**: Enables bypassing map connections in Map_ChooseNextNode
