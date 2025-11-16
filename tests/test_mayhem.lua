@@ -248,4 +248,67 @@ do
     print("✓ Mayhem correctly handles card that draws more cards")
 end
 
+print("\n=== Test 6: Mayhem with unplayable card (no onPlay) ===")
+do
+    local strike = Utils.copyCardTemplate(Cards.Strike)
+    local defend = Utils.copyCardTemplate(Cards.Defend)
+
+    -- Create an unplayable card (no onPlay function)
+    local unplayableCard = {
+        id = "Unplayable_Test",
+        name = "Unplayable Test Card",
+        cost = 0,
+        type = "STATUS",
+        -- No onPlay function!
+        state = "DECK"
+    }
+
+    local world = World.createWorld({
+        id = "IronClad",
+        maxHp = 80,
+        maxEnergy = 6,
+        cards = {unplayableCard, strike, defend}
+    })
+
+    world.enemies = {Utils.copyEnemyTemplate(Enemies.Goblin)}
+    world.NoShuffle = true
+    StartCombat.execute(world)
+
+    -- Set enemy HP
+    world.enemies[1].hp = 20
+    world.enemies[1].maxHp = 20
+
+    -- Apply Mayhem with 2 stacks
+    world.player.status.mayhem = 2
+
+    -- Clear log
+    world.log = {}
+
+    -- Start turn
+    -- First auto-cast: Unplayable card (should skip)
+    -- Second auto-cast: Strike (should execute normally)
+    StartTurn.execute(world, world.player)
+
+    -- Verify unplayable card was handled
+    assert(countLogEntries(world.log, "Unplayable") > 0, "Should log 'Unplayable' for card with no onPlay")
+    assert(countLogEntries(world.log, "has no effect") > 0, "Should log 'has no effect'")
+
+    -- Verify Strike was still played (second autocast)
+    assert(countLogEntries(world.log, "dealt 6 damage") > 0, "Strike should still be auto-played after unplayable card")
+
+    -- Verify enemy took damage from Strike only
+    assert(world.enemies[1].hp == 14, "Enemy should take 6 damage from Strike (20 - 6 = 14)")
+
+    -- Verify unplayable card is in discard pile
+    local discardCount = 0
+    for _, card in ipairs(world.player.combatDeck) do
+        if card.id == "Unplayable_Test" and card.state == "DISCARD_PILE" then
+            discardCount = discardCount + 1
+        end
+    end
+    assert(discardCount == 1, "Unplayable card should be in discard pile")
+
+    print("✓ Mayhem correctly handles unplayable cards (no onPlay)")
+end
+
 print("\n=== All Mayhem tests passed! ===")

@@ -27,6 +27,19 @@ function ResolveCard.execute(world)
 
                 table.insert(world.log, "Auto-casting: " .. topCard.name .. " (" .. world.combat.autocastingNextTopCards .. " remaining)")
 
+                -- Check if card has onPlay function
+                if not topCard.onPlay or type(topCard.onPlay) ~= "function" then
+                    -- Card is unplayable (no onPlay function) - skip execution entirely
+                    table.insert(world.log, topCard.name .. " has no effect (Unplayable)")
+
+                    -- Move directly to discard pile
+                    topCard.state = "DISCARD_PILE"
+
+                    -- Don't call PlayCard.autoExecute, just continue to next card
+                    -- ResolveCard will be called again for next autocast
+                    return
+                end
+
                 -- Save state
                 topCard._previousState = topCard.state
                 topCard.state = "PROCESSING"
