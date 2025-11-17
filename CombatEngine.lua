@@ -349,6 +349,14 @@ function CombatEngine.playGame(world, handlers)
                         EndTurn.execute(world, world.player)
                         -- Note: vaultPlayed flag remains set until endTurnComplete is processed
                     end
+
+                    if world.combat.timeWarpTriggered then
+                        -- Time Warp triggered (played 12 cards) - end turn immediately
+                        world.combat.timeWarpTriggered = nil
+
+                        -- End turn immediately
+                        EndTurn.execute(world, world.player)
+                    end
                 end
             elseif action.type == "use_potion" then
                 local potion = action.potion or (action.potionIndex and world.player.masterPotions[action.potionIndex])
