@@ -51,21 +51,23 @@ function AfterCardPlayed.execute(world, player)
     end
 
     -- Apply Slow to entities with IsSlow flag
-    local function applySlowIfNeeded(target)
+    local function queueSlowIfNeeded(target)
         if target.IsSlow then
-            target.status = target.status or {}
-            target.status.slow = (target.status.slow or 0) + 1
-            local displayName = target.name or target.id or "Target"
-            table.insert(world.log, displayName .. " gained 1 Slow")
+            world.queue:push({
+                type = "ON_APPLY_STATUS",
+                target = target,
+                statusId = "slow",
+                amount = 1
+            })
         end
     end
 
-    applySlowIfNeeded(player)
+    queueSlowIfNeeded(player)
 
     if world.enemies then
         for _, enemy in ipairs(world.enemies) do
             if enemy.hp > 0 then
-                applySlowIfNeeded(enemy)
+                queueSlowIfNeeded(enemy)
             end
         end
     end
