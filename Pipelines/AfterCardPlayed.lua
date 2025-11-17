@@ -31,7 +31,7 @@ function AfterCardPlayed.execute(world, player)
             local displayName = target.name or target.id or "Target"
             world.queue:push({
                 type = "ON_NON_ATTACK_DAMAGE",
-                source = player,
+                source = "choke",
                 target = target,
                 amount = stacks,
                 tags = {"ignoreBlock"}
@@ -46,6 +46,51 @@ function AfterCardPlayed.execute(world, player)
         for _, enemy in ipairs(world.enemies) do
             if enemy.hp > 0 then
                 queueChokedDamage(enemy)
+            end
+        end
+    end
+
+    -- Apply Slow to entities with IsSlow flag
+    local function applySlowIfNeeded(target)
+        if target.IsSlow then
+            target.status = target.status or {}
+            target.status.slow = (target.status.slow or 0) + 1
+            local displayName = target.name or target.id or "Target"
+            table.insert(world.log, displayName .. " gained 1 Slow")
+        end
+    end
+
+    applySlowIfNeeded(player)
+
+    if world.enemies then
+        for _, enemy in ipairs(world.enemies) do
+            if enemy.hp > 0 then
+                applySlowIfNeeded(enemy)
+            end
+        end
+    end
+
+    -- Apply Beat of Death damage (always targets player)
+    local function queueBeatOfDeathDamage(entity)
+        local stacks = (entity.status and entity.status.beat_of_death) or 0
+        if stacks > 0 then
+            world.queue:push({
+                type = "ON_NON_ATTACK_DAMAGE",
+                source = "beat_of_death",
+                target = player,
+                amount = stacks,
+                tags = {"ignoreBlock"}
+            })
+            table.insert(world.log, "Beat of Death deals " .. stacks .. " damage to Player")
+        end
+    end
+
+    queueBeatOfDeathDamage(player)
+
+    if world.enemies then
+        for _, enemy in ipairs(world.enemies) do
+            if enemy.hp > 0 then
+                queueBeatOfDeathDamage(enemy)
             end
         end
     end
@@ -96,6 +141,12 @@ function AfterCardPlayed.execute(world, player)
                 source = "After Image"
             })
             table.insert(world.log, "After Image grants " .. afterImageStacks .. " Block")
+        end
+
+        -- TIME WARP: track cards played this turn
+        if Utils.hasPower(player, "time_warp") then
+            world.combat.timeWarpCounter = (world.combat.timeWarpCounter or 0) + 1
+            table.insert(world.log, "Time Warp counter: " .. world.combat.timeWarpCounter .. "/12")
         end
 
         -- Enforce card play limits (Velvet Choker, Normality)
