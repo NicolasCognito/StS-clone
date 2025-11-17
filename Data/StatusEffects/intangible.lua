@@ -8,8 +8,6 @@ return {
         maxValue = 999,
         stackType = "duration",
         debuff = false,
-        goesDownOnRoundEnd = true,
-        roundEndMode = "TickDown",
 
         onStartTurn = function(world, target)
             local Utils = require("utils")

@@ -5,30 +5,28 @@
 --
 -- Handles:
 -- - Remove block (unless Barricade is active)
--- - Tick down "End of Round" status effects for ALL combatants
+-- - Trigger onEndRound hooks for ALL combatants
 -- - These effects trigger after ALL enemies have taken their turns
 -- - Before the new player turn starts
 --
--- Uses data-driven approach from statuseffects.lua (goesDownOnRoundEnd, roundEndMode)
--- Special behaviors are curated in SpecialBehaviors list
---
--- ARCHITECTURAL NOTE: This pattern trades ordering control for maintainability.
--- Using pairs() to iterate StatusEffects means execution order is non-deterministic.
--- We could restore ordering by:
---   1. Maintaining an explicit ordered list of status keys to process
---   2. Moving order-sensitive cases to SpecialBehaviors (above/below default route)
--- In this specific case, status tick-down order doesn't affect game state, so no issue.
+-- Status effects can have optional onEndRound hooks that are called here
 
 local EndRound = {}
 
 local StatusEffects = require("Data.statuseffects")
 
--- Curated list of special behaviors requiring explicit logic
-local SpecialBehaviors = {"BLOCK", "INTANGIBLE", "BARRICADE"}
+-- Helper: Call onEndRound hooks for all status effects on a combatant
+local function triggerStatusHooks(world, combatant)
+    if not combatant.status then return end
+
+    for statusKey, statusDef in pairs(StatusEffects) do
+        if statusDef.onEndRound and combatant.status[statusKey] and combatant.status[statusKey] > 0 then
+            statusDef.onEndRound(world, combatant)
+        end
+    end
+end
 
 local function processRoundEndForCombatant(world, combatant, displayName)
-    -- SPECIAL BEHAVIORS (curated list)
-
     -- BLOCK: Remove unless Barricade is active
     if combatant.block and combatant.block > 0 then
         if combatant.status and combatant.status.barricade and combatant.status.barricade > 0 then
@@ -39,33 +37,8 @@ local function processRoundEndForCombatant(world, combatant, displayName)
         end
     end
 
-    -- DEFAULT ROUTE: Process all status effects from statuseffects.lua
-    if not combatant.status then return end
-
-
-    for statusKey, statusDef in pairs(StatusEffects) do
-        -- Skip if in SpecialBehaviors list
-        local isSpecial = false
-        for _, specialKey in ipairs(SpecialBehaviors) do
-            if specialKey:upper() == statusKey:upper() then
-                isSpecial = true
-                break
-            end
-        end
-
-        if not isSpecial and statusDef.goesDownOnRoundEnd then
-            local currentValue = combatant.status[statusKey]
-            if currentValue and currentValue > 0 then
-                if statusDef.roundEndMode == "TickDown" then
-                    combatant.status[statusKey] = currentValue - 1
-                    table.insert(world.log, displayName .. "'s " .. statusDef.name .. " decreased to " .. combatant.status[statusKey])
-                elseif statusDef.roundEndMode == "WoreOff" then
-                    combatant.status[statusKey] = nil
-                    table.insert(world.log, displayName .. "'s " .. statusDef.name .. " wore off")
-                end
-            end
-        end
-    end
+    -- Trigger status effect hooks
+    triggerStatusHooks(world, combatant)
 end
 
 function EndRound.execute(world, player, enemies)
