@@ -54,10 +54,11 @@ function AfterCardPlayed.execute(world, player)
     local function queueSlowIfNeeded(target)
         if target.IsSlow then
             world.queue:push({
-                type = "ON_APPLY_STATUS",
+                type = "ON_STATUS_GAIN",
                 target = target,
-                statusId = "slow",
-                amount = 1
+                effectType = "slow",
+                amount = 1,
+                source = "Slow"
             })
         end
     end
