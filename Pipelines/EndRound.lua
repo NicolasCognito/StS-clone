@@ -24,7 +24,7 @@ local EndRound = {}
 local StatusEffects = require("Data.statuseffects")
 
 -- Curated list of special behaviors requiring explicit logic
-local SpecialBehaviors = {"BLOCK", "INTANGIBLE"}
+local SpecialBehaviors = {"BLOCK", "INTANGIBLE", "BARRICADE"}
 
 local function processRoundEndForCombatant(world, combatant, displayName)
     -- SPECIAL BEHAVIORS (curated list)
@@ -41,6 +41,7 @@ local function processRoundEndForCombatant(world, combatant, displayName)
 
     -- DEFAULT ROUTE: Process all status effects from statuseffects.lua
     if not combatant.status then return end
+
 
     for statusKey, statusDef in pairs(StatusEffects) do
         -- Skip if in SpecialBehaviors list

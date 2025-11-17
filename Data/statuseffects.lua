@@ -384,6 +384,16 @@ local StatusEffects = {
         debuff = false
     },
 
+    demon_form = {
+        id = "demon_form",
+        name = "Demon Form",
+        description = "At the start of your turn, gain Strength equal to stacks.",
+        minValue = 0,
+        maxValue = 999,
+        stackType = "intensity",
+        debuff = false
+    },
+
     echo_form = {
         id = "echo_form",
         name = "Echo Form",

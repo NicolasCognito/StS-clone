@@ -339,6 +339,17 @@ function StartTurn.execute(world, player)
         table.insert(world.log, playerName .. " lost " .. status.bias .. " Focus from Bias")
     end
 
+    if status.demon_form and status.demon_form > 0 then
+        world.queue:push({
+            type = "ON_STATUS_GAIN",
+            target = player,
+            effectType = "Strength",
+            amount = status.demon_form,
+            source = "Demon Form"
+        })
+        queuedStatusEvents = true
+    end
+
     if status.wraith_form and status.wraith_form > 0 then
         status.dexterity = (status.dexterity or 0) - status.wraith_form
         table.insert(world.log, playerName .. " lost " .. status.wraith_form .. " Dexterity from Wraith Form")

@@ -4,9 +4,7 @@ When receiving a task to work on this repository, follow these steps:
 
 ## 1. 📚 Read Project Documentation
 
-**Before starting any work**, read these files if you haven't already:
-- `Docs/PROJECT_MAP.md` - Understanding the codebase structure
-- `Docs/GUIDELINE.md` - Development conventions and best practices
+- We don't have Project Docs anymore (they were too large and consumed too much context), so just ask User what exactly you need to do  
 
 ## 2. 🔍 Research When Needed
 

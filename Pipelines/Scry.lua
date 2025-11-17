@@ -24,19 +24,40 @@
 --   world.queue:push({type = "ON_SCRY"})
 
 local Scry = {}
+local Utils = require("utils")
 
 function Scry.execute(world, event)
     local cardsToDiscard = world.combat.tempContext or {}
 
     if #cardsToDiscard == 0 then
         table.insert(world.log, "No cards discarded from scry")
+    else
+        -- Move selected cards to discard pile
+        for _, card in ipairs(cardsToDiscard) do
+            card.state = "DISCARD_PILE"
+            table.insert(world.log, "Scried: " .. card.name .. " discarded")
+        end
+    end
+
+    -- After any Scry action, return Weave cards from discard pile if possible
+    local player = world.player
+    if not player or not player.combatDeck then
         return
     end
 
-    -- Move selected cards to discard pile
-    for _, card in ipairs(cardsToDiscard) do
-        card.state = "DISCARD_PILE"
-        table.insert(world.log, "Scried: " .. card.name .. " discarded")
+    local maxHandSize = player.maxHandSize or 10
+    local currentHandSize = Utils.getCardCountByState(player.combatDeck, "HAND")
+
+    for _, card in ipairs(player.combatDeck) do
+        if card.id == "Weave" and card.state == "DISCARD_PILE" then
+            if currentHandSize < maxHandSize then
+                card.state = "HAND"
+                currentHandSize = currentHandSize + 1
+                table.insert(world.log, "Weave returns to hand after scrying")
+            else
+                break  -- Hand is full; stop returning additional Weaves
+            end
+        end
     end
 end
 
