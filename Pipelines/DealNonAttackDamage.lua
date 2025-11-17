@@ -67,6 +67,18 @@ function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
         damage = math.max(0, damage - tungstenRod.damageReduction)
     end
 
+    -- Apply Invincible: Cap damage to remaining invincible value
+    -- Applied after Tungsten Rod but before block absorption
+    local targetStatus = target.status or {}
+    if targetStatus.invincible and targetStatus.invincible > 0 and damage > 0 then
+        local cappedDamage = math.min(damage, targetStatus.invincible)
+        if cappedDamage < damage then
+            local targetName = target.name or target.id or "Unknown"
+            table.insert(world.log, targetName .. "'s Invincible capped damage from " .. damage .. " to " .. cappedDamage)
+        end
+        damage = cappedDamage
+    end
+
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block
@@ -79,6 +91,16 @@ function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
 
     -- Apply remaining damage to HP
     target.hp = target.hp - damage
+
+    -- Reduce Invincible by damage dealt (after block absorption)
+    -- Invincible caps total damage/HP loss per turn, not just pre-block damage
+    if targetStatus.invincible and targetStatus.invincible > 0 and damage > 0 then
+        targetStatus.invincible = targetStatus.invincible - damage
+        -- Clamp to 0 minimum
+        if targetStatus.invincible < 0 then
+            targetStatus.invincible = 0
+        end
+    end
 
     -- Allow enemies to change intent on damage (e.g., Slime Boss splitting)
     if target.ChangeIntentOnDamage and damage > 0 then

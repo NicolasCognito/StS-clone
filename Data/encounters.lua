@@ -137,6 +137,24 @@ local Encounters = {
                 copyEnemy(Enemies.Goblin)
             }
         end
+    },
+
+    ["corrupt_heart"] = {
+        easy = function()
+            return {
+                copyEnemy(Enemies.CorruptHeart)
+            }
+        end,
+        normal = function()
+            return {
+                copyEnemy(Enemies.CorruptHeart)
+            }
+        end,
+        elite = function()
+            return {
+                copyEnemy(Enemies.CorruptHeart)
+            }
+        end
     }
 }
 
