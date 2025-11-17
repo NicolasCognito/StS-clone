@@ -20,6 +20,8 @@
 local DealAttackDamage = {}
 
 local Utils = require("utils")
+local Cards = require("Data.cards")
+local AcquireCard = require("Pipelines.AcquireCard")
 
 function DealAttackDamage.execute(world, event)
     local attacker = event.attacker
@@ -278,6 +280,19 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
             amount = defenderStatus.thorns
             -- No tags - Thorns respects block
         })
+    end
+
+    -- Trigger Painful Stabs (if attacker has Painful Stabs status)
+    -- Painful Stabs shuffles a Wound into the defender's discard pile whenever unblocked attack damage is dealt
+    if attackerStatus and attackerStatus.painful_stabs and attackerStatus.painful_stabs > 0 and damage > 0 then
+        -- Only add Wound if defender is the player (enemies don't have discard piles)
+        if defender == world.player and Cards.Wound then
+            AcquireCard.execute(world, defender, Cards.Wound, {
+                destination = "DISCARD_PILE",
+                targetDeck = "combat"
+            })
+            table.insert(world.log, "Painful Stabs: Wound shuffled into discard pile")
+        end
     end
 end
 
