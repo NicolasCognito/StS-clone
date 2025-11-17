@@ -148,6 +148,19 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
         damage = math.max(0, damage - tungstenRod.damageReduction)
     end
 
+    -- Apply Invincible: Cap damage to remaining invincible value
+    -- Applied after all damage multipliers but before block absorption
+    if defenderStatus and defenderStatus.invincible and defenderStatus.invincible > 0 and damage > 0 then
+        local cappedDamage = math.min(damage, defenderStatus.invincible)
+        if cappedDamage < damage then
+            local defenderName = defender.name or defender.id or "Unknown"
+            table.insert(world.log, defenderName .. "'s Invincible capped damage from " .. damage .. " to " .. cappedDamage)
+        end
+        damage = cappedDamage
+        -- Reduce invincible by damage dealt (will be further reduced after block absorption)
+        -- Note: We'll update this after final damage calculation
+    end
+
     local blockAbsorbed = 0
 
     -- Check if this damage ignores block
@@ -167,6 +180,16 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
 
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
+
+    -- Reduce Invincible by damage dealt (after block absorption)
+    -- Invincible caps total damage/HP loss per turn, not just pre-block damage
+    if defenderStatus and defenderStatus.invincible and defenderStatus.invincible > 0 and damage > 0 then
+        defenderStatus.invincible = defenderStatus.invincible - damage
+        -- Clamp to 0 minimum
+        if defenderStatus.invincible < 0 then
+            defenderStatus.invincible = 0
+        end
+    end
 
     -- Reaper effect: Heal attacker for actual HP lost by defender
     if card and card.reaperEffect and attacker and actualHpLost > 0 then
