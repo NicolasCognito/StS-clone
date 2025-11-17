@@ -15,13 +15,23 @@ return {
         onApply = function(world, target, amount, source)
             -- Check if counter has reached 0 or below
             if target.status.time_warp <= 0 then
+                -- Grant +2 Strength to the Time Warp owner (Time Eater)
+                world.queue:push({
+                    type = "ON_STATUS_GAIN",
+                    target = target,
+                    effectType = "strength",
+                    amount = 2,
+                    source = "Time Warp"
+                })
+
+                -- Reset Time Warp counter to 12
+                target.status.time_warp = 12
+                table.insert(world.log, "Time Warp activated! Gained 2 Strength. Counter reset to 12.")
+
                 -- Set flag for CombatEngine to end the turn
                 if world.combat then
                     world.combat.timeWarpTriggered = true
-                    world.combat.timeWarpOwner = target
                 end
-
-                table.insert(world.log, "Time Warp activated! Turn ending...")
             end
         end
 

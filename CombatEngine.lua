@@ -351,27 +351,8 @@ function CombatEngine.playGame(world, handlers)
                     end
 
                     if world.combat.timeWarpTriggered then
-                        -- Time Warp triggered (played 12 cards)
-                        local timeWarpOwner = world.combat.timeWarpOwner
+                        -- Time Warp triggered (played 12 cards) - end turn immediately
                         world.combat.timeWarpTriggered = nil
-                        world.combat.timeWarpOwner = nil
-
-                        -- Grant +2 Strength to Time Eater
-                        if timeWarpOwner then
-                            world.queue:push({
-                                type = "ON_STATUS_GAIN",
-                                target = timeWarpOwner,
-                                effectType = "strength",
-                                amount = 2,
-                                source = "Time Warp"
-                            })
-                        end
-
-                        -- Reset Time Warp counter to 12
-                        if timeWarpOwner and timeWarpOwner.status then
-                            timeWarpOwner.status.time_warp = 12
-                            table.insert(world.log, "Time Warp counter reset to 12")
-                        end
 
                         -- End turn immediately
                         EndTurn.execute(world, world.player)
