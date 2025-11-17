@@ -16,19 +16,11 @@
 -- - Combat logging
 --
 -- Uses data-driven approach from statuseffects.lua
--- Special behaviors are curated in SpecialBehaviors list
---
--- ARCHITECTURAL NOTE: This pattern separates special logic from default behavior.
--- SpecialBehaviors list contains effects needing custom handling (e.g., "Strength Down").
--- All other effects route through statuseffects.lua lookup with generic application.
--- If order-sensitive interactions emerge, move them to SpecialBehaviors (curated list).
+-- Status effects can have optional hooks (onApply, onStartTurn, onEndTurn)
 
 local ApplyStatusEffect = {}
 
 local StatusEffects = require("Data.statuseffects")
-
--- Curated list of special behaviors requiring explicit logic
-local SpecialBehaviors = {"Strength Down", "Dexterity Down", "Focus Down"}
 
 -- Check if effect is blocked by Artifact
 local function isBlockedByArtifact(target, effectType, amount)
@@ -42,12 +34,7 @@ local function isBlockedByArtifact(target, effectType, amount)
         return true
     end
 
-    -- Block negative stat changes
-    if effectType == "Strength Down" or effectType == "Dexterity Down" or effectType == "Focus Down" then
-        return true
-    end
-
-    -- Also block if it's a stat decrease (negative amount to positive stat)
+    -- Block negative stat changes (negative amount to positive stat)
     if (effectType == "Strength" or effectType == "Dexterity" or effectType == "Focus") and amount < 0 then
         return true
     end
@@ -119,71 +106,63 @@ function ApplyStatusEffect.executeSingle(world, target, effectType, amount, sour
         return target.status[key]
     end
 
-    -- SPECIAL BEHAVIORS (curated list)
+    -- Look up in statuseffects.lua
+    local statusKey = effectType:lower():gsub(" ", "_")
+    local statusDef = StatusEffects[statusKey]
 
-    if effectType == "Strength Down" then
-        local total = addStatus("strength", -amount)
-        table.insert(world.log, displayName .. " lost " .. amount .. " strength (" .. total .. ")")
+    if statusDef then
+        -- Determine application mode from definition or infer from old behavior
+        local applicationMode = statusDef.applicationMode or "add"
 
-    elseif effectType == "Dexterity Down" then
-        local total = addStatus("dexterity", -amount)
-        table.insert(world.log, displayName .. " lost " .. amount .. " dexterity (" .. total .. ")")
-
-    elseif effectType == "Focus Down" then
-        local total = addStatus("focus", -amount)
-        table.insert(world.log, displayName .. " lost " .. amount .. " focus (" .. total .. ")")
-
-    else
-        -- DEFAULT ROUTE: Look up in statuseffects.lua
-        local statusKey = effectType:lower():gsub(" ", "_")
-        local statusDef = StatusEffects[statusKey]
-
-        if statusDef then
-            -- Determine application mode from definition or infer from old behavior
-            local applicationMode = statusDef.applicationMode or "add"
-
-            -- Infer from known max-based statuses if not specified
-            if not statusDef.applicationMode then
-                if statusKey == "confused" or statusKey == "no_draw" or statusKey == "no_block" or
-                   statusKey == "corpse_explosion" or statusKey == "choked" or statusKey == "hex" then
-                    applicationMode = "max"
-                end
+        -- Infer from known max-based statuses if not specified
+        if not statusDef.applicationMode then
+            if statusKey == "confused" or statusKey == "no_draw" or statusKey == "no_block" or
+               statusKey == "corpse_explosion" or statusKey == "choked" or statusKey == "hex" then
+                applicationMode = "max"
             end
-
-            local total
-            if applicationMode == "max" then
-                total = setMaxStatus(statusKey, amount)
-            else
-                total = addStatus(statusKey, amount)
-            end
-
-            table.insert(world.log, displayName .. " gained " .. amount .. " " .. statusDef.name .. " (" .. total .. ")")
-
-            -- MANTRA SPECIAL TRIGGER: Check for Divinity at 10+ Mantra
-            if statusKey == "mantra" and target.status.mantra >= 10 then
-                -- Track total Mantra gained for Brilliance card
-                if world.combat then
-                    world.combat.mantraGainedThisCombat = (world.combat.mantraGainedThisCombat or 0) + amount
-                end
-
-                -- Reduce by 10 and enter Divinity
-                target.status.mantra = target.status.mantra - 10
-                table.insert(world.log, displayName .. " gained 10 Mantra - entering Divinity!")
-
-                -- Push ChangeStance with FIRST priority (immediate trigger)
-                world.queue:push({
-                    type = "CHANGE_STANCE",
-                    newStance = "Divinity"
-                }, "FIRST")
-            elseif statusKey == "mantra" then
-                -- Track Mantra gains even if not triggering Divinity
-                if world.combat then
-                    world.combat.mantraGainedThisCombat = (world.combat.mantraGainedThisCombat or 0) + amount
-                end
-            end
-        else
-            table.insert(world.log, "Unknown status effect: " .. tostring(effectType))
         end
+
+        local total
+        if applicationMode == "max" then
+            total = setMaxStatus(statusKey, amount)
+        else
+            total = addStatus(statusKey, amount)
+        end
+
+        -- Smart logging: "gained" for positive, "lost" for negative
+        local verb = (amount >= 0) and "gained" or "lost"
+        local absAmount = math.abs(amount)
+        table.insert(world.log, displayName .. " " .. verb .. " " .. absAmount .. " " .. statusDef.name .. " (" .. total .. ")")
+
+        -- MANTRA SPECIAL TRIGGER: Check for Divinity at 10+ Mantra
+        if statusKey == "mantra" and target.status.mantra >= 10 then
+            -- Track total Mantra gained for Brilliance card
+            if world.combat then
+                world.combat.mantraGainedThisCombat = (world.combat.mantraGainedThisCombat or 0) + amount
+            end
+
+            -- Reduce by 10 and enter Divinity
+            target.status.mantra = target.status.mantra - 10
+            table.insert(world.log, displayName .. " gained 10 Mantra - entering Divinity!")
+
+            -- Push ChangeStance with FIRST priority (immediate trigger)
+            world.queue:push({
+                type = "CHANGE_STANCE",
+                newStance = "Divinity"
+            }, "FIRST")
+        elseif statusKey == "mantra" then
+            -- Track Mantra gains even if not triggering Divinity
+            if world.combat then
+                world.combat.mantraGainedThisCombat = (world.combat.mantraGainedThisCombat or 0) + amount
+            end
+        end
+
+        -- Call onApply hook if it exists
+        if statusDef.onApply then
+            statusDef.onApply(world, target, amount, source)
+        end
+    else
+        table.insert(world.log, "Unknown status effect: " .. tostring(effectType))
     end
 end
 

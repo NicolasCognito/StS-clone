@@ -20,6 +20,18 @@ local DrawCard = require("Pipelines.DrawCard")
 local ChangeStance = require("Pipelines.ChangeStance")
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local Utils = require("utils")
+local StatusEffects = require("Data.statuseffects")
+
+-- Helper: Call onStartTurn hooks for all status effects on a combatant
+local function triggerStatusHooks(world, combatant)
+    if not combatant.status then return end
+
+    for statusKey, statusDef in pairs(StatusEffects) do
+        if statusDef.onStartTurn and combatant.status[statusKey] and combatant.status[statusKey] > 0 then
+            statusDef.onStartTurn(world, combatant)
+        end
+    end
+end
 
 -- Helper: Calculate number of cards to draw
 function StartTurn.calculateCardsToDraw(world, player)
@@ -99,14 +111,6 @@ function StartTurn.finishTurnStart(world, player)
                 table.remove(player.combatDeck, i)
                 table.insert(world.log, card.name .. " lost (hand full)")
             end
-        end
-    end
-
-    if status.fasting and status.fasting > 0 then
-        local penalty = math.min(status.fasting, player.energy)
-        if penalty > 0 then
-            player.energy = player.energy - penalty
-            table.insert(world.log, playerName .. " lost " .. penalty .. " energy to Fasting")
         end
     end
 
@@ -289,25 +293,6 @@ function StartTurn.execute(world, player)
     -- Process queued events from relics
     ProcessEventQueue.execute(world)
 
-    -- Check for die_next_turn status (from Blasphemy) - happens at START of turn
-    if player.status and player.status.die_next_turn and player.status.die_next_turn > 0 then
-        table.insert(world.log, player.name .. " takes 9999 damage from Blasphemy!")
-
-        world.queue:push({
-            type = "ON_NON_ATTACK_DAMAGE",
-            source = "Blasphemy",
-            target = player,
-            amount = 9999,
-            tags = {"ignoreBlock"}
-        })
-
-        -- Remove the status after triggering (non-degrading, just one-shot)
-        player.status.die_next_turn = 0
-
-        ProcessEventQueue.execute(world)
-        -- If player somehow survived, continue turn normally
-    end
-
     -- Clear temporary retention flags from all cards
     for _, card in ipairs(player.combatDeck) do
         card.retainThisTurn = nil
@@ -317,128 +302,25 @@ function StartTurn.execute(world, player)
     player.status = player.status or {}
     player.status.necronomiconThisTurn = false  -- Necronomicon can trigger again
 
-    local status = player.status
-    local playerName = player.name or player.id or "Player"
+    -- Trigger onStartTurn hooks for all status effects on player
+    triggerStatusHooks(world, player)
 
-    local queuedStatusEvents = false
-
-    if status.shackled and status.shackled > 0 then
-        world.queue:push({
-            type = "ON_STATUS_GAIN",
-            target = player,
-            effectType = "Strength",
-            amount = status.shackled,
-            source = "Shackled"
-        })
-        status.shackled = nil
-        queuedStatusEvents = true
-    end
-
-    if status.bias and status.bias > 0 then
-        status.focus = (status.focus or 0) - status.bias
-        table.insert(world.log, playerName .. " lost " .. status.bias .. " Focus from Bias")
-    end
-
-    if status.demon_form and status.demon_form > 0 then
-        world.queue:push({
-            type = "ON_STATUS_GAIN",
-            target = player,
-            effectType = "Strength",
-            amount = status.demon_form,
-            source = "Demon Form"
-        })
-        queuedStatusEvents = true
-    end
-
-    if status.wraith_form and status.wraith_form > 0 then
-        status.dexterity = (status.dexterity or 0) - status.wraith_form
-        table.insert(world.log, playerName .. " lost " .. status.wraith_form .. " Dexterity from Wraith Form")
-    end
-
-    if status.intangible and status.intangible > 0 then
-        status.intangible = status.intangible - 1
-        table.insert(world.log, playerName .. "'s Intangible decreased to " .. status.intangible)
-    end
-
+    -- Trigger onStartTurn hooks for all status effects on enemies
     if world.enemies then
         for _, enemy in ipairs(world.enemies) do
-            if enemy.hp > 0 and enemy.status then
-                if enemy.status.shackled and enemy.status.shackled > 0 then
-                    world.queue:push({
-                        type = "ON_STATUS_GAIN",
-                        target = enemy,
-                        effectType = "Strength",
-                        amount = enemy.status.shackled,
-                        source = "Shackled"
-                    })
-                    enemy.status.shackled = nil
-                    queuedStatusEvents = true
-                end
-
-                if enemy.status.intangible and enemy.status.intangible > 0 then
-                    enemy.status.intangible = enemy.status.intangible - 1
-                    local enemyName = enemy.name or "Enemy"
-                    table.insert(world.log, enemyName .. "'s Intangible decreased to " .. enemy.status.intangible)
-                end
+            if enemy.hp > 0 then
+                triggerStatusHooks(world, enemy)
             end
         end
     end
 
-    if queuedStatusEvents then
-        ProcessEventQueue.execute(world)
-    end
+    -- Process any events queued by status effect hooks
+    ProcessEventQueue.execute(world)
 
     -- Set Echo Form counter from status effect stacks
     -- Echo Form: first N cards each turn are played twice (N = stacks)
     if player.status and player.status.echo_form and player.status.echo_form > 0 then
         player.status.echoFormThisTurn = player.status.echo_form
-    end
-
-    -- Phantasmal: Add to Double Damage at start of turn
-    if player.status and player.status.phantasmal and player.status.phantasmal > 0 then
-        local stacks = player.status.phantasmal
-        player.status.double_damage = (player.status.double_damage or 0) + stacks
-        player.status.phantasmal = 0
-        table.insert(world.log, playerName .. " gains " .. stacks .. " Double Damage from Phantasmal!")
-    end
-
-    -- Simmering Fury: Enter Wrath and draw cards at start of next turn
-    if player.status and player.status.simmering_fury and player.status.simmering_fury > 0 then
-        world.queue:push({
-            type = "CHANGE_STANCE",
-            newStance = "Wrath"
-        })
-
-        for i = 1, 2 do
-            world.queue:push({type = "ON_DRAW"})
-        end
-
-        player.status.simmering_fury = 0  -- Clear after triggering
-        ProcessEventQueue.execute(world)
-    end
-
-    -- Devotion: Gain mantra at start of turn
-    if player.status and player.status.devotion and player.status.devotion > 0 then
-        world.queue:push({
-            type = "ON_STATUS_GAIN",
-            target = player,
-            effectType = "mantra",
-            amount = player.status.devotion
-        })
-        ProcessEventQueue.execute(world)
-    end
-
-    -- Deva Form: Gain increasing energy at start of turn
-    if player.status and player.status.deva and player.status.deva > 0 then
-        local energyGain = player.status.deva
-        player.energy = player.energy + energyGain
-        table.insert(world.log, playerName .. " gained " .. energyGain .. " energy from Deva Form")
-
-        local growth = player.status.deva_growth or 0
-        if growth > 0 then
-            player.status.deva = player.status.deva + growth
-            table.insert(world.log, playerName .. "'s Deva Form energy gain increased to " .. player.status.deva)
-        end
     end
 
     -- Loop: Trigger next orb passive at start of turn
