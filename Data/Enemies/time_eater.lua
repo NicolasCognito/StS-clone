@@ -112,8 +112,6 @@ return {
                 self.status.time_warp = 12
                 table.insert(world.log, "Time Eater starts with Time Warp (12)")
 
-                -- Track move history for pattern restrictions
-                self.moveHistory = {}
                 self.hasteUsed = false
             end
 
@@ -136,25 +134,27 @@ return {
             --   - Head Slam cannot be used twice in a row
             --   - Reverberate cannot be used three times in a row
 
+            -- Read from intentHistory (populated automatically by EnemyTakeTurn)
+            local lastMove = self.intentHistory and self.intentHistory[#self.intentHistory]
+            local secondLastMove = self.intentHistory and self.intentHistory[#self.intentHistory - 1]
+
             local validMoves = {}
-            local lastMove = self.moveHistory[#self.moveHistory]
-            local secondLastMove = self.moveHistory[#self.moveHistory - 1]
 
             -- Check Reverberate (45% weight)
             -- Cannot use if last 2 moves were Reverberate
-            if not (lastMove == "reverberate" and secondLastMove == "reverberate") then
+            if not (lastMove == "Reverberate" and secondLastMove == "Reverberate") then
                 table.insert(validMoves, {name = "reverberate", weight = 45})
             end
 
             -- Check Head Slam (35% weight)
             -- Cannot use if last move was Head Slam
-            if lastMove ~= "head_slam" then
+            if lastMove ~= "Head Slam" then
                 table.insert(validMoves, {name = "head_slam", weight = 35})
             end
 
             -- Check Ripple (20% weight)
             -- Cannot use if last move was Ripple
-            if lastMove ~= "ripple" then
+            if lastMove ~= "Ripple" then
                 table.insert(validMoves, {name = "ripple", weight = 20})
             end
 
@@ -176,10 +176,8 @@ return {
                 end
             end
 
-            -- Record move in history
-            table.insert(self.moveHistory, selectedMove)
-
             -- Set intent based on selected move
+            -- Note: intentHistory is populated automatically by EnemyTakeTurn pipeline
             if selectedMove == "reverberate" then
                 self.currentIntent = {
                     name = "Reverberate",
