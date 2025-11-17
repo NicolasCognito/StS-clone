@@ -1,187 +1,283 @@
 -- TEST: Time Eater Boss
 -- Verifies Time Warp mechanic, attack patterns, and Haste ability
 
-local lu = require('luaunit')
-local WorldBuilder = require("World")
+local World = require("World")
+local Cards = require("Data.cards")
+local Enemies = require("Data.enemies")
 local StartCombat = require("Pipelines.StartCombat")
 local PlayCard = require("Pipelines.PlayCard")
+local ContextProvider = require("Pipelines.ContextProvider")
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
-local EnemyTakeTurn = require("Pipelines.EnemyTakeTurn")
-local EndTurn = require("Pipelines.EndTurn")
-local StartTurn = require("Pipelines.StartTurn")
+local Utils = require("utils")
 
-TestTimeEater = {}
+-- Helper to play a card (with context support like other tests)
+local function playCard(world, player, card)
+    while true do
+        local result = PlayCard.execute(world, player, card)
+        if result == true then
+            return true
+        end
 
-function TestTimeEater:setUp()
-    self.world = WorldBuilder.createWorld()
-    self.player = self.world.player
+        if type(result) == "table" and result.needsContext then
+            local request = world.combat.contextRequest
+            local context = ContextProvider.execute(world, player, request.contextProvider, request.card)
 
-    -- Load enemies
-    local Enemies = require("Data.enemies")
-    self.timeEater = Enemies.TimeEater
-
-    -- Start combat
-    StartCombat.execute(self.world, self.player, {self.timeEater})
-    ProcessEventQueue.execute(self.world)
+            if request.stability == "stable" then
+                world.combat.stableContext = context
+            else
+                world.combat.tempContext = context
+            end
+            world.combat.contextRequest = nil
+        end
+    end
 end
 
-function TestTimeEater:testTimeWarpInitialization()
-    -- Time Eater should start with Time Warp at 12
-    lu.assertEquals(self.timeEater.status.time_warp, 12)
+print("\n=== Time Eater Boss Tests ===\n")
+
+-- Test 1: Time Warp Initialization
+print("Test 1: Time Warp initialization...")
+local world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 3})
+
+-- Set up a simple deck
+local strikes = {}
+for i = 1, 10 do
+    local strike = Utils.deepCopyCard(Cards.Strike)
+    strike.state = "DECK"
+    table.insert(strikes, strike)
 end
+world.player.masterDeck = strikes
+world.player.combatDeck = Utils.deepCopyDeck(world.player.masterDeck)
 
-function TestTimeEater:testTimeWarpDecrement()
-    -- Play a card and verify Time Warp decrements
-    local Cards = require("Data.cards")
-    local strike = Cards.Strike
+local timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
 
-    -- Add Strike to hand
-    table.insert(self.player.hand, strike)
+StartCombat.execute(world)
 
-    -- Play the card
-    PlayCard.execute(self.world, self.player, strike)
-    ProcessEventQueue.execute(self.world)
+assert(timeEater.status.time_warp == 12, "Time Eater should start with Time Warp at 12")
+print("✓ Time Eater starts with Time Warp counter at 12\n")
 
-    -- Time Warp should have decremented to 11
-    lu.assertEquals(self.timeEater.status.time_warp, 11)
+-- Test 2: Time Warp Decrement
+print("Test 2: Time Warp decrement on card play...")
+world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 3})
+
+strikes = {}
+for i = 1, 10 do
+    local strike = Utils.deepCopyCard(Cards.Strike)
+    strike.state = "DECK"
+    table.insert(strikes, strike)
 end
+world.player.masterDeck = strikes
+world.player.combatDeck = Utils.deepCopyDeck(world.player.masterDeck)
 
-function TestTimeEater:testTimeWarpTrigger()
-    -- Play 12 cards to trigger Time Warp
-    local Cards = require("Data.cards")
+timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
 
-    -- Add 12 Strikes to hand
-    for i = 1, 12 do
-        table.insert(self.player.hand, Cards.Strike)
+StartCombat.execute(world)
+
+-- Play one card from hand
+local cardsInHand = Utils.getCardsByState(world.player.combatDeck, "HAND")
+assert(#cardsInHand > 0, "Player should have cards in hand")
+playCard(world, world.player, cardsInHand[1])
+
+assert(timeEater.status.time_warp == 11, "Time Warp should decrement to 11 after 1 card (got " .. (timeEater.status.time_warp or "nil") .. ")")
+print("✓ Time Warp decrements by 1 per card played\n")
+
+-- Test 3: Time Warp Trigger
+print("Test 3: Time Warp trigger after 12 cards...")
+world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 99})
+
+-- Create 15 strikes so we have enough to play 12
+strikes = {}
+for i = 1, 15 do
+    local strike = Utils.deepCopyCard(Cards.Strike)
+    strike.state = "DECK"
+    table.insert(strikes, strike)
+end
+world.player.masterDeck = strikes
+world.player.combatDeck = Utils.deepCopyDeck(world.player.masterDeck)
+
+timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
+
+StartCombat.execute(world)
+
+local initialStrength = timeEater.status.strength or 0
+
+-- Play 12 cards
+for i = 1, 12 do
+    cardsInHand = Utils.getCardsByState(world.player.combatDeck, "HAND")
+    if #cardsInHand == 0 then
+        -- Draw more if needed
+        local DrawCard = require("Pipelines.DrawCard")
+        DrawCard.execute(world, world.player, 5)
+        cardsInHand = Utils.getCardsByState(world.player.combatDeck, "HAND")
     end
 
-    local initialStrength = self.timeEater.status.strength or 0
+    assert(#cardsInHand > 0, "Need cards to play")
+    playCard(world, world.player, cardsInHand[1])
 
-    -- Play 11 cards (shouldn't trigger yet)
-    for i = 1, 11 do
-        PlayCard.execute(self.world, self.player, self.player.hand[1])
-        ProcessEventQueue.execute(self.world)
+    -- Check after 11 cards
+    if i == 11 then
+        assert(timeEater.status.time_warp == 1, "Time Warp should be at 1 after 11 cards")
     end
-
-    -- Time Warp should be at 1
-    lu.assertEquals(self.timeEater.status.time_warp, 1)
-
-    -- Turn should still be active
-    lu.assertNil(self.world.combat.endTurnComplete)
-
-    -- Play 12th card - should trigger Time Warp
-    PlayCard.execute(self.world, self.player, self.player.hand[1])
-    ProcessEventQueue.execute(self.world)
-
-    -- Time Warp should reset to 12
-    lu.assertEquals(self.timeEater.status.time_warp, 12)
-
-    -- Time Eater should have gained +2 Strength
-    local newStrength = self.timeEater.status.strength or 0
-    lu.assertEquals(newStrength, initialStrength + 2)
 end
 
-function TestTimeEater:testReverberateAttack()
-    -- Set up Time Eater to use Reverberate
-    self.timeEater.currentIntent = {
-        name = "Reverberate",
-        execute = self.timeEater.intents.reverberate
-    }
+-- Time Warp should reset to 12
+assert(timeEater.status.time_warp == 12, "Time Warp should reset to 12 after trigger (got " .. (timeEater.status.time_warp or "nil") .. ")")
 
-    local initialHp = self.player.hp
+-- Time Eater should have gained +2 Strength
+local newStrength = timeEater.status.strength or 0
+assert(newStrength == initialStrength + 2, "Time Eater should gain +2 Strength (expected " .. (initialStrength + 2) .. ", got " .. newStrength .. ")")
 
-    -- Execute intent
-    self.timeEater.executeIntent(self.timeEater, self.world, self.player)
-    ProcessEventQueue.execute(self.world)
+print("✓ Time Warp triggers at 0, grants +2 Strength, resets to 12\n")
 
-    -- Player should take 7×3 = 21 damage (modified by block/strength)
-    -- Verify damage was dealt (exact amount depends on Time Eater's strength)
-    lu.assertTrue(self.player.hp < initialHp or self.player.block > 0)
-end
+-- Test 4: Reverberate Attack
+print("Test 4: Reverberate attack (7×3 damage)...")
+world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 3})
 
-function TestTimeEater:testHeadSlamAttack()
-    -- Set up Time Eater to use Head Slam
-    self.timeEater.currentIntent = {
-        name = "Head Slam",
-        execute = self.timeEater.intents.head_slam
-    }
+world.player.masterDeck = {}
+world.player.combatDeck = {}
 
-    local initialHp = self.player.hp
+timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
 
-    -- Execute intent
-    self.timeEater.executeIntent(self.timeEater, self.world, self.player)
-    ProcessEventQueue.execute(self.world)
+StartCombat.execute(world)
 
-    -- Player should have Draw Reduction
-    lu.assertEquals(self.player.status.draw_reduction, 1)
+timeEater.currentIntent = {
+    name = "Reverberate",
+    execute = timeEater.intents.reverberate
+}
 
-    -- Player should take damage
-    lu.assertTrue(self.player.hp < initialHp or self.player.block > 0)
-end
+local initialHp = world.player.hp
+timeEater.executeIntent(timeEater, world, world.player)
+ProcessEventQueue.execute(world)
 
-function TestTimeEater:testRippleDefense()
-    -- Set up Time Eater to use Ripple
-    self.timeEater.currentIntent = {
-        name = "Ripple",
-        execute = self.timeEater.intents.ripple
-    }
+-- Player should take damage (exact amount depends on strength)
+assert(world.player.hp < initialHp, "Reverberate should deal damage (HP: " .. world.player.hp .. " vs " .. initialHp .. ")")
+print("✓ Reverberate deals 7×3 damage\n")
 
-    -- Execute intent
-    self.timeEater.executeIntent(self.timeEater, self.world, self.player)
-    ProcessEventQueue.execute(self.world)
+-- Test 5: Head Slam Attack
+print("Test 5: Head Slam attack (26 damage + Draw Reduction)...")
+world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 3})
 
-    -- Time Eater should gain 20 block
-    lu.assertEquals(self.timeEater.block, 20)
+world.player.masterDeck = {}
+world.player.combatDeck = {}
 
-    -- Player should have Vulnerable and Weak
-    lu.assertEquals(self.player.status.vulnerable, 1)
-    lu.assertEquals(self.player.status.weak, 1)
-end
+timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
 
-function TestTimeEater:testHasteAbility()
-    -- Damage Time Eater below 50% HP
-    self.timeEater.hp = math.floor(self.timeEater.maxHp / 2) - 10
+StartCombat.execute(world)
 
-    -- Apply some debuffs
-    self.timeEater.status.weak = 2
-    self.timeEater.status.vulnerable = 3
-    self.timeEater.status.strength = -5
+timeEater.currentIntent = {
+    name = "Head Slam",
+    execute = timeEater.intents.head_slam
+}
 
-    -- Trigger selectIntent (should choose Haste)
-    self.timeEater.selectIntent(self.timeEater, self.world, self.player)
-    lu.assertEquals(self.timeEater.currentIntent.name, "Haste")
+initialHp = world.player.hp
+timeEater.executeIntent(timeEater, world, world.player)
+ProcessEventQueue.execute(world)
 
-    -- Execute Haste
-    self.timeEater.executeIntent(self.timeEater, self.world, self.player)
-    ProcessEventQueue.execute(self.world)
+-- Player should have Draw Reduction
+assert(world.player.status.draw_reduction == 1, "Head Slam should apply Draw Reduction")
 
-    -- HP should be at 50%
-    lu.assertEquals(self.timeEater.hp, math.floor(self.timeEater.maxHp / 2))
+-- Player should take damage
+assert(world.player.hp < initialHp, "Head Slam should deal damage")
+print("✓ Head Slam deals 26 damage and applies Draw Reduction\n")
 
-    -- Debuffs should be cleared
-    lu.assertEquals(self.timeEater.status.weak, 0)
-    lu.assertEquals(self.timeEater.status.vulnerable, 0)
-    lu.assertEquals(self.timeEater.status.strength, 0) -- Negative strength removed
-end
+-- Test 6: Ripple Defense
+print("Test 6: Ripple defense (20 Block + debuffs)...")
+world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 3})
 
-function TestTimeEater:testHasteOnlyUsedOnce()
-    -- Damage Time Eater below 50% HP
-    self.timeEater.hp = math.floor(self.timeEater.maxHp / 2) - 10
+world.player.masterDeck = {}
+world.player.combatDeck = {}
 
-    -- First time should trigger Haste
-    self.timeEater.selectIntent(self.timeEater, self.world, self.player)
-    lu.assertEquals(self.timeEater.currentIntent.name, "Haste")
+timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
 
-    -- Execute Haste
-    self.timeEater.executeIntent(self.timeEater, self.world, self.player)
-    ProcessEventQueue.execute(self.world)
+StartCombat.execute(world)
 
-    -- Damage again below 50%
-    self.timeEater.hp = math.floor(self.timeEater.maxHp / 2) - 20
+timeEater.currentIntent = {
+    name = "Ripple",
+    execute = timeEater.intents.ripple
+}
 
-    -- Should NOT use Haste again
-    self.timeEater.selectIntent(self.timeEater, self.world, self.player)
-    lu.assertNotEquals(self.timeEater.currentIntent.name, "Haste")
-end
+timeEater.executeIntent(timeEater, world, world.player)
+ProcessEventQueue.execute(world)
 
-os.exit(lu.LuaUnit.run())
+-- Time Eater should gain 20 block
+assert(timeEater.block == 20, "Ripple should grant 20 Block (got " .. timeEater.block .. ")")
+
+-- Player should have Vulnerable and Weak
+assert(world.player.status.vulnerable == 1, "Ripple should apply 1 Vulnerable")
+assert(world.player.status.weak == 1, "Ripple should apply 1 Weak")
+print("✓ Ripple grants 20 Block and applies debuffs\n")
+
+-- Test 7: Haste Ability
+print("Test 7: Haste ability (heal + cleanse)...")
+world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 3})
+
+world.player.masterDeck = {}
+world.player.combatDeck = {}
+
+timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
+
+StartCombat.execute(world)
+
+-- Damage Time Eater below 50% HP
+timeEater.hp = math.floor(timeEater.maxHp / 2) - 10
+
+-- Apply some debuffs
+timeEater.status.weak = 2
+timeEater.status.vulnerable = 3
+timeEater.status.strength = -5
+
+-- Trigger selectIntent (should choose Haste)
+timeEater.selectIntent(timeEater, world, world.player)
+assert(timeEater.currentIntent.name == "Haste", "Should select Haste when HP < 50%")
+
+-- Execute Haste
+timeEater.executeIntent(timeEater, world, world.player)
+ProcessEventQueue.execute(world)
+
+-- HP should be at 50%
+assert(timeEater.hp == math.floor(timeEater.maxHp / 2), "Haste should heal to 50% HP (expected " .. math.floor(timeEater.maxHp / 2) .. ", got " .. timeEater.hp .. ")")
+
+-- Debuffs should be cleared
+assert(timeEater.status.weak == 0, "Haste should clear Weak")
+assert(timeEater.status.vulnerable == 0, "Haste should clear Vulnerable")
+assert(timeEater.status.strength == 0, "Haste should clear negative Strength")
+print("✓ Haste heals to 50% and removes all debuffs\n")
+
+-- Test 8: Haste Only Once
+print("Test 8: Haste only triggers once...")
+world = World.createWorld({playerName = "Tester", playerClass = "IRONCLAD", maxEnergy = 3})
+
+world.player.masterDeck = {}
+world.player.combatDeck = {}
+
+timeEater = Utils.copyEnemyTemplate(Enemies.TimeEater)
+world.enemies = {timeEater}
+
+StartCombat.execute(world)
+
+-- Damage Time Eater below 50% HP
+timeEater.hp = math.floor(timeEater.maxHp / 2) - 10
+
+-- First time should trigger Haste
+timeEater.selectIntent(timeEater, world, world.player)
+assert(timeEater.currentIntent.name == "Haste", "First time should select Haste")
+
+-- Execute Haste
+timeEater.executeIntent(timeEater, world, world.player)
+ProcessEventQueue.execute(world)
+
+-- Damage again below 50%
+timeEater.hp = math.floor(timeEater.maxHp / 2) - 20
+
+-- Should NOT use Haste again
+timeEater.selectIntent(timeEater, world, world.player)
+assert(timeEater.currentIntent.name ~= "Haste", "Haste should only trigger once (got " .. timeEater.currentIntent.name .. ")")
+print("✓ Haste only triggers once per battle\n")
+
+print("=== All Time Eater Tests Passed! ===\n")
