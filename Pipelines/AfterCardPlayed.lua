@@ -146,10 +146,15 @@ function AfterCardPlayed.execute(world, player)
             table.insert(world.log, "After Image grants " .. afterImageStacks .. " Block")
         end
 
-        -- TIME WARP: track cards played this turn
+        -- TIME WARP: decrement stacks on card play
         if Utils.hasPower(player, "time_warp") then
-            world.combat.timeWarpCounter = (world.combat.timeWarpCounter or 0) + 1
-            table.insert(world.log, "Time Warp counter: " .. world.combat.timeWarpCounter .. "/12")
+            world.queue:push({
+                type = "ON_STATUS_GAIN",
+                target = player,
+                effectType = "time_warp",
+                amount = -1,
+                source = "Time Warp"
+            })
         end
 
         -- Enforce card play limits (Velvet Choker, Normality)
