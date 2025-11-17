@@ -302,17 +302,9 @@ function StartTurn.execute(world, player)
     player.status = player.status or {}
     player.status.necronomiconThisTurn = false  -- Necronomicon can trigger again
 
-    -- Trigger onStartTurn hooks for all status effects on player
+    -- Trigger onStartTurn hooks for player's status effects only
+    -- NOTE: Enemy status hooks are triggered in EnemyTakeTurn when each enemy acts
     triggerStatusHooks(world, player)
-
-    -- Trigger onStartTurn hooks for all status effects on enemies
-    if world.enemies then
-        for _, enemy in ipairs(world.enemies) do
-            if enemy.hp > 0 then
-                triggerStatusHooks(world, enemy)
-            end
-        end
-    end
 
     -- Process any events queued by status effect hooks
     ProcessEventQueue.execute(world)
@@ -368,8 +360,12 @@ function StartTurn.execute(world, player)
         table.insert(world.log, playerName .. " gained " .. plasmaCount .. " energy from " .. plasmaCount .. " Plasma orb(s)")
     end
 
-    -- Reset block
-    player.block = 0
+    -- Reset block (unless Blur is active)
+    if player.status and player.status.blur and player.status.blur > 0 then
+        table.insert(world.log, playerName .. "'s Block retained (Blur)")
+    else
+        player.block = 0
+    end
 
     -- Check for turn-start effects that need context collection
     local needsForesight = player.status and player.status.foresight and player.status.foresight > 0

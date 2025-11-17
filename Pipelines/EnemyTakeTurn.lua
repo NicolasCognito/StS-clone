@@ -11,25 +11,37 @@
 local EnemyTakeTurn = {}
 
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
+local StatusEffects = require("Data.statuseffects")
+
+-- Helper: Call onStartTurn hooks for all status effects on a combatant
+local function triggerStatusHooks(world, combatant)
+    if not combatant.status then return end
+
+    for statusKey, statusDef in pairs(StatusEffects) do
+        if statusDef.onStartTurn and combatant.status[statusKey] and combatant.status[statusKey] > 0 then
+            statusDef.onStartTurn(world, combatant)
+        end
+    end
+end
 
 function EnemyTakeTurn.execute(world, enemy, player)
     table.insert(world.log, "--- " .. enemy.name .. "'s Turn ---")
 
     enemy.status = enemy.status or {}
-    if enemy.status.bias and enemy.status.bias > 0 then
-        local biasLoss = enemy.status.bias
-        enemy.status.focus = (enemy.status.focus or 0) - biasLoss
-        table.insert(world.log, enemy.name .. " lost " .. biasLoss .. " Focus from Bias")
-    end
 
-    if enemy.status.wraith_form and enemy.status.wraith_form > 0 then
-        local dexLoss = enemy.status.wraith_form
-        enemy.status.dexterity = (enemy.status.dexterity or 0) - dexLoss
-        table.insert(world.log, enemy.name .. " lost " .. dexLoss .. " Dexterity from Wraith Form")
-    end
+    -- Trigger onStartTurn hooks for this enemy's status effects
+    -- (Poison, Bias, Wraith Form, etc.)
+    triggerStatusHooks(world, enemy)
 
-    -- Reset enemy block at start of turn
-    enemy.block = 0
+    -- Process any events queued by status effect hooks
+    ProcessEventQueue.execute(world)
+
+    -- Reset enemy block at start of turn (unless Blur is active)
+    if enemy.status.blur and enemy.status.blur > 0 then
+        table.insert(world.log, enemy.name .. "'s Block retained (Blur)")
+    else
+        enemy.block = 0
+    end
 
     -- Log the enemy's intent
     if enemy.currentIntent then
