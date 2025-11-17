@@ -14,7 +14,22 @@ If the user mentions a card or relic name without providing details:
 - Understand its mechanics and effects before implementing
 - Verify the information matches the source game (Slay the Spire)
 
-## 3. ✅ Plan and Confirm
+## 3. 🔧 Check Actual APIs - DON'T INVENT
+
+**CRITICAL: Before using ANY pipeline event, queue type, or system API:**
+- **CHECK** the actual codebase for existing event types and parameters
+- **SEARCH** for similar usage patterns in the code (e.g., grep for "type = \"ON_")
+- **READ** the relevant pipeline files to understand the exact API
+- **ASK** the user if unsure about the correct API
+- **NEVER** invent event types, parameter names, or queue formats
+- When in doubt, READ the implementation file (e.g., ProcessEventQueue.lua, ApplyStatusEffect.lua)
+
+Examples of what NOT to do:
+- ❌ Inventing `ON_APPLY_STATUS` when the real type is `ON_STATUS_GAIN`
+- ❌ Using `statusId` when the parameter is `effectType`
+- ❌ Guessing parameter names without checking
+
+## 4. ✅ Plan and Confirm
 
 **Unless the user explicitly allows you to proceed immediately:**
 - Create a detailed implementation plan
@@ -22,7 +37,7 @@ If the user mentions a card or relic name without providing details:
 - Ask: "Do you need tests for this implementation?"
 - Wait for confirmation before proceeding
 
-## 4. 📊 Validation and Analysis at Scale
+## 5. 📊 Validation and Analysis at Scale
 
 When validating or analyzing many files:
 - For checking a **single file**, use the Read tool directly
