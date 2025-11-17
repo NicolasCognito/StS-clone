@@ -14,12 +14,23 @@ local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local StatusEffects = require("Data.statuseffects")
 
 -- Helper: Call onStartTurn hooks for all status effects on a combatant
-local function triggerStatusHooks(world, combatant)
+local function triggerStartTurnHooks(world, combatant)
     if not combatant.status then return end
 
     for statusKey, statusDef in pairs(StatusEffects) do
         if statusDef.onStartTurn and combatant.status[statusKey] and combatant.status[statusKey] > 0 then
             statusDef.onStartTurn(world, combatant)
+        end
+    end
+end
+
+-- Helper: Call onEndTurn hooks for all status effects on a combatant
+local function triggerEndTurnHooks(world, combatant)
+    if not combatant.status then return end
+
+    for statusKey, statusDef in pairs(StatusEffects) do
+        if statusDef.onEndTurn and combatant.status[statusKey] and combatant.status[statusKey] > 0 then
+            statusDef.onEndTurn(world, combatant)
         end
     end
 end
@@ -31,7 +42,7 @@ function EnemyTakeTurn.execute(world, enemy, player)
 
     -- Trigger onStartTurn hooks for this enemy's status effects
     -- (Poison, Bias, Wraith Form, etc.)
-    triggerStatusHooks(world, enemy)
+    triggerStartTurnHooks(world, enemy)
 
     -- Process any events queued by status effect hooks
     ProcessEventQueue.execute(world)
@@ -60,6 +71,13 @@ function EnemyTakeTurn.execute(world, enemy, player)
     end
 
     -- Process all queued events
+    ProcessEventQueue.execute(world)
+
+    -- Trigger onEndTurn hooks for this enemy's status effects
+    -- (Ritual, Regeneration, Metallicize, Plated Armor, etc.)
+    triggerEndTurnHooks(world, enemy)
+
+    -- Process any events queued by status effect hooks
     ProcessEventQueue.execute(world)
 
     -- NOTE: Status effects (vulnerable, weak, frail, etc.) are now ticked down

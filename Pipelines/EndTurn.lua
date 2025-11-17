@@ -117,17 +117,9 @@ function EndTurn.execute(world, player)
         ProcessEventQueue.execute(world)
     end
 
-    -- Trigger onEndTurn hooks for all status effects on player
+    -- Trigger onEndTurn hooks for player's status effects only
+    -- NOTE: Enemy status hooks are triggered in EnemyTakeTurn when each enemy's turn ends
     triggerStatusHooks(world, player)
-
-    -- Trigger onEndTurn hooks for all status effects on enemies
-    if world.enemies then
-        for _, enemy in ipairs(world.enemies) do
-            if enemy.hp > 0 then
-                triggerStatusHooks(world, enemy)
-            end
-        end
-    end
 
     -- Process any events queued by status effect hooks
     ProcessEventQueue.execute(world)
