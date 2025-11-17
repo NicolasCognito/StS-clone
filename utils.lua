@@ -292,4 +292,31 @@ function Utils.generateGUID()
     return string.format("shadow_%d_%d", timestamp, random)
 end
 
+-- Decrement a status effect by a given amount
+-- If the status reaches 0 or below, it is removed (set to nil)
+-- target: the character (player or enemy) with the status
+-- statusKey: the status effect key (e.g., "vulnerable", "poison")
+-- amount: the amount to decrement (default 1)
+function Utils.Decrement(target, statusKey, amount)
+    amount = amount or 1
+    if not target.status or not target.status[statusKey] then
+        return
+    end
+
+    target.status[statusKey] = target.status[statusKey] - amount
+    if target.status[statusKey] <= 0 then
+        target.status[statusKey] = nil
+    end
+end
+
+-- Remove a status effect completely (set to nil)
+-- target: the character (player or enemy) with the status
+-- statusKey: the status effect key (e.g., "blur", "slow")
+function Utils.WoreOff(target, statusKey)
+    if not target.status then
+        return
+    end
+    target.status[statusKey] = nil
+end
+
 return Utils

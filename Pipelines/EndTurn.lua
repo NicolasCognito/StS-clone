@@ -16,6 +16,18 @@ local EndTurn = {}
 local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
 local OrbPassive = require("Pipelines.OrbPassive")
 local Utils = require("utils")
+local StatusEffects = require("Data.statuseffects")
+
+-- Helper: Call onEndTurn hooks for all status effects on a combatant
+local function triggerStatusHooks(world, combatant)
+    if not combatant.status then return end
+
+    for statusKey, statusDef in pairs(StatusEffects) do
+        if statusDef.onEndTurn and combatant.status[statusKey] and combatant.status[statusKey] > 0 then
+            statusDef.onEndTurn(world, combatant)
+        end
+    end
+end
 
 -- Helper function: Discard hand and cleanup turn state
 -- Extracted to support "queue as continuation" pattern for Well-Laid Plans
@@ -104,6 +116,13 @@ function EndTurn.execute(world, player)
         world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Frost"})
         ProcessEventQueue.execute(world)
     end
+
+    -- Trigger onEndTurn hooks for player's status effects only
+    -- NOTE: Enemy status hooks are triggered in EnemyTakeTurn when each enemy's turn ends
+    triggerStatusHooks(world, player)
+
+    -- Process any events queued by status effect hooks
+    ProcessEventQueue.execute(world)
 
     -- Track HP loss for Emotion Chip
     if player.hp < world.combat.hpAtTurnStart then
