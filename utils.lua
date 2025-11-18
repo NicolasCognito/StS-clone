@@ -106,6 +106,21 @@ function Utils.getRelic(player, relicId)
     return nil
 end
 
+-- Trigger relic hooks for all relics on a combatant
+-- Similar to status effect hooks, this allows relics to respond to game events
+-- combatant: the character with relics (typically world.player)
+-- hookName: the hook to call (e.g., "onDmg", "onTurnStart")
+-- ...: additional arguments to pass to the hook
+function Utils.triggerRelicHooks(world, combatant, hookName, ...)
+    if not combatant or not combatant.relics then return end
+
+    for _, relic in ipairs(combatant.relics) do
+        if relic[hookName] then
+            relic[hookName](relic, world, combatant, ...)
+        end
+    end
+end
+
 -- Get a random living enemy
 -- Returns a random enemy with hp > 0, or nil if no living enemies
 -- Used for Lightning orb targeting

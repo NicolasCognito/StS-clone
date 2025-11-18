@@ -183,6 +183,14 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
     -- Apply remaining damage to HP
     defender.hp = defender.hp - damage
 
+    -- Trigger onDmg relic hooks with full context
+    Utils.triggerRelicHooks(world, world.player, "onDmg", {
+        target = defender,
+        damage = damage,
+        source = attacker,
+        blockAbsorbed = blockAbsorbed
+    })
+
     -- Reduce Invincible by damage dealt (after block absorption)
     -- Invincible caps total damage/HP loss per turn, not just pre-block damage
     if defenderStatus and defenderStatus.invincible and defenderStatus.invincible > 0 and damage > 0 then
