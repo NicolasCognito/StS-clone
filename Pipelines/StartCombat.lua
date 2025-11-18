@@ -153,32 +153,15 @@ function StartCombat.execute(world)
         end
     end
 
-    -- Orb-related relic effects at combat start
-    if Utils.hasRelic(world.player, "CrackedCore") then
-        world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
-    end
-
-    if Utils.hasRelic(world.player, "NuclearBattery") then
-        world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Plasma"})
-    end
-
-    if Utils.hasRelic(world.player, "SymbioticVirus") then
-        world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Dark"})
-    end
-
-    if Utils.hasRelic(world.player, "DataDisk") then
-        world.queue:push({
-            type = "ON_STATUS_GAIN",
-            target = world.player,
-            status = "focus",
-            amount = 1
-        })
-    end
-
+    -- RunicCapacitor: Add orb slots (doesn't need queue, just modifies state)
     if Utils.hasRelic(world.player, "RunicCapacitor") then
         world.player.maxOrbs = world.player.maxOrbs + 3
         table.insert(world.log, world.player.name .. " starts with 3 additional orb slots")
     end
+
+    -- NOTE: Queue-based relic effects (CrackedCore, NuclearBattery, SymbioticVirus, DataDisk)
+    -- are now handled in StartTurn.lua on the first turn to avoid issues with relics
+    -- not being fully initialized during combat start
 
     -- Initialize HP tracking for Emotion Chip
     world.combat.hpAtTurnStart = world.player.hp
