@@ -788,7 +788,7 @@ function saveDeck()
     DeckSerializer.save(deckData, state.deckName)
 end
 
-function startTestCombat()
+local function startTestCombat()
     if not state.selectedDeckIndex or not state.selectedEnemyIndex then
         print("ERROR: No deck or enemy selected")
         return
