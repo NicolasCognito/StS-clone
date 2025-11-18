@@ -273,8 +273,9 @@ end
 function StartTurn.execute(world, player)
     table.insert(world.log, "--- Start of Player Turn ---")
 
-    -- Reset turn counters
+    -- Mark that it's the player's turn (for Unceasing Top and other turn-dependent effects)
     if world.combat then
+        world.combat.isPlayerTurn = true
         world.combat.cardsPlayedThisTurn = {}
     end
 

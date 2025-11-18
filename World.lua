@@ -103,6 +103,8 @@ function World.initCombatState()
         cardsDiscardedThisTurn = 0,
         cardsPlayedThisTurn = {},   -- Table storing metadata of cards played this turn {type, name, id}
         powersPlayedThisCombat = 0,
+        -- Turn tracking
+        isPlayerTurn = false,   -- True during player's turn, false during enemy turns
         -- Context system
         stableContext = nil,    -- Persists across duplications (e.g., enemy target)
         tempContext = nil,      -- Re-collected on duplications (e.g., card discard)
