@@ -191,6 +191,8 @@ function EndTurn.execute(world, player)
         effect = function()
             EndTurn.discardHandAndCleanup(world, player)
             table.insert(world.log, player.id .. " ended turn")
+            -- Mark that player's turn is over (for Unceasing Top and other turn-dependent effects)
+            world.combat.isPlayerTurn = false
             -- Signal completion to CombatEngine
             world.combat.endTurnComplete = true
         end
