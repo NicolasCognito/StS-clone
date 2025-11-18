@@ -284,6 +284,34 @@ function StartTurn.execute(world, player)
         ChangeStance.execute(world, {newStance = nil})
     end
 
+    -- FIRST TURN ONLY: Trigger combat-start relic effects that need queue processing
+    if world.combat.turnCounter == 0 then
+        -- Orb-related relic effects at combat start
+        if Utils.hasRelic(player, "CrackedCore") then
+            world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Lightning"})
+        end
+
+        if Utils.hasRelic(player, "NuclearBattery") then
+            world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Plasma"})
+        end
+
+        if Utils.hasRelic(player, "SymbioticVirus") then
+            world.queue:push({type = "ON_CHANNEL_ORB", orbType = "Dark"})
+        end
+
+        if Utils.hasRelic(player, "DataDisk") then
+            world.queue:push({
+                type = "ON_STATUS_GAIN",
+                target = player,
+                status = "focus",
+                amount = 1
+            })
+        end
+
+        -- Process these first-turn relic effects
+        ProcessEventQueue.execute(world)
+    end
+
     -- Trigger relics' onTurnStart effects
     for _, relic in ipairs(player.relics) do
         if relic.onTurnStart then
