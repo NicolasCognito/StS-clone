@@ -41,11 +41,23 @@ function EnemyTakeTurn.execute(world, enemy, player)
     enemy.status = enemy.status or {}
 
     -- Trigger onStartTurn hooks for this enemy's status effects
-    -- (Poison, Bias, Wraith Form, etc.)
+    -- (Poison, Bias, Wraith Form, Regrow, etc.)
     triggerStartTurnHooks(world, enemy)
 
     -- Process any events queued by status effect hooks
     ProcessEventQueue.execute(world)
+
+    -- If enemy is reviving, skip the rest of the turn (no intent execution)
+    if enemy.reviving then
+        table.insert(world.log, enemy.name .. " is reviving (no action)")
+
+        -- Still process end turn hooks for status effects
+        triggerEndTurnHooks(world, enemy)
+        ProcessEventQueue.execute(world)
+
+        table.insert(world.log, enemy.name .. " ended turn")
+        return
+    end
 
     -- Reset enemy block at start of turn (unless Blur is active)
     if enemy.status.blur and enemy.status.blur > 0 then

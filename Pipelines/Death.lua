@@ -43,8 +43,27 @@ function Death.execute(world, event)
     if entity == world.player then
         world.combat.playerDied = true
     else
-        -- Mark enemy as dead
-        entity.dead = true
+        -- Check if this enemy can revive (like Darklings)
+        local canRevive = entity.reviveType == "darkling"
+
+        if canRevive then
+            -- Enter revival state instead of dying permanently
+            entity.reviving = true
+            entity.hp = 0  -- Ensure HP is exactly 0
+
+            -- Apply Regrow status (2 turns until revival attempt)
+            world.queue:push({
+                type = "ON_STATUS_GAIN",
+                target = entity,
+                effectType = "regrow",
+                amount = 2
+            })
+
+            table.insert(world.log, entity.name .. " begins to regrow...")
+        else
+            -- Normal death - mark as dead
+            entity.dead = true
+        end
 
         if entity.status and entity.status.corpse_explosion and entity.status.corpse_explosion > 0 then
             local stacks = entity.status.corpse_explosion
@@ -67,10 +86,12 @@ function Death.execute(world, event)
         end
 
         -- Trigger card on-kill effects based on tags
+        -- NOTE: Only trigger on PERMANENT death, not revival state
         local tags = event.tags or {}
+        local isPermanentDeath = not entity.reviving
 
         -- Feed: heal and increase max HP on kill
-        if Utils.hasTag(tags, "feed") and card and source and entity ~= source then
+        if isPermanentDeath and Utils.hasTag(tags, "feed") and card and source and entity ~= source then
             world.queue:push({
                 type = "ON_HEAL",
                 target = source,
@@ -81,7 +102,7 @@ function Death.execute(world, event)
         end
 
         -- Lesson Learned: upgrade a random card in deck on kill
-        if Utils.hasTag(tags, "lessonLearned") and card and source and entity ~= source then
+        if isPermanentDeath and Utils.hasTag(tags, "lessonLearned") and card and source and entity ~= source then
             -- Get random upgradeable card from master deck
             local upgradeableCards = {}
             for _, deckCard in ipairs(world.player.masterDeck) do
@@ -101,7 +122,7 @@ function Death.execute(world, event)
         end
 
         -- Ritual Dagger: increase damage permanently on kill
-        if Utils.hasTag(tags, "ritualDagger") and card and source and entity ~= source then
+        if isPermanentDeath and Utils.hasTag(tags, "ritualDagger") and card and source and entity ~= source then
             -- Increase combat card damage
             local damageBonus = card.damageIncrease or 3
             card.damage = (card.damage or 15) + damageBonus
