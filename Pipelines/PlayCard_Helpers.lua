@@ -60,11 +60,30 @@ function PlayCard_Helpers.handleCardCleanup(world, player, card, options)
             source = exhaustSource
         })
     else
-        world.queue:push({
-            type = "ON_DISCARD",
-            card = card,
-            player = player
-        })
+        -- Special handling: if card has shuffleOnDiscard flag, shuffle it into draw pile instead
+        if card.shuffleOnDiscard then
+            world.queue:push({
+                type = "ON_CUSTOM_EFFECT",
+                effect = function()
+                    -- Move card to draw pile
+                    card.state = "DECK"
+
+                    -- Shuffle the draw pile
+                    if not world.NoShuffle then
+                        Utils.shuffleDeck(player.combatDeck, world)
+                    end
+
+                    table.insert(world.log, card.name .. " was shuffled into the draw pile")
+                end
+            })
+        else
+            -- Normal discard
+            world.queue:push({
+                type = "ON_DISCARD",
+                card = card,
+                player = player
+            })
+        end
     end
 
     -- Process the event queue (exhaust/discard might trigger other effects)
