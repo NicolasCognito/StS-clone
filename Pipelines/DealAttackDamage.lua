@@ -238,6 +238,12 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
         if card and card.feedEffect then
             table.insert(deathTags, "feed")
         end
+        if card and card.lessonLearnedEffect then
+            table.insert(deathTags, "lessonLearned")
+        end
+        if card and card.ritualDaggerEffect then
+            table.insert(deathTags, "ritualDagger")
+        end
 
         world.queue:push({
             type = "ON_DEATH",

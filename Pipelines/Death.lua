@@ -79,6 +79,43 @@ function Death.execute(world, event)
                 source = card
             })
         end
+
+        -- Lesson Learned: upgrade a random card in deck on kill
+        if Utils.hasTag(tags, "lessonLearned") and card and source and entity ~= source then
+            -- Get random upgradeable card from master deck
+            local upgradeableCards = {}
+            for _, deckCard in ipairs(world.player.masterDeck) do
+                if not deckCard.upgraded and not deckCard.disallowUpgrade then
+                    table.insert(upgradeableCards, deckCard)
+                end
+            end
+
+            if #upgradeableCards > 0 then
+                local randomCard = upgradeableCards[math.random(#upgradeableCards)]
+                local UpgradeCard = require("Pipelines.UpgradeCard")
+                UpgradeCard.execute(world, randomCard, { source = "LessonLearned" })
+                table.insert(world.log, "Lesson Learned upgraded " .. randomCard.name .. "!")
+            else
+                table.insert(world.log, "Lesson Learned has no cards to upgrade.")
+            end
+        end
+
+        -- Ritual Dagger: increase damage permanently on kill
+        if Utils.hasTag(tags, "ritualDagger") and card and source and entity ~= source then
+            -- Increase combat card damage
+            local damageBonus = card.damageIncrease or 3
+            card.damage = (card.damage or 15) + damageBonus
+
+            -- Find and update masterDeck version to persist across combats
+            for _, deckCard in ipairs(world.player.masterDeck) do
+                if deckCard.id == "RitualDagger" then
+                    deckCard.damage = card.damage
+                    break  -- Only update first match
+                end
+            end
+
+            table.insert(world.log, "Ritual Dagger's damage increased to " .. card.damage .. "!")
+        end
     end
 
     -- Future: Trigger on-death effects, relics, powers, etc.
