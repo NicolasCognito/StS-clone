@@ -31,14 +31,11 @@ function DeckSerializer.save(deckData, filename)
     -- Encode to JSON
     local json_str = JSON.encode(deckData)
 
-    -- Write to file
-    local file, err = io.open(filepath, "w")
-    if not file then
-        error("Failed to save deck: " .. err)
+    -- Write to file using love.filesystem
+    local success, err = love.filesystem.write(filepath, json_str)
+    if not success then
+        error("Failed to save deck: " .. tostring(err))
     end
-
-    file:write(json_str)
-    file:close()
 
     return filepath
 end
@@ -51,14 +48,11 @@ function DeckSerializer.load(filename)
 
     local filepath = "Saved_Decks/" .. filename
 
-    -- Read file
-    local file, err = io.open(filepath, "r")
-    if not file then
-        error("Failed to load deck: " .. err)
+    -- Read file using love.filesystem
+    local content, err = love.filesystem.read(filepath)
+    if not content then
+        error("Failed to load deck: " .. tostring(err))
     end
-
-    local content = file:read("*all")
-    file:close()
 
     -- Decode JSON
     local deckData = JSON.decode(content)
@@ -76,17 +70,17 @@ end
 function DeckSerializer.listDecks()
     local decks = {}
 
-    -- Use io.popen to list files (platform-dependent)
-    local handle = io.popen("ls Saved_Decks/*.json 2>/dev/null")
-    if handle then
-        for filename in handle:lines() do
-            -- Extract just the filename without path and extension
-            local name = filename:match("Saved_Decks/(.+)%.json$")
+    -- Use love.filesystem to list files (cross-platform)
+    local items = love.filesystem.getDirectoryItems("Saved_Decks")
+    for _, filename in ipairs(items) do
+        -- Only include .json files
+        if filename:match("%.json$") then
+            -- Extract just the filename without extension
+            local name = filename:match("(.+)%.json$")
             if name then
                 table.insert(decks, name)
             end
         end
-        handle:close()
     end
 
     return decks
@@ -99,7 +93,7 @@ function DeckSerializer.delete(filename)
     end
 
     local filepath = "Saved_Decks/" .. filename
-    os.remove(filepath)
+    love.filesystem.remove(filepath)
 end
 
 -- Convert a deck configuration into a masterDeck array for game use
