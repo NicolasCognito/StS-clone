@@ -728,8 +728,14 @@ local function handleTestCombatClick(x, y)
 
     -- Start combat button
     if x >= 500 and x <= 700 and y >= 650 and y <= 690 then
+        print("START COMBAT button clicked")
         if state.selectedDeckIndex and state.selectedEnemyIndex then
+            print("Both deck and enemy selected, starting combat...")
             startTestCombat()
+        else
+            print("ERROR: Please select both a deck and an enemy!")
+            print("  selectedDeckIndex: " .. tostring(state.selectedDeckIndex))
+            print("  selectedEnemyIndex: " .. tostring(state.selectedEnemyIndex))
         end
         return
     end
@@ -740,6 +746,7 @@ local function handleTestCombatClick(x, y)
         local itemY = startY + (i - 1) * 40
         if x >= 50 and x <= 350 and y >= itemY and y <= itemY + 35 then
             state.selectedDeckIndex = i
+            print("Deck selected: " .. deckName .. " (index " .. i .. ")")
             return
         end
     end
@@ -750,6 +757,7 @@ local function handleTestCombatClick(x, y)
         local itemY = startY + (i - 1) * 40
         if x >= 400 and x <= 700 and y >= itemY and y <= itemY + 35 then
             state.selectedEnemyIndex = i
+            print("Enemy selected: " .. enemy.data.name .. " (index " .. i .. ")")
             return
         end
     end
@@ -782,15 +790,37 @@ end
 
 function startTestCombat()
     if not state.selectedDeckIndex or not state.selectedEnemyIndex then
+        print("ERROR: No deck or enemy selected")
         return
     end
 
-    -- Load deck
-    local deckName = state.savedDecks[state.selectedDeckIndex]
-    local deckData = DeckSerializer.load(deckName)
+    -- Validate indices
+    if not state.savedDecks[state.selectedDeckIndex] then
+        print("ERROR: Invalid deck index: " .. tostring(state.selectedDeckIndex))
+        return
+    end
 
-    -- Build master deck
-    local masterDeck = DeckSerializer.deckDataToMasterDeck(deckData, Cards)
+    if not state.enemyList[state.selectedEnemyIndex] then
+        print("ERROR: Invalid enemy index: " .. tostring(state.selectedEnemyIndex))
+        return
+    end
+
+    -- Load deck with error handling
+    local deckName = state.savedDecks[state.selectedDeckIndex]
+    print("Loading deck: " .. deckName)
+
+    local success, deckData = pcall(DeckSerializer.load, deckName)
+    if not success then
+        print("ERROR: Failed to load deck: " .. tostring(deckData))
+        return
+    end
+
+    -- Build master deck with error handling
+    local success2, masterDeck = pcall(DeckSerializer.deckDataToMasterDeck, deckData, Cards)
+    if not success2 then
+        print("ERROR: Failed to build master deck: " .. tostring(masterDeck))
+        return
+    end
 
     -- Build relics list
     local relics = {}
@@ -805,11 +835,23 @@ function startTestCombat()
 
     -- Get enemy
     local enemyData = state.enemyList[state.selectedEnemyIndex].data
+    print("Starting combat with enemy: " .. enemyData.name)
 
     -- Call the global function to start combat
-    if _G.startTestCombatWithDeck then
-        _G.startTestCombatWithDeck(masterDeck, relics, deckData.character, enemyData)
+    if not _G.startTestCombatWithDeck then
+        print("ERROR: Global function startTestCombatWithDeck not found!")
+        print("Available globals: " .. table.concat({"returnToMenu=" .. tostring(_G.returnToMenu), "startTestCombatWithDeck=" .. tostring(_G.startTestCombatWithDeck)}, ", "))
+        return
     end
+
+    print("Calling startTestCombatWithDeck...")
+    local success3, err = pcall(_G.startTestCombatWithDeck, masterDeck, relics, deckData.character, enemyData)
+    if not success3 then
+        print("ERROR: Failed to start combat: " .. tostring(err))
+        return
+    end
+
+    print("Combat started successfully!")
 end
 
 -- ============================================================================
@@ -851,8 +893,23 @@ function DeckbuilderLove.initTestCombat()
     state.mode = "testcombat"
     state.savedDecks = DeckSerializer.listDecks()
     state.enemyList = getAllEnemies()
-    state.selectedDeckIndex = 1
-    state.selectedEnemyIndex = 1
+
+    -- Only set defaults if we have decks and enemies
+    if #state.savedDecks > 0 then
+        state.selectedDeckIndex = 1
+    else
+        state.selectedDeckIndex = nil
+        print("WARNING: No saved decks found!")
+    end
+
+    if #state.enemyList > 0 then
+        state.selectedEnemyIndex = 1
+    else
+        state.selectedEnemyIndex = nil
+        print("WARNING: No enemies found!")
+    end
+
+    print("TestCombat initialized - Decks: " .. #state.savedDecks .. ", Enemies: " .. #state.enemyList)
 end
 
 function DeckbuilderLove.draw()
