@@ -161,6 +161,25 @@ function AfterCardPlayed.execute(world, player)
             end
         end
 
+        -- CURIOSITY: enemies gain Strength when player plays a Power card (Awakened One Phase 1)
+        if world.combat.currentExecutingCard.type == "POWER" then
+            if world.enemies then
+                for _, enemy in ipairs(world.enemies) do
+                    if enemy.hp > 0 and enemy.status and enemy.status.curiosity and enemy.status.curiosity > 0 then
+                        local strengthGain = enemy.status.curiosity
+                        world.queue:push({
+                            type = "ON_STATUS_GAIN",
+                            target = enemy,
+                            effectType = "strength",
+                            amount = strengthGain,
+                            source = "Curiosity"
+                        })
+                        table.insert(world.log, enemy.name .. " gains " .. strengthGain .. " Strength from Curiosity!")
+                    end
+                end
+            end
+        end
+
         -- TIME WARP: decrement stacks on card play (enemy power)
         if world.enemies then
             for _, enemy in ipairs(world.enemies) do

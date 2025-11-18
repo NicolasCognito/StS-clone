@@ -43,6 +43,13 @@ function Death.execute(world, event)
     if entity == world.player then
         world.combat.playerDied = true
     else
+        -- Check if this enemy can rebirth (like Awakened One)
+        if entity.canRebirth and entity.intents and entity.intents.rebirth then
+            -- Execute rebirth instead of dying
+            entity.intents.rebirth(entity, world, world.player)
+            return  -- Skip all death processing
+        end
+
         -- Check if this enemy can revive (like Darklings)
         local canRevive = entity.reviveType == "darkling"
 
