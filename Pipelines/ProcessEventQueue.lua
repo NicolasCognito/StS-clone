@@ -38,6 +38,7 @@ local Death = require("Pipelines.Death")
 local ChannelOrb = require("Pipelines.ChannelOrb")
 local EvokeOrb = require("Pipelines.EvokeOrb")
 local Scry = require("Pipelines.Scry")
+local ChangeStance = require("Pipelines.ChangeStance")
 local QueueOver = require("Pipelines.EventQueueOver")
 
 -- Curated list of event types requiring special handling
@@ -87,6 +88,9 @@ local DefaultRoutes = {
     end,
     ON_SCRY = function(world, event)
         Scry.execute(world, event)
+    end,
+    CHANGE_STANCE = function(world, event)
+        ChangeStance.execute(world, event)
     end
 }
 function ProcessEventQueue.execute(world)
