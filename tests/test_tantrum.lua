@@ -159,7 +159,7 @@ do
     print("Test 2 passed: Upgraded Tantrum deals damage 4 times and shuffles into draw pile")
 end
 
--- Test 3: Tantrum should exhaust normally when forced to exhaust (e.g., by Corruption)
+-- Test 3: Tantrum with self-exhaust flag should exhaust instead of shuffle
 do
     local deck = {
         copyCard(Cards.Tantrum),
@@ -171,12 +171,8 @@ do
     local player = world.player
     local tantrum = findCard(player.combatDeck, "Tantrum")
 
-    -- Give player Corruption power (makes all skills exhaust)
-    player.status = player.status or {}
-    player.status.corruption = 1
-
-    -- Change Tantrum to a SKILL type to trigger Corruption's effect
-    tantrum.type = "SKILL"
+    -- Set the card to self-exhaust (overrides shuffleOnDiscard)
+    tantrum.exhausts = true
 
     local enemy = world.enemies[1]
 
@@ -190,8 +186,8 @@ do
     -- Play Tantrum (second call after context is provided)
     assert(PlayCard.execute(world, player, tantrum) == true, "Tantrum should resolve successfully")
 
-    -- Verify Tantrum was exhausted (not shuffled) due to Corruption
-    assert(tantrum.state == "EXHAUSTED_PILE", "Tantrum should be exhausted when Corruption forces exhaust")
+    -- Verify Tantrum was exhausted (not shuffled) due to self-exhaust
+    assert(tantrum.state == "EXHAUSTED_PILE", "Tantrum should be exhausted when it has exhausts=true flag")
 
     -- Verify it was not shuffled
     local foundShuffleMessage = false
@@ -201,9 +197,9 @@ do
             break
         end
     end
-    assert(not foundShuffleMessage, "Log should NOT contain shuffle message when Tantrum is exhausted by Corruption")
+    assert(not foundShuffleMessage, "Log should NOT contain shuffle message when Tantrum self-exhausts")
 
-    print("Test 3 passed: Tantrum exhausts normally when forced to exhaust by Corruption")
+    print("Test 3 passed: Tantrum with self-exhaust flag exhausts instead of shuffling")
 end
 
 -- Test 4: Tantrum played by Havoc should exhaust (not shuffle)
