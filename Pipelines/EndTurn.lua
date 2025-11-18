@@ -124,6 +124,16 @@ function EndTurn.execute(world, player)
     -- Process any events queued by status effect hooks
     ProcessEventQueue.execute(world)
 
+    -- Trigger onEndOfTurn hooks for cards in hand (e.g., Burn, Decay)
+    for _, card in ipairs(player.combatDeck) do
+        if card.state == "HAND" and card.onEndOfTurn then
+            card:onEndOfTurn(world, player)
+        end
+    end
+
+    -- Process any events queued by card hooks
+    ProcessEventQueue.execute(world)
+
     -- Track HP loss for Emotion Chip
     if player.hp < world.combat.hpAtTurnStart then
         world.combat.lastTurnLostHp = true

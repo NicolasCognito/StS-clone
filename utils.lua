@@ -336,4 +336,38 @@ function Utils.WoreOff(target, statusKey)
     target.status[statusKey] = nil
 end
 
+-- Gain energy (adds to player's current energy)
+-- world: the game state (for logging)
+-- player: the player character
+-- amount: the amount of energy to gain
+function Utils.GainEnergy(world, player, amount)
+    if not player or not amount or amount <= 0 then
+        return
+    end
+
+    player.energy = player.energy + amount
+    table.insert(world.log, player.id .. " gained " .. amount .. " energy")
+end
+
+-- Lose energy (removes from player's current energy, with bounds checking)
+-- world: the game state (for logging)
+-- player: the player character
+-- amount: the amount of energy to lose
+-- Returns: the actual amount of energy lost (may be less if player doesn't have enough)
+function Utils.LoseEnergy(world, player, amount)
+    if not player or not amount or amount <= 0 then
+        return 0
+    end
+
+    -- Prevent energy from going below 0
+    local actualLoss = math.min(amount, player.energy)
+    player.energy = player.energy - actualLoss
+
+    if actualLoss > 0 then
+        table.insert(world.log, player.id .. " lost " .. actualLoss .. " energy")
+    end
+
+    return actualLoss
+end
+
 return Utils
