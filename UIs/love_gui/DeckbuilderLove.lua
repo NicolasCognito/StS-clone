@@ -887,7 +887,10 @@ startTestingCombat = function()
     addDebugMsg("Calling global...")
     local success3, err = pcall(_G.startTestCombatWithDeck, masterDeck, relics, deckData.character, enemyData)
     if not success3 then
-        addDebugMsg("ERROR: Call fail: " .. tostring(err):sub(1, 30))
+        -- Show full error for debugging
+        print("FULL ERROR: " .. tostring(err))
+        addDebugMsg("ERROR: " .. tostring(err):sub(1, 50))
+        addDebugMsg("Relics: " .. #relics)
         return
     end
 

@@ -208,14 +208,13 @@ end
 
 function startTestCombatWithDeck(masterDeck, relics, character, enemyData)
     -- Create world with the custom deck
-    -- NOTE: Pass empty relics array to avoid relic-triggered pipeline errors during test combat
     local characterData = {
         id = character,
         maxHp = 80,
         currentHp = 80,
         maxEnergy = 3,
         masterDeck = masterDeck,
-        relics = {}  -- Empty relics for test combat to avoid pipeline issues
+        relics = relics  -- Use provided relics
     }
 
     world = World.createWorld(characterData)
@@ -225,8 +224,18 @@ function startTestCombatWithDeck(masterDeck, relics, character, enemyData)
         Utils.copyEnemyTemplate(enemyData)
     }
 
-    -- Initialize combat
-    StartCombat.execute(world)
+    -- Initialize combat with error handling
+    local success, err = pcall(StartCombat.execute, world)
+    if not success then
+        error("StartCombat failed: " .. tostring(err))
+    end
+
+    -- Process any queued events from relics/combat start
+    local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
+    success, err = pcall(ProcessEventQueue.execute, world)
+    if not success then
+        error("ProcessEventQueue failed: " .. tostring(err))
+    end
 
     -- Switch to combat mode
     gameMode = "combat"
