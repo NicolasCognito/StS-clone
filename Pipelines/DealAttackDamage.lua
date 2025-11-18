@@ -83,6 +83,13 @@ function DealAttackDamage.executeSingle(world, attacker, defender, card, tags, e
         damage = damage + strengthStacks * strengthMultiplier
     end
 
+    -- Apply Vigor: Your next Attack deals X additional damage
+    -- Vigor applies to every instance of damage from the Attack (multi-hit, AOE)
+    -- Vigor is consumed after the Attack is played (handled in AfterCardPlayed.lua)
+    if attackerStatus and attackerStatus.vigor and attackerStatus.vigor > 0 then
+        damage = damage + attackerStatus.vigor
+    end
+
     if attackerStatus and attackerStatus.weak and attackerStatus.weak > 0 and damage > 0 then
         damage = math.floor(damage * 0.75)
     end
