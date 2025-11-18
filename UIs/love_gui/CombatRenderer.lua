@@ -189,13 +189,15 @@ function CombatRenderer.drawEnemies(world, hoveredEnemyIndex, targetMode)
 
             if targetMode then
                 if isHovered then
-                    -- Bright highlight for hovered enemy in target mode
-                    fillColor = {0.9, 0.4, 0.4}
+                    -- VERY bright highlight for hovered enemy in target mode
+                    fillColor = {1, 0.6, 0.5}  -- Very bright red-orange
                     lineColor = {1, 1, 0}  -- Yellow border
-                    lineWidth = 3
+                    lineWidth = 4
                 else
-                    -- Slightly brighten all enemies in target mode
-                    fillColor = {0.7, 0.25, 0.25}
+                    -- Much brighter for all enemies in target mode
+                    fillColor = {0.85, 0.35, 0.35}
+                    lineColor = {1, 1, 0.7}  -- Slight yellow tint
+                    lineWidth = 2
                 end
             end
 
@@ -207,15 +209,26 @@ function CombatRenderer.drawEnemies(world, hoveredEnemyIndex, targetMode)
             -- Enemy name
             drawText(enemy.name, box.x + 5, box.y + 5, {1, 1, 1}, 0.9)
 
-            -- Enemy intention
+            -- Enemy intention (larger font, with description)
+            local hpBarY = box.y + 25
             if enemy.currentIntent then
                 local intentName = enemy.currentIntent.name or "?"
-                local intentColor = {1, 1, 0.5}  -- Yellow for intent
-                drawText("» " .. intentName, box.x + 5, box.y + 20, intentColor, 0.6)
+                local intentDesc = enemy.currentIntent.description or ""
+                local intentColor = {1, 1, 0.3}  -- Brighter yellow for intent
+
+                -- Show intent name in larger font
+                drawText("» " .. intentName, box.x + 5, box.y + 20, intentColor, 0.85)
+
+                -- Show description if available
+                if intentDesc ~= "" then
+                    drawText(intentDesc, box.x + 5, box.y + 33, {1, 0.9, 0.5}, 0.55)
+                    hpBarY = box.y + 45
+                else
+                    hpBarY = box.y + 35
+                end
             end
 
             -- HP bar
-            local hpBarY = box.y + 35
             local hpBarWidth = box.width - 10
             local hpPercent = enemy.hp / enemy.maxHp
 
@@ -296,19 +309,19 @@ function CombatRenderer.drawHand(world, hoveredCardIndex)
         drawBox(box, fillColor, lineColor)
         love.graphics.setLineWidth(1)
 
-        -- Card name (dim text if unplayable)
+        -- Card name (dim text if unplayable) - LARGER FONT
         local textColor = playable and {1, 1, 1} or {0.6, 0.6, 0.6}
-        drawText(card.name, box.x + 5, box.y + 10, textColor, 0.7)
+        drawText(card.name, box.x + 5, box.y + 10, textColor, 0.85)
 
-        -- Card cost (highlight if not enough energy)
+        -- Card cost (highlight if not enough energy) - LARGER FONT
         local cost = GetCost.execute(world, world.player, card)
         local costColor = (world.player.energy >= cost) and {0.7, 0.9, 1} or {1, 0.4, 0.4}
         if not playable then costColor = {0.6, 0.6, 0.6} end
-        drawText("Cost: " .. cost, box.x + 5, box.y + 30, costColor, 0.8)
+        drawText("Cost: " .. cost, box.x + 5, box.y + 35, costColor, 1.0)
 
-        -- Card type
+        -- Card type - slightly larger
         local cardType = card.cardType or "?"
-        drawText(cardType, box.x + 5, box.y + 50, textColor, 0.6)
+        drawText(cardType, box.x + 5, box.y + 55, textColor, 0.7)
 
         -- Show error message if hovered and unplayable
         if isHovered and not playable and errorMsg then
