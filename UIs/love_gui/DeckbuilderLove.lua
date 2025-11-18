@@ -731,7 +731,7 @@ local function handleTestCombatClick(x, y)
         print("START COMBAT button clicked")
         if state.selectedDeckIndex and state.selectedEnemyIndex then
             print("Both deck and enemy selected, starting combat...")
-            startTestCombat()
+            startTestingCombat()
         else
             print("ERROR: Please select both a deck and an enemy!")
             print("  selectedDeckIndex: " .. tostring(state.selectedDeckIndex))
@@ -788,7 +788,7 @@ function saveDeck()
     DeckSerializer.save(deckData, state.deckName)
 end
 
-local function startTestCombat()
+function startTestingCombat()
     if not state.selectedDeckIndex or not state.selectedEnemyIndex then
         print("ERROR: No deck or enemy selected")
         return
