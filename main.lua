@@ -4,6 +4,7 @@
 local World = require("World")
 local CombatLove = require("UIs.love_gui.CombatLove")
 local MapLove = require("UIs.love_gui.MapLove")
+local DeckbuilderLove = require("UIs.love_gui.DeckbuilderLove")
 local Cards = require("Data.cards")
 local Enemies = require("Data.enemies")
 local Maps = require("Data.maps")
@@ -17,7 +18,7 @@ end
 
 -- Game state
 local world = nil
-local gameMode = "menu" -- "menu", "combat", "map"
+local gameMode = "menu" -- "menu", "combat", "map", "deckbuilder"
 local menuSelection = 1
 
 function love.load()
@@ -33,6 +34,8 @@ function love.draw()
         CombatLove.draw(world)
     elseif gameMode == "map" then
         MapLove.draw(world)
+    elseif gameMode == "deckbuilder" then
+        DeckbuilderLove.draw()
     end
 end
 
@@ -41,6 +44,8 @@ function love.update(dt)
         CombatLove.update(world, dt)
     elseif gameMode == "map" then
         MapLove.update(world, dt)
+    elseif gameMode == "deckbuilder" then
+        DeckbuilderLove.update(dt)
     end
 end
 
@@ -51,6 +56,8 @@ function love.keypressed(key)
         CombatLove.keypressed(world, key)
     elseif gameMode == "map" then
         MapLove.keypressed(world, key)
+    elseif gameMode == "deckbuilder" then
+        DeckbuilderLove.keypressed(key)
     end
 end
 
@@ -59,6 +66,8 @@ function love.textinput(text)
         CombatLove.textinput(world, text)
     elseif gameMode == "map" then
         MapLove.textinput(world, text)
+    elseif gameMode == "deckbuilder" then
+        DeckbuilderLove.textinput(text)
     end
 end
 
@@ -67,6 +76,14 @@ function love.mousepressed(x, y, button)
         CombatLove.mousepressed(world, x, y, button)
     elseif gameMode == "map" then
         -- MapLove.mousepressed could be added later
+    elseif gameMode == "deckbuilder" then
+        DeckbuilderLove.mousepressed(x, y, button)
+    end
+end
+
+function love.wheelmoved(x, y)
+    if gameMode == "deckbuilder" then
+        DeckbuilderLove.wheelmoved(x, y)
     end
 end
 
@@ -81,7 +98,9 @@ function drawMenu()
     local options = {
         {text = "1. Start Combat (Demo)", action = startCombatDemo},
         {text = "2. Start Map (Demo)", action = startMapDemo},
-        {text = "3. Quit", action = function() love.event.quit() end}
+        {text = "3. Deckbuilder Mode", action = startDeckbuilder},
+        {text = "4. Test Combat", action = startTestCombat},
+        {text = "5. Quit", action = function() love.event.quit() end}
     }
 
     for i, option in ipairs(options) do
@@ -97,20 +116,24 @@ function drawMenu()
     end
 
     love.graphics.setColor(0.5, 0.5, 0.5)
-    love.graphics.print("Use UP/DOWN arrows to navigate, ENTER to select", 50, 500)
+    love.graphics.print("Use UP/DOWN arrows to navigate, ENTER to select", 50, 550)
 end
 
 function handleMenuInput(key)
     if key == "up" then
         menuSelection = math.max(1, menuSelection - 1)
     elseif key == "down" then
-        menuSelection = math.min(3, menuSelection + 1)
+        menuSelection = math.min(5, menuSelection + 1)
     elseif key == "return" then
         if menuSelection == 1 then
             startCombatDemo()
         elseif menuSelection == 2 then
             startMapDemo()
         elseif menuSelection == 3 then
+            startDeckbuilder()
+        elseif menuSelection == 4 then
+            startTestCombat()
+        elseif menuSelection == 5 then
             love.event.quit()
         end
     elseif key == "escape" then
@@ -173,6 +196,42 @@ function startMapDemo()
     MapLove.init(world)
 end
 
+function startDeckbuilder()
+    gameMode = "deckbuilder"
+    DeckbuilderLove.init()
+end
+
+function startTestCombat()
+    gameMode = "deckbuilder"
+    DeckbuilderLove.initTestCombat()
+end
+
+function startTestCombatWithDeck(masterDeck, relics, character, enemyData)
+    -- Create world with the custom deck
+    local characterData = {
+        id = character,
+        maxHp = 80,
+        currentHp = 80,
+        maxEnergy = 3,
+        masterDeck = masterDeck,
+        relics = relics
+    }
+
+    world = World.createWorld(characterData)
+
+    -- Set up enemy
+    world.enemies = {
+        Utils.copyEnemyTemplate(enemyData)
+    }
+
+    -- Initialize combat
+    StartCombat.execute(world)
+
+    -- Switch to combat mode
+    gameMode = "combat"
+    CombatLove.init(world)
+end
+
 function returnToMenu()
     gameMode = "menu"
     menuSelection = 1
@@ -181,3 +240,4 @@ end
 
 -- Export for use by other modules
 _G.returnToMenu = returnToMenu
+_G.startTestCombatWithDeck = startTestCombatWithDeck
