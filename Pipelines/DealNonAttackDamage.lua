@@ -92,6 +92,14 @@ function DealNonAttackDamage.executeSingle(world, source, target, damage, tags)
     -- Apply remaining damage to HP
     target.hp = target.hp - damage
 
+    -- Trigger onDmg relic hooks with full context
+    Utils.triggerRelicHooks(world, world.player, "onDmg", {
+        target = target,
+        damage = damage,
+        source = source,
+        blockAbsorbed = blockAbsorbed
+    })
+
     -- Reduce Invincible by damage dealt (after block absorption)
     -- Invincible caps total damage/HP loss per turn, not just pre-block damage
     if targetStatus.invincible and targetStatus.invincible > 0 and damage > 0 then
