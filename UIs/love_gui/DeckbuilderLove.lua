@@ -49,6 +49,12 @@ local state = {
 }
 
 -- ============================================================================
+-- FORWARD DECLARATIONS
+-- ============================================================================
+
+local startTestCombat  -- Forward declaration
+
+-- ============================================================================
 -- HELPER FUNCTIONS
 -- ============================================================================
 
@@ -788,7 +794,7 @@ function saveDeck()
     DeckSerializer.save(deckData, state.deckName)
 end
 
-local function startTestCombat()
+startTestCombat = function()
     if not state.selectedDeckIndex or not state.selectedEnemyIndex then
         print("ERROR: No deck or enemy selected")
         return
