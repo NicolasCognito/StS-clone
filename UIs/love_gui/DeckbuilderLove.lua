@@ -827,39 +827,42 @@ saveDeck = function()
 end
 
 startTestingCombat = function()
+        addDebugMsg("In startTestingCombat")
+ 
     if not state.selectedDeckIndex or not state.selectedEnemyIndex then
-        print("ERROR: No deck or enemy selected")
+        addDebugMsg("ERROR: No deck/enemy")
         return
     end
-
+ 
     -- Validate indices
     if not state.savedDecks[state.selectedDeckIndex] then
-        print("ERROR: Invalid deck index: " .. tostring(state.selectedDeckIndex))
+        addDebugMsg("ERROR: Bad deck idx")
         return
     end
-
+ 
     if not state.enemyList[state.selectedEnemyIndex] then
-        print("ERROR: Invalid enemy index: " .. tostring(state.selectedEnemyIndex))
+        addDebugMsg("ERROR: Bad enemy idx")
         return
     end
-
+ 
     -- Load deck with error handling
     local deckName = state.savedDecks[state.selectedDeckIndex]
-    print("Loading deck: " .. deckName)
-
+    addDebugMsg("Loading: " .. deckName)
+ 
     local success, deckData = pcall(DeckSerializer.load, deckName)
     if not success then
-        print("ERROR: Failed to load deck: " .. tostring(deckData))
+        addDebugMsg("ERROR: Load fail: " .. tostring(deckData):sub(1, 30))
         return
     end
-
+ 
+    addDebugMsg("Building deck...")
     -- Build master deck with error handling
     local success2, masterDeck = pcall(DeckSerializer.deckDataToMasterDeck, deckData, Cards)
     if not success2 then
-        print("ERROR: Failed to build master deck: " .. tostring(masterDeck))
+        addDebugMsg("ERROR: Build fail: " .. tostring(masterDeck):sub(1, 30))
         return
     end
-
+ 
     -- Build relics list
     local relics = {}
     for _, relicId in ipairs(deckData.relics) do
@@ -870,26 +873,25 @@ startTestingCombat = function()
             end
         end
     end
-
+ 
     -- Get enemy
     local enemyData = state.enemyList[state.selectedEnemyIndex].data
-    print("Starting combat with enemy: " .. enemyData.name)
-
+    addDebugMsg("Enemy: " .. enemyData.name)
+ 
     -- Call the global function to start combat
     if not _G.startTestCombatWithDeck then
-        print("ERROR: Global function startTestCombatWithDeck not found!")
-        print("Available globals: " .. table.concat({"returnToMenu=" .. tostring(_G.returnToMenu), "startTestCombatWithDeck=" .. tostring(_G.startTestCombatWithDeck)}, ", "))
+        addDebugMsg("ERROR: No global func!")
         return
     end
-
-    print("Calling startTestCombatWithDeck...")
+ 
+    addDebugMsg("Calling global...")
     local success3, err = pcall(_G.startTestCombatWithDeck, masterDeck, relics, deckData.character, enemyData)
     if not success3 then
-        print("ERROR: Failed to start combat: " .. tostring(err))
+        addDebugMsg("ERROR: Call fail: " .. tostring(err):sub(1, 30))
         return
     end
-
-    print("Combat started successfully!")
+ 
+    addDebugMsg("Combat started!")
 end
 
 -- ============================================================================

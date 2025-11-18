@@ -142,31 +142,34 @@ function handleMenuInput(key)
 end
 
 function startCombatDemo()
-    -- Create a simple combat scenario
-    -- Create world with IronClad starter deck
-    world = World.createWorld({
-        id = "IronClad",
+    local characterData = {
+        id = character,
         maxHp = 80,
         currentHp = 80,
         maxEnergy = 3,
-        masterDeck = {
-            copyCard(Cards.Strike), copyCard(Cards.Strike), copyCard(Cards.Strike),
-            copyCard(Cards.Strike), copyCard(Cards.Strike),
-            copyCard(Cards.Defend), copyCard(Cards.Defend), copyCard(Cards.Defend),
-            copyCard(Cards.Defend), copyCard(Cards.WellLaidPlans),
-            copyCard(Cards.Bash), copyCard(Cards.FlameBarrier), copyCard(Cards.Bloodletting)
-        },
-        relics = {}
-    })
-
-    -- Set up enemies
-    world.enemies = {
-        Utils.copyEnemyTemplate(Enemies.SlimeBoss)
+        masterDeck = masterDeck,
+        relics = relics  -- Use provided relics
     }
-
-    -- Initialize combat
-    StartCombat.execute(world)
-
+ 
+    world = World.createWorld(characterData)
+ 
+    -- Set up enemy
+    world.enemies = {
+        Utils.copyEnemyTemplate(enemyData)
+    }
+ 
+    -- Initialize combat with error handling
+    local success, err = pcall(StartCombat.execute, world)
+    if not success then
+        error("StartCombat failed: " .. tostring(err))
+    end
+ 
+    -- Process any queued events from relics/combat start
+    local ProcessEventQueue = require("Pipelines.ProcessEventQueue")
+    success, err = pcall(ProcessEventQueue.execute, world)
+    if not success then
+        error("ProcessEventQueue failed: " .. tostring(err))
+    end
     -- Switch to combat mode
     gameMode = "combat"
     CombatLove.init(world)
