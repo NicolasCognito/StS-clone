@@ -68,10 +68,26 @@ print("Darkling 1 HP: " .. darkling1.hp .. "/" .. darkling1.maxHp)
 print("Darkling 2 HP: " .. darkling2.hp .. "/" .. darkling2.maxHp)
 
 -- Kill Darkling 1 (48 HP / 6 per Strike = 8 Strikes)
-local handCards = Utils.getCardsByState(world1.player.combatDeck, "HAND")
-for i = 1, 8 do
-    local strike = handCards[i]
-    if strike and strike.id == "Strike" then
+local DrawCard = require("Pipelines.DrawCard")
+local strikesPlayed = 0
+
+while strikesPlayed < 8 and darkling1.hp > 0 do
+    local handCards = Utils.getCardsByState(world1.player.combatDeck, "HAND")
+
+    -- Find a Strike in hand
+    local strike = nil
+    for _, card in ipairs(handCards) do
+        if card.id == "Strike" then
+            strike = card
+            break
+        end
+    end
+
+    if not strike then
+        -- Draw more cards if no Strike in hand
+        DrawCard.execute(world1, world1.player, 3)
+    else
+        -- Play the Strike
         while true do
             local result = PlayCard.execute(world1, world1.player, strike)
             if result == true then
@@ -89,6 +105,7 @@ for i = 1, 8 do
             end
         end
         ProcessEventQueue.execute(world1)
+        strikesPlayed = strikesPlayed + 1
     end
 end
 
@@ -180,10 +197,20 @@ world3.NoShuffle = true
 StartCombat.execute(world3)
 
 -- Kill the solo Darkling
-local hand3 = Utils.getCardsByState(world3.player.combatDeck, "HAND")
-for i = 1, 8 do
-    local strike = hand3[i]
-    if strike and strike.id == "Strike" then
+local strikesPlayed3 = 0
+while strikesPlayed3 < 8 and darklingSolo.hp > 0 do
+    local hand3 = Utils.getCardsByState(world3.player.combatDeck, "HAND")
+    local strike = nil
+    for _, card in ipairs(hand3) do
+        if card.id == "Strike" then
+            strike = card
+            break
+        end
+    end
+
+    if not strike then
+        DrawCard.execute(world3, world3.player, 3)
+    else
         while true do
             local result = PlayCard.execute(world3, world3.player, strike)
             if result == true then
@@ -201,6 +228,7 @@ for i = 1, 8 do
             end
         end
         ProcessEventQueue.execute(world3)
+        strikesPlayed3 = strikesPlayed3 + 1
     end
 end
 
@@ -272,10 +300,20 @@ world4.NoShuffle = true
 StartCombat.execute(world4)
 
 -- Kill Darkling A
-local hand4 = Utils.getCardsByState(world4.player.combatDeck, "HAND")
-for i = 1, 8 do
-    local strike = hand4[i]
-    if strike and strike.id == "Strike" then
+local strikesPlayed4 = 0
+while strikesPlayed4 < 8 and darkling4a.hp > 0 do
+    local hand4 = Utils.getCardsByState(world4.player.combatDeck, "HAND")
+    local strike = nil
+    for _, card in ipairs(hand4) do
+        if card.id == "Strike" then
+            strike = card
+            break
+        end
+    end
+
+    if not strike then
+        DrawCard.execute(world4, world4.player, 3)
+    else
         while true do
             local result = PlayCard.execute(world4, world4.player, strike)
             if result == true then
@@ -293,6 +331,7 @@ for i = 1, 8 do
             end
         end
         ProcessEventQueue.execute(world4)
+        strikesPlayed4 = strikesPlayed4 + 1
     end
 end
 
