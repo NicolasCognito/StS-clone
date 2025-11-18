@@ -146,6 +146,21 @@ function AfterCardPlayed.execute(world, player)
             table.insert(world.log, "After Image grants " .. afterImageStacks .. " Block")
         end
 
+        -- VIGOR: reduce to 0 after playing an Attack
+        if world.combat.currentExecutingCard.type == "ATTACK" then
+            local vigorStacks = (player.status and player.status.vigor) or 0
+            if vigorStacks > 0 then
+                world.queue:push({
+                    type = "ON_STATUS_GAIN",
+                    target = player,
+                    effectType = "vigor",
+                    amount = -vigorStacks,
+                    source = "Vigor"
+                })
+                table.insert(world.log, "Vigor consumed (" .. vigorStacks .. " removed)")
+            end
+        end
+
         -- TIME WARP: decrement stacks on card play (enemy power)
         if world.enemies then
             for _, enemy in ipairs(world.enemies) do
