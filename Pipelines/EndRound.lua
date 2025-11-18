@@ -47,10 +47,10 @@ function EndRound.execute(world, player, enemies)
     -- Process player
     processRoundEndForCombatant(world, player, player.id)
 
-    -- Process enemies
+    -- Process enemies (including reviving ones for status effect processing)
     if enemies then
         for _, enemy in ipairs(enemies) do
-            if enemy.hp > 0 then
+            if enemy.hp > 0 or enemy.reviving then
                 processRoundEndForCombatant(world, enemy, enemy.name)
             end
         end

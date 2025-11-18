@@ -75,8 +75,13 @@ function ApplyStatusEffect.execute(world, event)
 end
 
 function ApplyStatusEffect.executeSingle(world, target, effectType, amount, source, tags)
-    -- Don't apply status to dead targets
-    if target.dead or (target.hp and target.hp <= 0) then
+    -- Don't apply status to dead targets (except Regrow for reviving enemies)
+    if target.dead then
+        return
+    end
+
+    -- Allow Regrow to be applied to reviving enemies (HP=0 but not dead)
+    if target.hp and target.hp <= 0 and not target.reviving and effectType ~= "regrow" then
         return
     end
 

@@ -124,10 +124,11 @@ end
 -- Get a random living enemy
 -- Returns a random enemy with hp > 0, or nil if no living enemies
 -- Used for Lightning orb targeting
+-- NOTE: Excludes reviving enemies (they cannot be targeted)
 function Utils.randomEnemy(world)
     local alive = {}
     for _, enemy in ipairs(world.enemies or {}) do
-        if enemy.hp > 0 then
+        if enemy.hp > 0 and not enemy.reviving then
             table.insert(alive, enemy)
         end
     end
@@ -140,10 +141,11 @@ end
 -- Get the lowest HP living enemy
 -- Returns the enemy with lowest HP > 0, or nil if no living enemies
 -- Used for Dark orb targeting
+-- NOTE: Excludes reviving enemies (they cannot be targeted)
 function Utils.lowestHpEnemy(world)
     local lowest = nil
     for _, enemy in ipairs(world.enemies or {}) do
-        if enemy.hp > 0 then
+        if enemy.hp > 0 and not enemy.reviving then
             if not lowest or enemy.hp < lowest.hp then
                 lowest = enemy
             end

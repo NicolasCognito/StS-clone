@@ -202,7 +202,8 @@ local function runCombat(world, combatConfig)
                 -- Request enemy target
                 local living = {}
                 for _, enemy in ipairs(w.enemies or {}) do
-                    if enemy.hp > 0 then
+                    -- Exclude reviving enemies from targeting
+                    if enemy.hp > 0 and not enemy.reviving then
                         table.insert(living, enemy)
                     end
                 end

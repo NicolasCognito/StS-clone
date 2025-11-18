@@ -195,9 +195,10 @@ function ContextProvider.execute(world, player, contextProvider, card)
     if contextType == "enemy" then
         -- ENEMY TARGETING (Strike, Bash, Catalyst, etc.)
         -- Auto-select first alive enemy (in real game, player would choose)
+        -- NOTE: Reviving enemies cannot be targeted
         if world.enemies then
             for _, enemy in ipairs(world.enemies) do
-                if enemy.hp > 0 then
+                if enemy.hp > 0 and not enemy.reviving then
                     return enemy
                 end
             end

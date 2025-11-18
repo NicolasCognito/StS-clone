@@ -19,7 +19,8 @@ local function listLivingEnemies(world)
         return enemies
     end
     for _, enemy in ipairs(world.enemies) do
-        if enemy.hp > 0 then
+        -- Exclude reviving enemies from targeting
+        if enemy.hp > 0 and not enemy.reviving then
             table.insert(enemies, enemy)
         end
     end

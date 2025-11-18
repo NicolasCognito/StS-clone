@@ -30,7 +30,8 @@ local function aliveEnemies(world)
         return list
     end
     for _, enemy in ipairs(world.enemies) do
-        if enemy.hp > 0 then
+        -- Count enemies that are alive OR in revival state (to prevent premature victory)
+        if enemy.hp > 0 or enemy.reviving then
             table.insert(list, enemy)
         end
     end
@@ -105,7 +106,12 @@ function CombatEngine.displayGameState(world)
                 if enemy.status and enemy.status.weak and enemy.status.weak > 0 then
                     enemyStatus = enemyStatus .. " [Weak: " .. enemy.status.weak .. "]"
                 end
+                if enemy.status and enemy.status.regrow and enemy.status.regrow > 0 then
+                    enemyStatus = enemyStatus .. " [Regrow: " .. enemy.status.regrow .. "]"
+                end
                 print("  [" .. i .. "] " .. enemy.name .. " | HP: " .. enemy.hp .. "/" .. enemy.maxHp .. enemyStatus)
+            elseif enemy.reviving then
+                print("  [" .. i .. "] " .. enemy.name .. " (REVIVING)")
             else
                 print("  [" .. i .. "] " .. enemy.name .. " (DEAD)")
             end
@@ -263,7 +269,8 @@ function CombatEngine.playGame(world, handlers)
             else
                 -- Normal: run enemy turns then EndRound
                 for _, enemy in ipairs(world.enemies or {}) do
-                    if enemy.hp > 0 then
+                    -- Process living enemies AND reviving enemies (for Regrow countdown)
+                    if enemy.hp > 0 or enemy.reviving then
                         EnemyTakeTurn.execute(world, enemy, world.player)
                     end
                 end
