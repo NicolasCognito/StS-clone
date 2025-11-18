@@ -46,6 +46,11 @@ local state = {
     selectedEnemyIndex = 1,
     hoveredEnemyIndex = nil,
     enemyList = {},
+
+    -- Debug
+    lastClickX = 0,
+    lastClickY = 0,
+    debugMessages = {},
 }
 
 -- ============================================================================
@@ -486,11 +491,28 @@ local function drawTestCombat()
     love.graphics.setColor(1, 1, 1)
     love.graphics.print("TEST COMBAT", 50, 50, 0, 2, 2)
 
+    -- DEBUG INFO ON SCREEN
+    love.graphics.setColor(1, 1, 0)
+    love.graphics.print(string.format("DEBUG: mode=%s deck=%s enemy=%s click=(%d,%d)",
+        tostring(state.mode),
+        tostring(state.selectedDeckIndex),
+        tostring(state.selectedEnemyIndex),
+        state.lastClickX,
+        state.lastClickY), 50, 80)
+
+    -- Show recent debug messages
+    local debugY = 95
+    for i = math.max(1, #state.debugMessages - 3), #state.debugMessages do
+        love.graphics.setColor(0.8, 0.8, 0)
+        love.graphics.print(state.debugMessages[i], 50, debugY)
+        debugY = debugY + 12
+    end
+
     -- Deck selection
     love.graphics.setColor(0.8, 0.8, 0.8)
-    love.graphics.print("Select Deck:", 50, 130)
+    love.graphics.print("Select Deck:", 50, 150)
 
-    local startY = 160
+    local startY = 180
     for i, deckName in ipairs(state.savedDecks) do
         local y = startY + (i - 1) * 40
         local selected = state.selectedDeckIndex == i
@@ -512,14 +534,14 @@ local function drawTestCombat()
 
     if #state.savedDecks == 0 then
         love.graphics.setColor(0.7, 0.3, 0.3)
-        love.graphics.print("No saved decks found!", 50, 160)
+        love.graphics.print("No saved decks found!", 50, 180)
     end
 
     -- Enemy selection
     love.graphics.setColor(0.8, 0.8, 0.8)
-    love.graphics.print("Select Enemy:", 400, 130)
+    love.graphics.print("Select Enemy:", 400, 150)
 
-    startY = 160
+    startY = 180
     for i, enemy in ipairs(state.enemyList) do
         local y = startY + (i - 1) * 40
         local selected = state.selectedEnemyIndex == i
@@ -721,9 +743,21 @@ local function handleSaveClick(x, y)
     end
 end
 
+local function addDebugMsg(msg)
+    table.insert(state.debugMessages, msg)
+    if #state.debugMessages > 10 then
+        table.remove(state.debugMessages, 1)
+    end
+end
+
 local function handleTestCombatClick(x, y)
+    state.lastClickX = x
+    state.lastClickY = y
+    addDebugMsg("Click at " .. x .. "," .. y)
+
     -- Back button
     if x >= 50 and x <= 250 and y >= 650 and y <= 690 then
+        addDebugMsg("BACK clicked")
         if _G.returnToMenu then
             _G.returnToMenu()
         end
@@ -732,39 +766,39 @@ local function handleTestCombatClick(x, y)
 
     -- Start combat button
     if x >= 500 and x <= 700 and y >= 650 and y <= 690 then
-        print("START COMBAT button clicked")
+        addDebugMsg("START clicked")
         if state.selectedDeckIndex and state.selectedEnemyIndex then
-            print("Both deck and enemy selected, starting combat...")
+            addDebugMsg("Starting combat...")
             startTestingCombat()
         else
-            print("ERROR: Please select both a deck and an enemy!")
-            print("  selectedDeckIndex: " .. tostring(state.selectedDeckIndex))
-            print("  selectedEnemyIndex: " .. tostring(state.selectedEnemyIndex))
+            addDebugMsg("ERROR: No deck/enemy!")
         end
         return
     end
 
     -- Deck list
-    local startY = 160
+    local startY = 180
     for i, deckName in ipairs(state.savedDecks) do
         local itemY = startY + (i - 1) * 40
         if x >= 50 and x <= 350 and y >= itemY and y <= itemY + 35 then
             state.selectedDeckIndex = i
-            print("Deck selected: " .. deckName .. " (index " .. i .. ")")
+            addDebugMsg("Deck " .. i .. " selected")
             return
         end
     end
 
     -- Enemy list
-    startY = 160
+    startY = 180
     for i, enemy in ipairs(state.enemyList) do
         local itemY = startY + (i - 1) * 40
         if x >= 400 and x <= 700 and y >= itemY and y <= itemY + 35 then
             state.selectedEnemyIndex = i
-            print("Enemy selected: " .. enemy.data.name .. " (index " .. i .. ")")
+            addDebugMsg("Enemy " .. i .. " selected")
             return
         end
     end
+
+    addDebugMsg("No match for click")
 end
 
 saveDeck = function()
@@ -884,6 +918,9 @@ function DeckbuilderLove.init()
         selectedEnemyIndex = 1,
         hoveredEnemyIndex = nil,
         enemyList = {},
+        lastClickX = 0,
+        lastClickY = 0,
+        debugMessages = {},
     }
 
     -- Ensure Saved_Decks directory exists
@@ -990,7 +1027,7 @@ function DeckbuilderLove.update(dt)
     elseif state.mode == "testcombat" then
         -- Update hover for decks
         state.hoveredDeckIndex = nil
-        local startY = 160
+        local startY = 180
         for i, _ in ipairs(state.savedDecks) do
             local y = startY + (i - 1) * 40
             if mx >= 50 and mx <= 350 and my >= y and my <= y + 35 then
@@ -1001,7 +1038,7 @@ function DeckbuilderLove.update(dt)
 
         -- Update hover for enemies
         state.hoveredEnemyIndex = nil
-        startY = 160
+        startY = 180
         for i, _ in ipairs(state.enemyList) do
             local y = startY + (i - 1) * 40
             if mx >= 400 and mx <= 700 and my >= y and my <= y + 35 then
