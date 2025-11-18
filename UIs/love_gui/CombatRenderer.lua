@@ -73,22 +73,97 @@ function CombatRenderer.drawPlayer(world)
             box.x + 10, box.y + 90, {0.7, 0.7, 1})
     end
 
-    -- Status effects
+    -- All status effects (dynamic display)
     local statusY = box.y + 110
     if player.status then
-        if player.status.vulnerable and player.status.vulnerable > 0 then
-            drawText(string.format("Vulnerable: %d", player.status.vulnerable),
-                box.x + 10, statusY, {1, 0.5, 0.5}, 0.7)
-            statusY = statusY + 15
+        local StatusEffects = require("Data.statuseffects")
+        local statusCount = 0
+        for statusKey, statusValue in pairs(player.status) do
+            if type(statusValue) == "number" and statusValue > 0 then
+                local statusDef = StatusEffects[statusKey]
+                if statusDef then
+                    local displayName = statusDef.shortName or statusDef.name or statusKey
+                    local color = statusDef.debuff and {1, 0.5, 0.5} or {0.5, 1, 0.5}
+                    drawText(string.format("%s: %d", displayName, statusValue),
+                        box.x + 10, statusY, color, 0.65)
+                    statusY = statusY + 13
+                    statusCount = statusCount + 1
+                    -- Limit display to avoid overflow
+                    if statusCount >= 8 then
+                        drawText("...", box.x + 10, statusY, {0.7, 0.7, 0.7}, 0.6)
+                        break
+                    end
+                end
+            end
         end
-        if player.status.weak and player.status.weak > 0 then
-            drawText(string.format("Weak: %d", player.status.weak),
-                box.x + 10, statusY, {0.8, 0.6, 0.4}, 0.7)
-            statusY = statusY + 15
-        end
-        if player.status.thorns and player.status.thorns > 0 then
-            drawText(string.format("Thorns: %d", player.status.thorns),
-                box.x + 10, statusY, {0.6, 0.8, 0.6}, 0.7)
+    end
+end
+
+-- ============================================================================
+-- ORB RENDERING
+-- ============================================================================
+
+function CombatRenderer.drawOrbs(world)
+    local player = world.player
+    if not player then return end
+
+    local maxOrbs = player.maxOrbs or 0
+    if maxOrbs == 0 then return end  -- No orb slots (not Defect)
+
+    local orbs = player.orbs or {}
+
+    -- Orb display positioning (right side of player box)
+    local orbStartX = 270
+    local orbY = 260
+    local orbSize = 30
+    local orbSpacing = 10
+
+    -- Draw label
+    drawText("Orbs:", orbStartX, orbY - 20, {0.8, 0.8, 1}, 0.8)
+
+    -- Draw all orb slots (filled and empty)
+    for i = 1, maxOrbs do
+        local x = orbStartX + (i - 1) * (orbSize + orbSpacing)
+        local orb = orbs[i]
+
+        if orb then
+            -- Filled orb slot - color based on orb type
+            local orbColor = {0.5, 0.5, 0.5}  -- Default gray
+            local orbText = "?"
+
+            if orb.id == "Lightning" then
+                orbColor = {0.3, 0.6, 1}  -- Blue
+                orbText = "⚡"
+            elseif orb.id == "Frost" then
+                orbColor = {0.6, 0.9, 1}  -- Light blue
+                orbText = "❄"
+            elseif orb.id == "Dark" then
+                orbColor = {0.4, 0.2, 0.5}  -- Purple
+                orbText = "●"
+            elseif orb.id == "Plasma" then
+                orbColor = {1, 0.6, 0.2}  -- Orange
+                orbText = "⚛"
+            end
+
+            -- Draw filled orb
+            love.graphics.setColor(orbColor)
+            love.graphics.circle("fill", x + orbSize/2, orbY + orbSize/2, orbSize/2)
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.circle("line", x + orbSize/2, orbY + orbSize/2, orbSize/2)
+
+            -- Draw orb symbol/text
+            drawText(orbText, x + 8, orbY + 8, {1, 1, 1}, 1)
+
+            -- For Dark orbs, show accumulated damage
+            if orb.id == "Dark" and orb.damage then
+                drawText(tostring(orb.damage), x + orbSize/2 - 5, orbY + orbSize + 3, {1, 1, 0}, 0.7)
+            end
+        else
+            -- Empty orb slot
+            love.graphics.setColor(0.2, 0.2, 0.3)
+            love.graphics.circle("fill", x + orbSize/2, orbY + orbSize/2, orbSize/2)
+            love.graphics.setColor(0.5, 0.5, 0.6)
+            love.graphics.circle("line", x + orbSize/2, orbY + orbSize/2, orbSize/2)
         end
     end
 end
@@ -107,19 +182,40 @@ function CombatRenderer.drawEnemies(world, hoveredEnemyIndex, targetMode)
             local box = CombatUI.getEnemyBox(i, #world.enemies)
             local isHovered = (hoveredEnemyIndex == i)
 
-            -- Highlight if in target mode and hovered
+            -- Enhanced highlighting when in target mode
             local fillColor = {0.6, 0.2, 0.2}
-            if targetMode and isHovered then
-                fillColor = {0.8, 0.3, 0.3}
+            local lineColor = {1, 1, 1}
+            local lineWidth = 1
+
+            if targetMode then
+                if isHovered then
+                    -- Bright highlight for hovered enemy in target mode
+                    fillColor = {0.9, 0.4, 0.4}
+                    lineColor = {1, 1, 0}  -- Yellow border
+                    lineWidth = 3
+                else
+                    -- Slightly brighten all enemies in target mode
+                    fillColor = {0.7, 0.25, 0.25}
+                end
             end
 
-            drawBox(box, fillColor, {1, 1, 1})
+            -- Draw box with enhanced highlighting
+            love.graphics.setLineWidth(lineWidth)
+            drawBox(box, fillColor, lineColor)
+            love.graphics.setLineWidth(1)  -- Reset line width
 
             -- Enemy name
             drawText(enemy.name, box.x + 5, box.y + 5, {1, 1, 1}, 0.9)
 
+            -- Enemy intention
+            if enemy.currentIntent then
+                local intentName = enemy.currentIntent.name or "?"
+                local intentColor = {1, 1, 0.5}  -- Yellow for intent
+                drawText("» " .. intentName, box.x + 5, box.y + 20, intentColor, 0.6)
+            end
+
             -- HP bar
-            local hpBarY = box.y + 25
+            local hpBarY = box.y + 35
             local hpBarWidth = box.width - 10
             local hpPercent = enemy.hp / enemy.maxHp
 
@@ -133,17 +229,27 @@ function CombatRenderer.drawEnemies(world, hoveredEnemyIndex, targetMode)
             drawText(string.format("%d/%d", enemy.hp, enemy.maxHp),
                 box.x + 10, hpBarY + 1, {1, 1, 1}, 0.7)
 
-            -- Status effects
-            local statusY = box.y + 50
+            -- Block display
+            if enemy.block and enemy.block > 0 then
+                drawText(string.format("Block: %d", enemy.block),
+                    box.x + 5, hpBarY + 15, {0.7, 0.7, 1}, 0.6)
+            end
+
+            -- All status effects (dynamic display)
+            local statusY = box.y + 60
             if enemy.status then
-                if enemy.status.vulnerable and enemy.status.vulnerable > 0 then
-                    drawText(string.format("Vuln: %d", enemy.status.vulnerable),
-                        box.x + 5, statusY, {1, 0.5, 0.5}, 0.6)
-                    statusY = statusY + 12
-                end
-                if enemy.status.weak and enemy.status.weak > 0 then
-                    drawText(string.format("Weak: %d", enemy.status.weak),
-                        box.x + 5, statusY, {0.8, 0.6, 0.4}, 0.6)
+                local StatusEffects = require("Data.statuseffects")
+                for statusKey, statusValue in pairs(enemy.status) do
+                    if type(statusValue) == "number" and statusValue > 0 then
+                        local statusDef = StatusEffects[statusKey]
+                        if statusDef then
+                            local displayName = statusDef.shortName or statusDef.name or statusKey
+                            local color = statusDef.debuff and {1, 0.5, 0.5} or {0.5, 1, 0.5}
+                            drawText(string.format("%s: %d", displayName, statusValue),
+                                box.x + 5, statusY, color, 0.55)
+                            statusY = statusY + 11
+                        end
+                    end
                 end
             end
         end
@@ -162,24 +268,58 @@ function CombatRenderer.drawHand(world, hoveredCardIndex)
         return
     end
 
+    local IsPlayable = require("Pipelines.IsPlayable")
+
     for i, card in ipairs(hand) do
         local box = CombatUI.getCardBox(i, #hand)
         local isHovered = (hoveredCardIndex == i)
 
-        -- Card background (different color if hovered)
-        local fillColor = isHovered and {0.3, 0.7, 0.4} or {0.2, 0.6, 0.3}
-        drawBox(box, fillColor, {1, 1, 1})
+        -- Check if card is playable
+        local playable, errorMsg = IsPlayable.execute(world, world.player, card)
 
-        -- Card name
-        drawText(card.name, box.x + 5, box.y + 10, {1, 1, 1}, 0.7)
+        -- Card background with playability indication
+        local fillColor, lineColor, lineWidth
 
-        -- Card cost
+        if playable then
+            -- Playable cards: green, brighter when hovered
+            fillColor = isHovered and {0.3, 0.8, 0.4} or {0.2, 0.6, 0.3}
+            lineColor = isHovered and {0.5, 1, 0.5} or {1, 1, 1}
+            lineWidth = isHovered and 2 or 1
+        else
+            -- Unplayable cards: dimmed/grayed out
+            fillColor = {0.3, 0.3, 0.3}
+            lineColor = {0.6, 0.6, 0.6}
+            lineWidth = 1
+        end
+
+        love.graphics.setLineWidth(lineWidth)
+        drawBox(box, fillColor, lineColor)
+        love.graphics.setLineWidth(1)
+
+        -- Card name (dim text if unplayable)
+        local textColor = playable and {1, 1, 1} or {0.6, 0.6, 0.6}
+        drawText(card.name, box.x + 5, box.y + 10, textColor, 0.7)
+
+        -- Card cost (highlight if not enough energy)
         local cost = GetCost.execute(world, world.player, card)
-        drawText("Cost: " .. cost, box.x + 5, box.y + 30, {0.7, 0.9, 1}, 0.8)
+        local costColor = (world.player.energy >= cost) and {0.7, 0.9, 1} or {1, 0.4, 0.4}
+        if not playable then costColor = {0.6, 0.6, 0.6} end
+        drawText("Cost: " .. cost, box.x + 5, box.y + 30, costColor, 0.8)
 
         -- Card type
         local cardType = card.cardType or "?"
-        drawText(cardType, box.x + 5, box.y + 50, {0.8, 0.8, 0.8}, 0.6)
+        drawText(cardType, box.x + 5, box.y + 50, textColor, 0.6)
+
+        -- Show error message if hovered and unplayable
+        if isHovered and not playable and errorMsg then
+            -- Draw tooltip below card
+            local tooltipY = box.y + box.height + 5
+            love.graphics.setColor(0.1, 0.1, 0.1, 0.9)
+            love.graphics.rectangle("fill", box.x - 5, tooltipY, box.width + 10, 25)
+            love.graphics.setColor(1, 0.5, 0.5)
+            love.graphics.rectangle("line", box.x - 5, tooltipY, box.width + 10, 25)
+            drawText(errorMsg, box.x, tooltipY + 5, {1, 0.7, 0.7}, 0.5)
+        end
     end
 end
 
@@ -271,6 +411,7 @@ function CombatRenderer.draw(world, state)
 
     -- Draw main game elements
     CombatRenderer.drawPlayer(world)
+    CombatRenderer.drawOrbs(world)
     CombatRenderer.drawEnemies(world, state.hoveredEnemyIndex, state.mode == "target")
     CombatRenderer.drawHand(world, state.hoveredCardIndex)
     CombatRenderer.drawEndTurnButton(state.hoveredEndTurnButton)
