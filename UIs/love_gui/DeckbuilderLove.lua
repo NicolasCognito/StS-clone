@@ -157,6 +157,10 @@ local function loadSavedDecks()
     state.savedDecks = DeckSerializer.listDecks()
 end
 
+-- Forward declarations
+local saveDeck
+local startTestingCombat
+
 -- ============================================================================
 -- DRAW FUNCTIONS
 -- ============================================================================
@@ -763,7 +767,7 @@ local function handleTestCombatClick(x, y)
     end
 end
 
-function saveDeck()
+saveDeck = function()
     -- Build deck data
     local relicIds = {}
     for _, relic in ipairs(state.selectedRelics) do
@@ -788,7 +792,7 @@ function saveDeck()
     DeckSerializer.save(deckData, state.deckName)
 end
 
-function startTestingCombat()
+startTestingCombat = function()
     if not state.selectedDeckIndex or not state.selectedEnemyIndex then
         print("ERROR: No deck or enemy selected")
         return
