@@ -21,6 +21,7 @@
 local ApplyStatusEffect = {}
 
 local StatusEffects = require("Data.statuseffects")
+local Utils = require("utils")
 
 -- Check if effect is blocked by Artifact
 local function isBlockedByArtifact(target, effectType, amount)
@@ -133,6 +134,15 @@ function ApplyStatusEffect.executeSingle(world, target, effectType, amount, sour
         local verb = (amount >= 0) and "gained" or "lost"
         local absAmount = math.abs(amount)
         table.insert(world.log, displayName .. " " .. verb .. " " .. absAmount .. " " .. statusDef.name .. " (" .. total .. ")")
+
+        -- Trigger onStatusGain relic hooks with full context
+        Utils.triggerRelicHooks(world, world.player, "onStatusGain", {
+            target = target,
+            effectType = effectType,
+            amount = amount,
+            source = source,
+            tags = tags
+        })
 
         -- MANTRA SPECIAL TRIGGER: Check for Divinity at 10+ Mantra
         if statusKey == "mantra" and target.status.mantra >= 10 then
