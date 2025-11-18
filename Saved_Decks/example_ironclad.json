@@ -1,0 +1,54 @@
+{
+  "name": "example_ironclad",
+  "character": "IRONCLAD",
+  "relics": [
+    "Burning_Blood",
+    "Pen_Nib"
+  ],
+  "cards": [
+    {
+      "id": "Strike",
+      "upgraded": false
+    },
+    {
+      "id": "Strike",
+      "upgraded": false
+    },
+    {
+      "id": "Strike",
+      "upgraded": false
+    },
+    {
+      "id": "Strike",
+      "upgraded": true
+    },
+    {
+      "id": "Strike",
+      "upgraded": true
+    },
+    {
+      "id": "Defend",
+      "upgraded": false
+    },
+    {
+      "id": "Defend",
+      "upgraded": false
+    },
+    {
+      "id": "Defend",
+      "upgraded": true
+    },
+    {
+      "id": "Bash",
+      "upgraded": true
+    },
+    {
+      "id": "Armaments",
+      "upgraded": false
+    },
+    {
+      "id": "Offering",
+      "upgraded": false
+    }
+  ]
+}
