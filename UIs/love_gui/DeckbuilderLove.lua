@@ -722,8 +722,12 @@ local function handleSaveClick(x, y)
 end
 
 local function handleTestCombatClick(x, y)
+    print("DEBUG: handleTestCombatClick called at x=" .. x .. ", y=" .. y)
+    print("DEBUG: state.mode = " .. tostring(state.mode))
+
     -- Back button
     if x >= 50 and x <= 250 and y >= 650 and y <= 690 then
+        print("DEBUG: BACK TO MENU button clicked")
         if _G.returnToMenu then
             _G.returnToMenu()
         end
@@ -732,7 +736,9 @@ local function handleTestCombatClick(x, y)
 
     -- Start combat button
     if x >= 500 and x <= 700 and y >= 650 and y <= 690 then
-        print("START COMBAT button clicked")
+        print("DEBUG: START COMBAT button clicked")
+        print("DEBUG: selectedDeckIndex = " .. tostring(state.selectedDeckIndex))
+        print("DEBUG: selectedEnemyIndex = " .. tostring(state.selectedEnemyIndex))
         if state.selectedDeckIndex and state.selectedEnemyIndex then
             print("Both deck and enemy selected, starting combat...")
             startTestingCombat()
@@ -743,6 +749,8 @@ local function handleTestCombatClick(x, y)
         end
         return
     end
+
+    print("DEBUG: No button matched, checking deck/enemy lists...")
 
     -- Deck list
     local startY = 160
@@ -1013,6 +1021,7 @@ function DeckbuilderLove.update(dt)
 end
 
 function DeckbuilderLove.mousepressed(x, y, button)
+    print("DEBUG: DeckbuilderLove.mousepressed called - x=" .. x .. ", y=" .. y .. ", button=" .. button .. ", mode=" .. tostring(state.mode))
     if button ~= 1 then return end
 
     if state.mode == "character" then
@@ -1026,6 +1035,7 @@ function DeckbuilderLove.mousepressed(x, y, button)
     elseif state.mode == "save" then
         handleSaveClick(x, y)
     elseif state.mode == "testcombat" then
+        print("DEBUG: Routing to handleTestCombatClick")
         handleTestCombatClick(x, y)
     end
 end
