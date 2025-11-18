@@ -18,6 +18,7 @@ local state = {
 
     -- Character selection
     selectedCharacter = "IRONCLAD",
+    allowAllCards = false,  -- Toggle for allowing all cards regardless of character
 
     -- Relic selection
     selectedRelics = {},
@@ -65,8 +66,17 @@ end
 local function getAllCards()
     local cardList = {}
     for key, card in pairs(Cards) do
-        if card.character == state.selectedCharacter then
+        if state.allowAllCards then
+            -- Allow all cards
             table.insert(cardList, card)
+        else
+            -- Only character-specific + colorless + curses
+            if card.character == state.selectedCharacter or
+               card.character == "COLORLESS" or
+               card.type == "CURSE" or
+               card.type == "STATUS" then
+                table.insert(cardList, card)
+            end
         end
     end
     table.sort(cardList, function(a, b)
@@ -192,9 +202,26 @@ local function drawCharacterSelection()
         love.graphics.print(char.name, 60, y + 15)
     end
 
+    -- Allow All Cards toggle
+    love.graphics.setColor(0.8, 0.8, 0.8)
+    love.graphics.print("Card Pool:", 50, 350)
+
+    local toggleY = 380
+    if state.allowAllCards then
+        love.graphics.setColor(0.4, 0.8, 0.4)
+    else
+        love.graphics.setColor(0.3, 0.3, 0.3)
+    end
+    love.graphics.rectangle("fill", 50, toggleY, 300, 50)
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle("line", 50, toggleY, 300, 50)
+    local toggleText = state.allowAllCards and "ALL CARDS (Any Character)" or "CHARACTER CARDS ONLY"
+    love.graphics.print(toggleText, 60, toggleY + 15)
+
     drawButton("NEXT: Select Relics", 50, 500, 300, 40, false)
     love.graphics.setColor(0.7, 0.7, 0.7)
-    love.graphics.print("Click a character, then press NEXT", 50, 650)
+    love.graphics.print("Click a character and card pool, then press NEXT", 50, 650)
 end
 
 local function drawRelicSelection()
@@ -231,7 +258,7 @@ local function drawRelicSelection()
 
         love.graphics.print(relic.name, 60, y + 5)
         love.graphics.setColor(0.7, 0.7, 0.7)
-        love.graphics.print(relic.description or "No description", 60, y + 25, 500)
+        love.graphics.printf(relic.description or "No description", 60, y + 25, 500)
 
         if isSelected then
             love.graphics.setColor(0.3, 0.9, 0.3)
@@ -314,7 +341,7 @@ local function drawCardSelection()
 
         -- Description
         love.graphics.setColor(0.7, 0.7, 0.7)
-        love.graphics.print(card.description or "", 60, y + 25, 500)
+        love.graphics.printf(card.description or "", 60, y + 25, 500)
     end
 
     -- Current deck display
@@ -531,6 +558,12 @@ local function handleCharacterClick(x, y)
         end
     end
 
+    -- Card pool toggle
+    if x >= 50 and x <= 350 and y >= 380 and y <= 430 then
+        state.allowAllCards = not state.allowAllCards
+        return
+    end
+
     -- Next button
     if x >= 50 and x <= 350 and y >= 500 and y <= 540 then
         state.mode = "relics"
@@ -560,9 +593,9 @@ local function handleRelicClick(x, y)
 
     for i = 1, math.min(visibleCount, #relics - state.relicScroll) do
         local idx = i + state.relicScroll
-        local y = startY + (i - 1) * itemHeight
+        local itemY = startY + (i - 1) * itemHeight
 
-        if x >= 50 and x <= 650 and y >= y and y <= y + itemHeight - 5 then
+        if x >= 50 and x <= 650 and y >= itemY and y <= itemY + itemHeight - 5 then
             local relic = relics[idx]
             if hasRelic(relic.id) then
                 removeRelic(relic.id)
@@ -614,9 +647,9 @@ local function handleCardClick(x, y)
 
     for i = 1, math.min(visibleCount, #cards - state.cardScroll) do
         local idx = i + state.cardScroll
-        local y = startY + (i - 1) * itemHeight
+        local itemY = startY + (i - 1) * itemHeight
 
-        if x >= 50 and x <= 650 and y >= y and y <= y + itemHeight - 5 then
+        if x >= 50 and x <= 650 and y >= itemY and y <= itemY + itemHeight - 5 then
             addCard(cards[idx])
             return
         end
@@ -644,9 +677,9 @@ local function handleUpgradeClick(x, y)
 
     for i = 1, math.min(visibleCount, #state.selectedCards - state.upgradeScroll) do
         local idx = i + state.upgradeScroll
-        local y = startY + (i - 1) * itemHeight
+        local itemY = startY + (i - 1) * itemHeight
 
-        if x >= 50 and x <= 650 and y >= y and y <= y + itemHeight - 5 then
+        if x >= 50 and x <= 650 and y >= itemY and y <= itemY + itemHeight - 5 then
             toggleUpgrade(idx)
             return
         end
@@ -704,8 +737,8 @@ local function handleTestCombatClick(x, y)
     -- Deck list
     local startY = 160
     for i, deckName in ipairs(state.savedDecks) do
-        local y = startY + (i - 1) * 40
-        if x >= 50 and x <= 350 and y >= y and y <= y + 35 then
+        local itemY = startY + (i - 1) * 40
+        if x >= 50 and x <= 350 and y >= itemY and y <= itemY + 35 then
             state.selectedDeckIndex = i
             return
         end
@@ -714,8 +747,8 @@ local function handleTestCombatClick(x, y)
     -- Enemy list
     startY = 160
     for i, enemy in ipairs(state.enemyList) do
-        local y = startY + (i - 1) * 40
-        if x >= 400 and x <= 700 and y >= y and y <= y + 35 then
+        local itemY = startY + (i - 1) * 40
+        if x >= 400 and x <= 700 and y >= itemY and y <= itemY + 35 then
             state.selectedEnemyIndex = i
             return
         end
@@ -787,6 +820,7 @@ function DeckbuilderLove.init()
     state = {
         mode = "character",
         selectedCharacter = "IRONCLAD",
+        allowAllCards = false,
         selectedRelics = {},
         hoveredRelicIndex = nil,
         relicScroll = 0,
@@ -805,6 +839,9 @@ function DeckbuilderLove.init()
         hoveredEnemyIndex = nil,
         enemyList = {},
     }
+
+    -- Ensure Saved_Decks directory exists
+    love.filesystem.createDirectory("Saved_Decks")
 
     -- Load saved decks for test combat mode
     loadSavedDecks()
